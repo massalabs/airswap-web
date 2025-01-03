@@ -25,11 +25,13 @@ export const WidgetFrameWrapper = styled.div`
 type StyledTradeContainerProps = {
   $isConnected?: boolean;
   $isOverlayOpen?: boolean;
+  $isOverflowing?: boolean;
 };
 
-export const StyledWidgetFrame = styled.div<StyledTradeContainerProps>`
+export const Container = styled.div<StyledTradeContainerProps>`
   display: flex;
-  align-items: center;
+  align-items: ${({ $isOverflowing }) =>
+    $isOverflowing ? "flex-start" : "center"};
   justify-content: center;
   width: 100%;
   height: 100%;

@@ -1,6 +1,15 @@
-import React, { FC, ReactElement, Suspense } from "react";
+import React, {
+  FC,
+  ReactElement,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-import { WidgetFrameWrapper, StyledWidgetFrame } from "./WidgetFrame.styles";
+import useElementSize from "../../hooks/useElementSize";
+import useWindowSize from "../../hooks/useWindowSize";
+import { WidgetFrameWrapper, Container } from "./WidgetFrame.styles";
 import WidgetFrameNavigation from "./subcomponents/WidgetFrameNavigation/WidgetFrameNavigation";
 
 type WidgetFrameType = {
@@ -14,18 +23,31 @@ const WidgetFrame: FC<WidgetFrameType> = ({
   isConnected,
   isOverlayOpen,
 }): ReactElement => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const { height: containerHeight } = useElementSize(containerRef);
+  const { height: windowHeight } = useWindowSize();
+
+  useEffect(() => {
+    if (windowHeight) {
+      setIsOverflowing(containerHeight > windowHeight);
+    }
+  }, [containerHeight, windowHeight]);
+
   return (
-    <StyledWidgetFrame
+    <Container
       $isConnected={isConnected}
       $isOverlayOpen={isOverlayOpen}
+      $isOverflowing={isOverflowing}
     >
       <Suspense fallback={<div>Loading...</div>}>
-        <WidgetFrameWrapper>
+        <WidgetFrameWrapper id="widget-frame-wrapper" ref={containerRef}>
           <WidgetFrameNavigation />
           {children}
         </WidgetFrameWrapper>
       </Suspense>
-    </StyledWidgetFrame>
+    </Container>
   );
 };
 
