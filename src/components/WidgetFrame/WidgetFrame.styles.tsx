@@ -6,6 +6,7 @@ import { sizes } from "../../style/sizes";
 export const WidgetFrameWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   border-radius: 0.25rem;
   margin: 0 ${sizes.pageMobilePadding};
   width: ${sizes.widgetWidth};

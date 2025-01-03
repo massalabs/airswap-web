@@ -8,8 +8,8 @@ export const Container = styled.div<{ hasOverflow: boolean }>`
   display: flex;
   flex-direction: column;
   position: relative;
-  margin-block-start: 2rem;
-  padding-block-end: ${({ hasOverflow }) => (hasOverflow ? "2rem" : "0")};
+  max-height: calc(100svh - 20rem);
+  min-height: 14.5rem;
 
   -webkit-mask-image: ${({ hasOverflow }) =>
     hasOverflow

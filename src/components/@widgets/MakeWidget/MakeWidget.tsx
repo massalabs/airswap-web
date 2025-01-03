@@ -83,7 +83,6 @@ import {
 import { getNewTokenPair } from "./helpers";
 import useOrderTypeSelectOptions from "./hooks/useOrderTypeSelectOptions";
 import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import MakeWidgetHeader from "./subcomponents/MakeWidgetHeader/MakeWidgetHeader";
 
 export enum MakeWidgetState {
   list = "list",
@@ -443,8 +442,6 @@ const MakeWidget: FC = () => {
 
     return (
       <>
-        <MakeWidgetHeader />
-
         <StyledSwapInputs
           canSetQuoteAmount
           disabled={!isActive || isAllowancesOrBalancesFailed}

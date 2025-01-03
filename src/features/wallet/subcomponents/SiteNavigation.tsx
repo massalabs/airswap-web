@@ -17,29 +17,12 @@ const SiteNavigation: FC<NavigationProps> = ({ className }): ReactElement => {
 
   return (
     <Container className={className}>
-      <NavigationNavLink
-        to={`/${AppRoutes.swap}`}
-        isActive={(match, location) => {
-          return (
-            location.pathname.includes(AppRoutes.swap) ||
-            location.pathname === "/"
-          );
-        }}
-      >
-        {t("common.rfq")}
-      </NavigationNavLink>
-      <NavigationNavLink
-        to={`/${AppRoutes.myOrders}`}
-        isActive={(match, location) => {
-          return (
-            location.pathname.includes(AppRoutes.myOrders) ||
-            location.pathname.includes(AppRoutes.make) ||
-            location.pathname.includes(AppRoutes.order)
-          );
-        }}
-      >
-        {t("common.otc")}
-      </NavigationNavLink>
+      <NavigationLink href="https://github.com/airswap" target="_blank">
+        {t("common.coders")}
+      </NavigationLink>
+      <NavigationLink href="https://dao.airswap.eth.limo/" target="_blank">
+        {t("common.voters")}
+      </NavigationLink>
       <NavigationLink href="https://analytics.airswap.xyz/" target="_blank">
         {t("common.stats")}
       </NavigationLink>

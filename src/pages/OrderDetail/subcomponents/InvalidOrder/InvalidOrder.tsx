@@ -26,11 +26,6 @@ const InvalidOrder: FC = () => {
 
   return (
     <Container>
-      <Header>
-        <Title type="h2" as="h1">
-          {t("common.order")}
-        </Title>
-      </Header>
       <InfoContainer>
         <Icon name="close-circle-outline" iconSize={4.5} />
         <StyledInfoHeading>

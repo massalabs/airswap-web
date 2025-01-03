@@ -1,6 +1,7 @@
-import React, { FC, ReactElement } from "react";
+import React, { FC, ReactElement, Suspense } from "react";
 
 import { WidgetFrameWrapper, StyledWidgetFrame } from "./WidgetFrame.styles";
+import WidgetFrameNavigation from "./subcomponents/WidgetFrameNavigation/WidgetFrameNavigation";
 
 type WidgetFrameType = {
   children?: React.ReactNode;
@@ -18,7 +19,12 @@ const WidgetFrame: FC<WidgetFrameType> = ({
       $isConnected={isConnected}
       $isOverlayOpen={isOverlayOpen}
     >
-      <WidgetFrameWrapper>{children}</WidgetFrameWrapper>
+      <Suspense fallback={<div>Loading...</div>}>
+        <WidgetFrameWrapper>
+          <WidgetFrameNavigation />
+          {children}
+        </WidgetFrameWrapper>
+      </Suspense>
     </StyledWidgetFrame>
   );
 };

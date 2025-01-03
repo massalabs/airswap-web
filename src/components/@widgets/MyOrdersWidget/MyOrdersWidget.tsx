@@ -107,8 +107,6 @@ const MyOrdersWidget: FC = () => {
 
   return (
     <Container>
-      <MyOrdersWidgetHeader title={t("common.myOrders")} />
-
       <TransactionOverlay isHidden={status !== "signing"}>
         <WalletSignScreen type="signature" />
       </TransactionOverlay>

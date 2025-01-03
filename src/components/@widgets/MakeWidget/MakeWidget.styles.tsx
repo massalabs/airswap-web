@@ -17,9 +17,7 @@ export const Container = styled.div`
   flex-grow: 1;
 `;
 
-export const StyledSwapInputs = styled(SwapInputs)`
-  margin-block-start: 2rem;
-`;
+export const StyledSwapInputs = styled(SwapInputs)``;
 
 export const StyledOrderTypeSelector = styled(OrderTypeSelector)`
   margin-bottom: ${sizes.widgetGutter};
@@ -50,7 +48,7 @@ export const StyledAddressInput = styled(AddressInput)`
 `;
 
 export const StyledActionButtons = styled(ActionButtons)`
-  margin-block-start: 0.5rem;
+  margin-block-start: 1rem;
 `;
 
 export const StyledInfoSection = styled(InfoSection)`
