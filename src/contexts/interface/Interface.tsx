@@ -87,7 +87,7 @@ const InterfaceProvider: FC = ({ children }) => {
     setTransactionsTabIsOpen(false);
     setShowModalOverlay(false);
     calculateAndSetPageHeight();
-  }, [appRouteParams.route]);
+  }, [appRouteParams.route, appRouteParams.isLimitOrder]);
 
   return (
     <InterfaceContext.Provider

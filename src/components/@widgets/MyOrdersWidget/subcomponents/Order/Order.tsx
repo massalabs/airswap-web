@@ -6,7 +6,7 @@ import { getExpiryTranslation } from "../../../../../helpers/getExpiryTranslatio
 import { getHumanReadableNumber } from "../../../../../helpers/getHumanReadableNumber";
 import useCancelPending from "../../../../../hooks/useCancellationPending";
 import useTokenInfo from "../../../../../hooks/useTokenInfo";
-import { AppRoutes } from "../../../../../routes";
+import { AppRoutes, routes } from "../../../../../routes";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import LoadingSpinner from "../../../../LoadingSpinner/LoadingSpinner";
 import { useOrderStatus } from "../../../OrderDetailWidget/hooks/useOrderStatus";
@@ -121,7 +121,7 @@ const Order: FC<PropsWithChildren<OrderProps>> = ({
       </Text>
       <StyledNavLink
         $isHovered={isHoveredActionButton}
-        to={`/${AppRoutes.order}/${orderString}`}
+        to={routes.order(orderString)}
       />
 
       <ActionButtonContainer>

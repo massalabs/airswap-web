@@ -39,7 +39,7 @@ import useInsufficientBalance from "../../../hooks/useInsufficientBalance";
 import useNativeWrappedToken from "../../../hooks/useNativeWrappedToken";
 import useOrderTransactionLink from "../../../hooks/useOrderTransactionLink";
 import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTokenAmount";
-import { AppRoutes } from "../../../routes";
+import { AppRoutes, routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
@@ -263,7 +263,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
     }
 
     if (action === ButtonActions.cancel) {
-      history.push({ pathname: `/order/${params.compressedOrder}/cancel` });
+      history.push(routes.cancelOrder(params.compressedOrder));
     }
 
     if (action === ButtonActions.take) {

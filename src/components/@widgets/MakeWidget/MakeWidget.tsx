@@ -1,6 +1,7 @@
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
+import { useLocalStorage } from "react-use";
 
 import { compressFullOrderERC20, ADDRESS_ZERO } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
@@ -52,7 +53,7 @@ import useNetworkSupported from "../../../hooks/useNetworkSupported";
 import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTokenAmount";
 import useTokenInfo from "../../../hooks/useTokenInfo";
 import useValidAddress from "../../../hooks/useValidAddress";
-import { AppRoutes } from "../../../routes";
+import { routes } from "../../../routes";
 import { OrderScopeType, OrderType } from "../../../types/orderTypes";
 import { TokenSelectModalTypes } from "../../../types/tokenSelectModalTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
@@ -75,6 +76,7 @@ import {
   StyledAddressInput,
   StyledExpirySelector,
   StyledInfoSection,
+  StyledNotice,
   StyledOrderTypeSelector,
   StyledSwapInputs,
   StyledTooltip,
@@ -89,7 +91,11 @@ export enum MakeWidgetState {
   review = "review",
 }
 
-const MakeWidget: FC = () => {
+interface MakeWidgetProps {
+  isLimitOrder?: boolean;
+}
+
+const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const dispatch = useAppDispatch();
@@ -108,6 +114,10 @@ const MakeWidget: FC = () => {
   const ordersStatus = useAppSelector(selectOrdersStatus);
   const { provider: library } = useWeb3React<Web3Provider>();
   const { isActive, chainId, account } = useAppSelector((state) => state.web3);
+  const [showLimitNotice, setShowLimitNotice] = useLocalStorage(
+    "showLimitNotice",
+    true
+  );
 
   // Input options
   const orderTypeSelectOptions = useOrderTypeSelectOptions();
@@ -204,7 +214,7 @@ const MakeWidget: FC = () => {
     if (lastUserOrder) {
       const compressedOrder = compressFullOrderERC20(lastUserOrder);
       dispatch(clearLastUserOrder());
-      history.push({ pathname: `/${AppRoutes.order}/${compressedOrder}` });
+      history.push(routes.order(compressedOrder));
 
       notifyOrderCreated(lastUserOrder);
     }
@@ -461,14 +471,17 @@ const MakeWidget: FC = () => {
           onSwitchTokensButtonClick={handleSwitchTokensButtonClick}
         />
         <OrderTypeSelectorAndExpirySelectorWrapper>
-          <StyledOrderTypeSelector
-            isDisabled={!isActive}
-            options={orderTypeSelectOptions}
-            selectedOrderTypeOption={orderScopeTypeOption}
-            onChange={setOrderScopeTypeOption}
-          />
+          {!isLimitOrder && (
+            <StyledOrderTypeSelector
+              isDisabled={!isActive}
+              options={orderTypeSelectOptions}
+              selectedOrderTypeOption={orderScopeTypeOption}
+              onChange={setOrderScopeTypeOption}
+            />
+          )}
 
           <StyledExpirySelector
+            fullWidth={isLimitOrder}
             isDisabled={!isActive}
             onChange={setExpiry}
             hideExpirySelector={!!showTokenSelectModal}
@@ -518,6 +531,13 @@ const MakeWidget: FC = () => {
           onBackButtonClick={handleBackButtonClick}
           onActionButtonClick={handleActionButtonClick}
         />
+
+        {showLimitNotice && isLimitOrder && (
+          <StyledNotice
+            text="Limit orders are OTC orders are partially fillable, meaning they can be filled by multiple users. There is no guarantee your order will be taken at a certain price"
+            onCloseButtonClick={() => setShowLimitNotice(false)}
+          />
+        )}
       </>
     );
   };

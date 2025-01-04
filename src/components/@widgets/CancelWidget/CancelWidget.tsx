@@ -10,7 +10,7 @@ import { cancelOrder } from "../../../features/takeOtc/takeOtcActions";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import useCancellationSuccess from "../../../hooks/useCancellationSuccess";
-import { AppRoutes } from "../../../routes";
+import { AppRoutes, routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import Icon from "../../Icon/Icon";
 import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";
@@ -59,9 +59,7 @@ export const CancelWidget: FC<CancelWidgetProps> = ({ order, library }) => {
   useEffect(() => {
     // If success and the delayed pending cancellation is cleared, then route.
     if (isCancelSuccess && !pendingCancelTranssaction) {
-      history.push({
-        pathname: `/${AppRoutes.order}/${params.compressedOrder}`,
-      });
+      history.push(routes.order(params.compressedOrder));
     }
   }, [isCancelSuccess, pendingCancelTranssaction]);
 
