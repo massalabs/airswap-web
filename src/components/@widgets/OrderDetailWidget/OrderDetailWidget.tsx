@@ -12,6 +12,7 @@ import { BigNumber } from "bignumber.js";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
+import { AppErrorType } from "../../../errors/appError";
 import {
   fetchIndexerUrls,
   getFilteredOrders,
@@ -268,6 +269,10 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
 
     if (action === ButtonActions.take) {
       takeOrder();
+    }
+
+    if (action === ButtonActions.back) {
+      history.push(routes.make());
     }
   };
 

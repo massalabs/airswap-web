@@ -2,10 +2,11 @@ import { NavLink } from "react-router-dom";
 
 import styled from "styled-components/macro";
 
-import { sizes } from "../../../../style/sizes";
+import { sizes } from "../../style/sizes";
 
-export const Container = styled.div`
+export const Container = styled.div<{ className?: string }>`
   display: flex;
+  order: -1;
   gap: 0.25rem;
   margin-block-end: ${sizes.widgetGutter};
   margin-inline: auto;

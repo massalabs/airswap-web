@@ -1,6 +1,7 @@
 import { FC, ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
+import useAppRouteParams from "../../../hooks/useAppRouteParams";
 import { AppRoutes } from "../../../routes";
 import {
   Container,
@@ -14,9 +15,15 @@ interface NavigationProps {
 
 const SiteNavigation: FC<NavigationProps> = ({ className }): ReactElement => {
   const { t } = useTranslation();
+  const appRouteParams = useAppRouteParams();
 
   return (
     <Container className={className}>
+      {appRouteParams.route === AppRoutes.order && (
+        <>
+          <NavigationNavLink to="/">{t("common.trade")}</NavigationNavLink>|
+        </>
+      )}
       <NavigationLink href="https://github.com/airswap" target="_blank">
         {t("common.coders")}
       </NavigationLink>

@@ -257,8 +257,16 @@ export const approve =
       );
 
       if (isAppError(tx)) {
-        dispatch(setStatus("failed"));
-        handleOrderError(dispatch, tx);
+        const appError = tx;
+
+        if (appError.type === AppErrorType.rejectedByUser) {
+          dispatch(setStatus("idle"));
+          notifyRejectedByUserError();
+        } else {
+          dispatch(setStatus("failed"));
+          handleOrderError(dispatch, tx);
+        }
+
         return;
       }
 

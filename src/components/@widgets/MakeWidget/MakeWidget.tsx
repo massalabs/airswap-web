@@ -185,6 +185,14 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const [showTokenSelectModal, setShowTokenSelectModal] =
     useState<TokenSelectModalTypes>(null);
 
+  // Review states
+  const showWrapReview =
+    state === MakeWidgetState.review && shouldDepositNativeToken;
+  const showApproveReview =
+    (state === MakeWidgetState.review && !hasSufficientAllowance) ||
+    !!approvalTransaction;
+  const showOrderReview = state === MakeWidgetState.review;
+
   // useEffects
   useEffect(() => {
     dispatch(reset());
@@ -225,11 +233,6 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
       setShowTokenSelectModal(null);
     }
   }, [isActive]);
-
-  // Event handlers
-  const handleOrderTypeCheckboxChange = (isChecked: boolean) => {
-    setOrderType(isChecked ? OrderType.publicListed : OrderType.publicUnlisted);
-  };
 
   const handleSetToken = (type: TokenSelectModalTypes, value: string) => {
     const { tokenFrom, tokenTo } = getNewTokenPair(
@@ -389,7 +392,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   };
 
   const renderScreens = () => {
-    if (state === MakeWidgetState.review && shouldDepositNativeToken) {
+    if (showWrapReview) {
       return (
         <>
           <WrapReview
@@ -407,10 +410,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
       );
     }
 
-    if (
-      (state === MakeWidgetState.review && !hasSufficientAllowance) ||
-      !!approvalTransaction
-    ) {
+    if (showApproveReview) {
       return (
         <>
           <ApproveReview
@@ -429,7 +429,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
       );
     }
 
-    if (state === MakeWidgetState.review) {
+    if (showOrderReview) {
       return (
         <>
           <MakeOrderReview
@@ -543,7 +543,11 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   };
 
   return (
-    <Container>
+    <Container
+      hidePageNavigation={
+        showWrapReview || showApproveReview || showOrderReview
+      }
+    >
       {renderScreens()}
 
       <TransactionOverlay

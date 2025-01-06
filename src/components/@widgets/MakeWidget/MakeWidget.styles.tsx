@@ -5,6 +5,7 @@ import { sizes } from "../../../style/sizes";
 import { SelectLabel } from "../../../styled-components/Select/Select";
 import { SelectButtonText } from "../../Dropdown/Dropdown.styles";
 import { Notice } from "../../Notice/Notice";
+import { Container as PageNavigation } from "../../PageNavigation/PageNavigation.styles";
 import SwapInputs from "../../SwapInputs/SwapInputs";
 import Tooltip from "../../SwapInputs/subcomponents/Tooltip/Tooltip";
 import ActionButtons from "./subcomponents/ActionButtons/ActionButtons";
@@ -18,10 +19,17 @@ import InfoSection from "./subcomponents/InfoSection/InfoSection";
 import OrderTypeSelector from "./subcomponents/OrderTypeSelector/OrderTypeSelector";
 import { RateField } from "./subcomponents/RateField/RateField";
 
-export const Container = styled.div`
+export const Container = styled.div<{ hidePageNavigation: boolean }>`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+
+  ${({ hidePageNavigation }) =>
+    hidePageNavigation &&
+    `& + ${PageNavigation} {
+      display: none;
+    }
+  `}
 `;
 
 export const StyledSwapInputs = styled(SwapInputs)``;

@@ -10,7 +10,6 @@ import React, {
 import useElementSize from "../../hooks/useElementSize";
 import useWindowSize from "../../hooks/useWindowSize";
 import { WidgetFrameWrapper, Container } from "./WidgetFrame.styles";
-import WidgetFrameNavigation from "./subcomponents/WidgetFrameNavigation/WidgetFrameNavigation";
 
 type WidgetFrameType = {
   children?: React.ReactNode;
@@ -43,7 +42,6 @@ const WidgetFrame: FC<WidgetFrameType> = ({
     >
       <Suspense fallback={<div>Loading...</div>}>
         <WidgetFrameWrapper id="widget-frame-wrapper" ref={containerRef}>
-          <WidgetFrameNavigation />
           {children}
         </WidgetFrameWrapper>
       </Suspense>

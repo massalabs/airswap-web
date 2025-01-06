@@ -2,17 +2,15 @@ import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import { selectMyOrdersReducer } from "../../../../features/myOrders/myOrdersSlice";
-import { AppRoutes, routes } from "../../../../routes";
-import { Container, StyledNavLink } from "./WidgetFrameNavigation.styles";
+import { selectMyOrdersReducer } from "../../features/myOrders/myOrdersSlice";
+import { AppRoutes, routes } from "../../routes";
+import { Container, StyledNavLink } from "./PageNavigation.styles";
 
-interface WidgetFrameNavigationProps {
+interface PageNavigationProps {
   className?: string;
 }
 
-const WidgetFrameNavigation: FC<WidgetFrameNavigationProps> = ({
-  className,
-}) => {
+const PageNavigation: FC<PageNavigationProps> = ({ className }) => {
   const { t } = useTranslation();
   const userHasOrders =
     useSelector(selectMyOrdersReducer).userOrders.length > 0;
@@ -60,4 +58,4 @@ const WidgetFrameNavigation: FC<WidgetFrameNavigationProps> = ({
   );
 };
 
-export default WidgetFrameNavigation;
+export default PageNavigation;
