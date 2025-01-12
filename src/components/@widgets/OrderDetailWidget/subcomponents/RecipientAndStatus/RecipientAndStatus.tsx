@@ -1,19 +1,9 @@
 import { FC } from "react";
-import { useTranslation } from "react-i18next";
-
-import { ADDRESS_ZERO } from "@airswap/utils";
-
-import truncateEthAddress from "truncate-eth-address";
 
 import { OrderStatus } from "../../../../../types/orderStatus";
 import { OrderType } from "../../../../../types/orderTypes";
-import OrderRecipientInfo from "../../../OrderDetailWidget/subcomponents/OrderRecipientInfo/OrderRecipientInfo";
-import {
-  Container,
-  Recipient,
-  StyledInfoSectionHeading,
-  StyledOrderStatusInfo,
-} from "./RecipientAndStatus.styles";
+import OrderRecipientInfo from "../OrderRecipientInfo/OrderRecipientInfo";
+import { Container, StyledOrderStatusInfo } from "./RecipientAndStatus.styles";
 
 interface RecipientAndStatusProps {
   isLoading?: boolean;

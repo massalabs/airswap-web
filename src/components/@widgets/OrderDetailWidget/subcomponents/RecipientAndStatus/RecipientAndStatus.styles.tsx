@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { InfoSectionHeading } from "../../../../../styled-components/InfoSection/InfoSection";
-import OrderStatusInfo from "../../../OrderDetailWidget/subcomponents/OrderStatusInfo/OrderStatusInfo";
+import OrderStatusInfo from "../OrderStatusInfo/OrderStatusInfo";
 
 export const Container = styled(InfoSectionHeading)`
   display: flex;

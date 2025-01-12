@@ -58,6 +58,7 @@ import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import {
   Container,
   StyledActionButtons,
+  StyledFilledAndStatus,
   StyledInfoSection,
   StyledRecipientAndStatus,
 } from "./OrderDetailWidget.styles";
@@ -66,6 +67,7 @@ import { useOrderStatus } from "./hooks/useOrderStatus";
 import useSessionOrderTransaction from "./hooks/useSessionOrderTransaction";
 import useTakerTokenInfo from "./hooks/useTakerTokenInfo";
 import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
+import { FilledAndStatus } from "./subcomponents/FilledAndStatus/FilledAndStatus";
 import OrderDetailWidgetHeader from "./subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 
 interface OrderDetailWidgetProps {
@@ -76,6 +78,9 @@ export enum OrderDetailWidgetState {
   overview = "overview",
   review = "review",
 }
+
+// TODO: handle this
+const isLimitOrder = true;
 
 const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
   const { t } = useTranslation();
@@ -335,15 +340,28 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
           onMaxButtonClick={() => {}}
         />
 
-        <StyledRecipientAndStatus
-          isLoading={isOrderStatusLoading}
-          expiry={parsedExpiry}
-          link={orderTransactionLink}
-          orderType={orderType}
-          recipient={order.senderWallet}
-          status={orderStatus}
-          userAddress={account || undefined}
-        />
+        {isLimitOrder ? (
+          <StyledFilledAndStatus
+            isLoading={isOrderStatusLoading}
+            expiry={parsedExpiry}
+            filledAmount={2}
+            filledPercentage={0}
+            orderType={orderType}
+            status={orderStatus}
+            tokenSymbol={senderTokenSymbol}
+            link={orderTransactionLink}
+          />
+        ) : (
+          <StyledRecipientAndStatus
+            isLoading={isOrderStatusLoading}
+            expiry={parsedExpiry}
+            link={orderTransactionLink}
+            orderType={orderType}
+            recipient={order.senderWallet}
+            status={orderStatus}
+            userAddress={account || undefined}
+          />
+        )}
 
         <StyledInfoSection
           isAllowancesFailed={isAllowancesOrBalancesFailed}
