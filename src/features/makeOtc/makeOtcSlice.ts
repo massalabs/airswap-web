@@ -2,9 +2,11 @@ import { FullOrderERC20 } from "@airswap/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
+import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { AppError } from "../../errors/appError";
 
 export interface MakeOtcState {
+  lastDelegateRule?: DelegateRule;
   lastUserOrder?: FullOrderERC20;
   status: "idle" | "signing" | "failed" | "reset";
   error?: AppError;
@@ -27,6 +29,15 @@ export const makeOtcSlice = createSlice({
         status: action.payload,
       };
     },
+    setDelegateRule: (
+      state,
+      action: PayloadAction<DelegateRule>
+    ): MakeOtcState => {
+      return {
+        ...state,
+        lastDelegateRule: action.payload,
+      };
+    },
     setUserOrder: (
       state,
       action: PayloadAction<FullOrderERC20>
@@ -40,6 +51,7 @@ export const makeOtcSlice = createSlice({
       return {
         ...state,
         lastUserOrder: undefined,
+        lastDelegateRule: undefined,
       };
     },
     setError: (
@@ -57,8 +69,14 @@ export const makeOtcSlice = createSlice({
   },
 });
 
-export const { setStatus, setUserOrder, clearLastUserOrder, setError, reset } =
-  makeOtcSlice.actions;
+export const {
+  setDelegateRule,
+  setStatus,
+  setUserOrder,
+  clearLastUserOrder,
+  setError,
+  reset,
+} = makeOtcSlice.actions;
 
 export const selectMakeOtcReducer = (state: RootState) => state.makeOtc;
 

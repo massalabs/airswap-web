@@ -29,26 +29,25 @@ const PageNavigation: FC<PageNavigationProps> = ({ className }) => {
         {t("common.rfq")}
       </StyledNavLink>
       <StyledNavLink
-        to={userHasOrders ? routes.myOrders() : routes.make()}
+        to={userHasOrders ? routes.myOtcOrders() : routes.makeOtcOrder()}
         isActive={(match, location) => {
           return (
-            (location.pathname.includes(AppRoutes.myOrders) ||
-              location.pathname.includes(AppRoutes.make) ||
-              location.pathname.includes(AppRoutes.order)) &&
-            !location.search.includes("limit=true")
+            location.pathname.includes(AppRoutes.myOtcOrders) ||
+            location.pathname.includes(AppRoutes.makeOtcOrder) ||
+            (location.pathname.includes(AppRoutes.otcOrder) &&
+              !location.pathname.includes(AppRoutes.limitOrder))
           );
         }}
       >
         {t("common.otc")}
       </StyledNavLink>
       <StyledNavLink
-        to={userHasOrders ? routes.myOrders(true) : routes.make(true)}
+        to={userHasOrders ? routes.myLimitOrders() : routes.makeLimitOrder()}
         isActive={(match, location) => {
           return (
-            (location.pathname.includes(AppRoutes.myOrders) ||
-              location.pathname.includes(AppRoutes.make) ||
-              location.pathname.includes(AppRoutes.order)) &&
-            location.search.includes("limit=true")
+            location.pathname.includes(AppRoutes.myLimitOrders) ||
+            location.pathname.includes(AppRoutes.makeLimitOrder) ||
+            location.pathname.includes(AppRoutes.limitOrder)
           );
         }}
       >

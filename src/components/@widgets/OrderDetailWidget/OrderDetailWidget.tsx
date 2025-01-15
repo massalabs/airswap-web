@@ -67,7 +67,6 @@ import { useOrderStatus } from "./hooks/useOrderStatus";
 import useSessionOrderTransaction from "./hooks/useSessionOrderTransaction";
 import useTakerTokenInfo from "./hooks/useTakerTokenInfo";
 import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import { FilledAndStatus } from "./subcomponents/FilledAndStatus/FilledAndStatus";
 import OrderDetailWidgetHeader from "./subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 
 interface OrderDetailWidgetProps {
@@ -238,7 +237,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
   };
 
   const restart = () => {
-    history.push({ pathname: `/${AppRoutes.make}` });
+    history.push({ pathname: `/${AppRoutes.makeOtcOrder}` });
     dispatch(clear());
     dispatch(reset());
   };
@@ -269,7 +268,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
     }
 
     if (action === ButtonActions.cancel) {
-      history.push(routes.cancelOrder(params.compressedOrder));
+      history.push(routes.cancelOtcOrder(params.compressedOrder));
     }
 
     if (action === ButtonActions.take) {
@@ -277,7 +276,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
     }
 
     if (action === ButtonActions.back) {
-      history.push(routes.make());
+      history.push(routes.makeOtcOrder());
     }
   };
 

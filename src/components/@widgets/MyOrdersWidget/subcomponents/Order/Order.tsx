@@ -121,7 +121,7 @@ const Order: FC<PropsWithChildren<OrderProps>> = ({
       </Text>
       <StyledNavLink
         $isHovered={isHoveredActionButton}
-        to={routes.order(orderString)}
+        to={routes.otcOrder(orderString)}
       />
 
       <ActionButtonContainer>

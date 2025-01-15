@@ -6,10 +6,13 @@ import MakeWidget from "../../components/@widgets/MakeWidget/MakeWidget";
 import { reset } from "../../features/takeOtc/takeOtcSlice";
 import { StyledPage } from "./Make.styles";
 
-const MakePage: FC = () => {
+interface MakePageProps {
+  isLimitOrder?: boolean;
+}
+
+const MakePage: FC<MakePageProps> = ({ isLimitOrder = false }) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const isLimitOrder = location.search.includes("limit=true");
 
   useEffect(() => {
     dispatch(reset());

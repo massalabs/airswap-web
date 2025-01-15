@@ -21,7 +21,7 @@ const InvalidOrder: FC = () => {
   const history = useHistory();
 
   const handleBackButtonClick = () => {
-    history.push({ pathname: `/${AppRoutes.make}` });
+    history.push({ pathname: `/${AppRoutes.makeOtcOrder}` });
   };
 
   return (

@@ -1,7 +1,10 @@
 export enum AppRoutes {
-  make = "make",
-  myOrders = "my-orders",
-  order = "order",
+  makeOtcOrder = "make-otc-order",
+  makeLimitOrder = "make-limit-order",
+  myOtcOrders = "my-otc-orders",
+  myLimitOrders = "my-limit-orders",
+  otcOrder = "otc-order",
+  limitOrder = "limit-order",
   swap = "swap",
 }
 
@@ -16,12 +19,18 @@ export enum SwapRoutes {
 }
 
 export const routes = {
-  make: (isLimitOrder?: boolean) =>
-    `/${AppRoutes.make}${isLimitOrder ? "?limit=true" : ""}`,
-  myOrders: (isLimitOrder?: boolean) =>
-    `/${AppRoutes.myOrders}${isLimitOrder ? "?limit=true" : ""}`,
-  order: (compressedOrder: string) => `/${AppRoutes.order}/${compressedOrder}`,
-  cancelOrder: (compressedOrder: string) =>
-    `/${AppRoutes.order}/${compressedOrder}/cancel`,
+  makeOtcOrder: () => `/${AppRoutes.makeOtcOrder}`,
+  makeLimitOrder: () => `/${AppRoutes.makeLimitOrder}`,
+  myOtcOrders: () => `/${AppRoutes.myOtcOrders}`,
+  myLimitOrders: () => `/${AppRoutes.myLimitOrders}`,
+  otcOrder: (compressedOrder: string) =>
+    `/${AppRoutes.otcOrder}/${compressedOrder}`,
+  limitOrder: (
+    senderWallet: string,
+    senderToken: string,
+    signerToken: string
+  ) => `/${AppRoutes.limitOrder}/${senderToken}/${signerToken}/${senderWallet}`,
+  cancelOtcOrder: (compressedOrder: string) =>
+    `/${AppRoutes.otcOrder}/${compressedOrder}/cancel`,
   swap: () => `/${AppRoutes.swap}`,
 };

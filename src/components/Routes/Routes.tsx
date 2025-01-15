@@ -22,20 +22,35 @@ const Routes: FC = () => {
 
   return (
     <Switch>
-      <Route path={`/${AppRoutes.make}`} component={MakePage} key="make" />
       <Route
-        path={`/${AppRoutes.myOrders}`}
+        path={`/${AppRoutes.makeOtcOrder}`}
+        component={MakePage}
+        key="make-otc-order"
+      />
+      <Route
+        path={`/${AppRoutes.makeLimitOrder}`}
+        render={() => <MakePage isLimitOrder={true} />}
+        key="make-limit-order"
+      />
+      <Route
+        path={`/${AppRoutes.myOtcOrders}`}
         component={MySwapsPage}
         key="my-swaps"
       />
       <Route
         exact
-        path={`/${AppRoutes.order}/:compressedOrder`}
+        path={`/${AppRoutes.otcOrder}/:compressedOrder`}
         component={OrderDetail}
-        key="order-detail"
+        key="otc-order-detail"
       />
       <Route
-        path={`/${AppRoutes.order}/:compressedOrder/cancel`}
+        exact
+        path={`/${AppRoutes.limitOrder}/:senderToken/:signerToken/:senderWallet`}
+        component={() => <span>Limit Order Detail</span>}
+        key="limit-order-detail"
+      />
+      <Route
+        path={`/${AppRoutes.otcOrder}/:compressedOrder/cancel`}
         component={Cancel}
         key="cancel"
       />

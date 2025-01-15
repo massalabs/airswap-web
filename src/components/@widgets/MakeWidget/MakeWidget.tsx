@@ -19,7 +19,7 @@ import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
 import { fetchIndexerUrls } from "../../../features/indexer/indexerActions";
 import { selectIndexerReducer } from "../../../features/indexer/indexerSlice";
-import { createOtcOrder } from "../../../features/makeOtc/makeOtcActions";
+import { createOrder as createOrderAction } from "../../../features/makeOtc/makeOtcActions";
 import {
   clearLastUserOrder,
   reset,
@@ -109,6 +109,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const {
     status: makeOtcStatus,
     error,
+    lastDelegateRule,
     lastUserOrder,
   } = useAppSelector(selectMakeOtcReducer);
   const ordersStatus = useAppSelector(selectOrdersStatus);
@@ -222,11 +223,26 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     if (lastUserOrder) {
       const compressedOrder = compressFullOrderERC20(lastUserOrder);
       dispatch(clearLastUserOrder());
-      history.push(routes.order(compressedOrder));
+      history.push(routes.otcOrder(compressedOrder));
 
-      notifyOrderCreated(lastUserOrder);
+      notifyOrderCreated();
     }
   }, [lastUserOrder, history, dispatch]);
+
+  useEffect(() => {
+    if (lastDelegateRule) {
+      dispatch(clearLastUserOrder());
+      history.push(
+        routes.limitOrder(
+          lastDelegateRule.senderWallet,
+          lastDelegateRule.senderToken,
+          lastDelegateRule.signerToken
+        )
+      );
+
+      notifyOrderCreated();
+    }
+  }, [lastDelegateRule, history, dispatch]);
 
   useEffect(() => {
     if (!isActive) {
@@ -305,7 +321,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         : takerTokenAddress;
 
     dispatch(
-      createOtcOrder({
+      createOrderAction({
+        isLimitOrder,
         nonce: expiryDate.toString(),
         expiry: Math.floor(expiryDate / 1000).toString(),
         signerWallet: account!,

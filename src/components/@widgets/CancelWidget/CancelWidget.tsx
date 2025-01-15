@@ -59,7 +59,7 @@ export const CancelWidget: FC<CancelWidgetProps> = ({ order, library }) => {
   useEffect(() => {
     // If success and the delayed pending cancellation is cleared, then route.
     if (isCancelSuccess && !pendingCancelTranssaction) {
-      history.push(routes.order(params.compressedOrder));
+      history.push(routes.otcOrder(params.compressedOrder));
     }
   }, [isCancelSuccess, pendingCancelTranssaction]);
 

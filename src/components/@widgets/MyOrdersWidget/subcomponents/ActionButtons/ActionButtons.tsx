@@ -41,7 +41,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   return (
     <Container>
       {showNewOrderLink ? (
-        <StyledLink to={AppRoutes.make}>{buttonText}</StyledLink>
+        <StyledLink to={AppRoutes.makeOtcOrder}>{buttonText}</StyledLink>
       ) : (
         <SignButton intent="primary" onClick={handleActionButtonClick}>
           {buttonText}

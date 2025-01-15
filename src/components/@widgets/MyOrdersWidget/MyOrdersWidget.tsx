@@ -93,7 +93,7 @@ const MyOrdersWidget: FC = () => {
       switchToDefaultChain();
     }
     if (action === ButtonActions.newOrder) {
-      history.push({ pathname: AppRoutes.make });
+      history.push({ pathname: AppRoutes.makeOtcOrder });
     }
   };
 

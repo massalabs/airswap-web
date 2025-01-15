@@ -19,7 +19,7 @@ const SiteNavigation: FC<NavigationProps> = ({ className }): ReactElement => {
 
   return (
     <Container className={className}>
-      {appRouteParams.route === AppRoutes.order && (
+      {appRouteParams.route === AppRoutes.otcOrder && (
         <>
           <NavigationNavLink to="/">{t("common.trade")}</NavigationNavLink>|
         </>
