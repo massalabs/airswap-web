@@ -7,9 +7,10 @@ import useMyOrders from "../../features/myOrders/myOrdersHooks";
 import { useTransactions } from "../../features/transactions/transactionsHooks";
 import useWeb3 from "../../features/web3/web3Hooks";
 import Cancel from "../../pages/Cancel/Cancel";
+import LimitOrderDetail from "../../pages/LimitOrderDetail/LimitOrderDetail";
 import MakePage from "../../pages/Make/Make";
 import MySwapsPage from "../../pages/MyOrders/MyOrders";
-import OrderDetail from "../../pages/OrderDetail/OrderDetail";
+import OtcOrderDetail from "../../pages/OtcOrderDetail/OtcOrderDetail";
 import SwapPage from "../../pages/Swap/Swap";
 import { AppRoutes } from "../../routes";
 
@@ -40,13 +41,13 @@ const Routes: FC = () => {
       <Route
         exact
         path={`/${AppRoutes.otcOrder}/:compressedOrder`}
-        component={OrderDetail}
+        component={OtcOrderDetail}
         key="otc-order-detail"
       />
       <Route
         exact
-        path={`/${AppRoutes.limitOrder}/:senderToken/:signerToken/:senderWallet`}
-        component={() => <span>Limit Order Detail</span>}
+        path={`/${AppRoutes.limitOrder}/:signerWallet/:signerToken/:senderToken`}
+        component={LimitOrderDetail}
         key="limit-order-detail"
       />
       <Route

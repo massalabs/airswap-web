@@ -18,7 +18,7 @@ import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import { Title } from "../../Typography/Typography";
 import { InfoSubHeading } from "../../Typography/Typography";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
-import { useOrderStatus } from "../OrderDetailWidget/hooks/useOrderStatus";
+import { useOrderStatus } from "../OtcOrderDetailWidget/hooks/useOrderStatus";
 import {
   Container,
   StyledInfoHeading,

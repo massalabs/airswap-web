@@ -9,7 +9,7 @@ import useTokenInfo from "../../../../../hooks/useTokenInfo";
 import { AppRoutes, routes } from "../../../../../routes";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import LoadingSpinner from "../../../../LoadingSpinner/LoadingSpinner";
-import { useOrderStatus } from "../../../OrderDetailWidget/hooks/useOrderStatus";
+import { useOrderStatus } from "../../../OtcOrderDetailWidget/hooks/useOrderStatus";
 import {
   getOrderStatusTranslation,
   getTokenAmountWithDecimals,

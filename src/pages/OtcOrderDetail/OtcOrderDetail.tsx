@@ -2,7 +2,7 @@ import React, { FC, useEffect } from "react";
 import { useParams } from "react-router";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import OrderDetailWidget from "../../components/@widgets/OrderDetailWidget/OrderDetailWidget";
+import OtcOrderDetailWidget from "../../components/@widgets/OtcOrderDetailWidget/OtcOrderDetailWidget";
 import Page from "../../components/Page/Page";
 import { fetchAllTokens } from "../../features/metadata/metadataActions";
 import { selectMetaDataReducer } from "../../features/metadata/metadataSlice";
@@ -10,11 +10,10 @@ import { decompressAndSetActiveOrder } from "../../features/takeOtc/takeOtcActio
 import {
   reset,
   selectTakeOtcReducer,
-  setActiveOrder,
 } from "../../features/takeOtc/takeOtcSlice";
 import InvalidOrder from "./subcomponents/InvalidOrder/InvalidOrder";
 
-const OrderDetail: FC = () => {
+const OtcOrderDetail: FC = () => {
   const dispatch = useAppDispatch();
   const { compressedOrder } = useParams<{ compressedOrder: string }>();
 
@@ -52,9 +51,9 @@ const OrderDetail: FC = () => {
 
   return (
     <Page>
-      <OrderDetailWidget order={activeOrder} />
+      <OtcOrderDetailWidget order={activeOrder} />
     </Page>
   );
 };
 
-export default OrderDetail;
+export default OtcOrderDetail;

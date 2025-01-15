@@ -12,7 +12,6 @@ import { BigNumber } from "bignumber.js";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
-import { AppErrorType } from "../../../errors/appError";
 import {
   fetchIndexerUrls,
   getFilteredOrders,
@@ -61,7 +60,7 @@ import {
   StyledFilledAndStatus,
   StyledInfoSection,
   StyledRecipientAndStatus,
-} from "./OrderDetailWidget.styles";
+} from "./OtcOrderDetailWidget.styles";
 import useFormattedTokenAmount from "./hooks/useFormattedTokenAmount";
 import { useOrderStatus } from "./hooks/useOrderStatus";
 import useSessionOrderTransaction from "./hooks/useSessionOrderTransaction";
@@ -69,11 +68,11 @@ import useTakerTokenInfo from "./hooks/useTakerTokenInfo";
 import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
 import OrderDetailWidgetHeader from "./subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 
-interface OrderDetailWidgetProps {
+interface OtcOrderDetailWidgetProps {
   order: FullOrderERC20;
 }
 
-export enum OrderDetailWidgetState {
+export enum OtcOrderDetailWidgetState {
   overview = "overview",
   review = "review",
 }
@@ -81,7 +80,7 @@ export enum OrderDetailWidgetState {
 // TODO: handle this
 const isLimitOrder = true;
 
-const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
+const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   const { t } = useTranslation();
   const { provider: library } = useWeb3React<Web3Provider>();
   const { isActive, account, chainId } = useAppSelector((state) => state.web3);
@@ -99,8 +98,8 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
 
   const errors = [...ordersErrors, ...takeOtcErrors];
 
-  const [state, setState] = useState<OrderDetailWidgetState>(
-    OrderDetailWidgetState.overview
+  const [state, setState] = useState<OtcOrderDetailWidgetState>(
+    OtcOrderDetailWidgetState.overview
   );
   const [orderStatus, isOrderStatusLoading] = useOrderStatus(order);
   const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
@@ -243,7 +242,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
   };
 
   const backToOverview = () => {
-    setState(OrderDetailWidgetState.overview);
+    setState(OtcOrderDetailWidgetState.overview);
   };
 
   const handleActionButtonClick = async (action: ButtonActions) => {
@@ -264,7 +263,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
     }
 
     if (action === ButtonActions.review) {
-      setState(OrderDetailWidgetState.review);
+      setState(OtcOrderDetailWidgetState.review);
     }
 
     if (action === ButtonActions.cancel) {
@@ -282,7 +281,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
 
   const renderScreens = () => {
     if (
-      state === OrderDetailWidgetState.review &&
+      state === OtcOrderDetailWidgetState.review &&
       shouldDepositNativeToken &&
       !orderTransaction
     ) {
@@ -299,7 +298,7 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
       );
     }
 
-    if (state === OrderDetailWidgetState.review) {
+    if (state === OtcOrderDetailWidgetState.review) {
       return (
         <TakeOrderReview
           errors={errors}
@@ -460,4 +459,4 @@ const OrderDetailWidget: FC<OrderDetailWidgetProps> = ({ order }) => {
   );
 };
 
-export default OrderDetailWidget;
+export default OtcOrderDetailWidget;
