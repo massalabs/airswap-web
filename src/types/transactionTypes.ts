@@ -12,6 +12,7 @@ export type TransactionEvent =
 export enum TransactionTypes {
   approval = "approval",
   order = "order",
+  setDelegateRule = "setDelegateRule",
   deposit = "deposit",
   withdraw = "withdraw",
   cancel = "cancel",

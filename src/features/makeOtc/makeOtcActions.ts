@@ -70,6 +70,7 @@ const createDelegateRule = async (
   // );
 
   const rule: DelegateRule = {
+    chainId: params.chainId,
     senderWallet: params.senderWallet,
     senderToken: params.senderToken,
     senderAmount: senderAmount,

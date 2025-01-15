@@ -4,6 +4,7 @@ import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
+import { DelegateRule } from "../DelegateRule/DelegateRule";
 
 export interface DepositOrWithdrawOrder {
   signerToken: string;
@@ -71,4 +72,9 @@ export interface SubmittedWithdrawTransaction
   order: DepositOrWithdrawOrder;
   senderToken: TokenInfo;
   signerToken: TokenInfo;
+}
+
+export interface SubmittedSetRuleTransaction extends SubmittedTransaction {
+  type: TransactionTypes.setDelegateRule;
+  rule: DelegateRule;
 }
