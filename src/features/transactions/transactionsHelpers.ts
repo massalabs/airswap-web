@@ -10,6 +10,10 @@ import {
   isCancelEvent,
 } from "../../entities/CancelEvent/CancelEventHelpers";
 import {
+  findMatchingDelegateSetRuleTransaction,
+  isDelegateSetRuleEvent,
+} from "../../entities/DelegateRule/DelegateRuleHelpers";
+import {
   findMatchingOrderTransaction,
   isFullSwapERC20Event,
 } from "../../entities/FullSwapERC20Event/FullSwapERC20EventHelpers";
@@ -25,6 +29,7 @@ import {
   isApprovalTransaction,
   isCancelTransaction,
   isDepositTransaction,
+  isSetRuleTransaction,
   isSubmittedOrder,
   isSubmittedOrderUnderConsideration,
   isWithdrawTransaction,
@@ -111,6 +116,14 @@ const getMatchingTransaction = (
       .find((transaction) => findMatchingCancelTransaction(transaction, event));
   }
 
+  if (isDelegateSetRuleEvent(event)) {
+    return transactions
+      .filter(isSetRuleTransaction)
+      .find((transaction) =>
+        findMatchingDelegateSetRuleTransaction(transaction, event)
+      );
+  }
+
   return undefined;
 };
 
@@ -121,10 +134,16 @@ export const handleTransactionEvent =
     const pendingTransactions = transactions.filter(
       (transaction) => transaction.status === TransactionStatusType.processing
     );
+
+    console.log("pendingTransactions", pendingTransactions);
+    console.log("event", event);
+
     const matchingTransaction = getMatchingTransaction(
       event,
       pendingTransactions
     );
+
+    console.log("matchingTransaction", matchingTransaction);
 
     if (!matchingTransaction) {
       return;
@@ -138,6 +157,8 @@ export const handleTransactionEvent =
           ? TransactionStatusType.succeeded
           : TransactionStatusType.declined,
     };
+
+    console.log("updatedTransaction", updatedTransaction);
 
     if (isFullSwapERC20Event(event) && isSubmittedOrder(updatedTransaction)) {
       updatedTransaction.swap = event.swap;

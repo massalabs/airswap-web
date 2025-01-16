@@ -16,6 +16,7 @@ import {
   SubmittedOrder,
   SubmittedWithdrawTransaction,
   SubmittedOrderUnderConsideration,
+  SubmittedSetRuleTransaction,
 } from "./SubmittedTransaction";
 
 export const isApprovalTransaction = (
@@ -59,6 +60,11 @@ export const isLastLookOrderTransaction = (
     !!transaction.isLastLook
   );
 };
+
+export const isSetRuleTransaction = (
+  transaction: SubmittedTransaction
+): transaction is SubmittedSetRuleTransaction =>
+  transaction.type === TransactionTypes.setDelegateRule;
 
 export const sortSubmittedTransactionsByExpiry = (
   a: SubmittedTransaction,

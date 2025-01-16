@@ -14,11 +14,17 @@ import { ethers } from "ethers";
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
+import { SubmittedSetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import { AppErrorType, isAppError } from "../../errors/appError";
 import transformUnknownErrorToAppError from "../../errors/transformUnknownErrorToAppError";
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import { getSwapErc20Address } from "../../helpers/swapErc20";
+import {
+  TransactionStatusType,
+  TransactionTypes,
+} from "../../types/transactionTypes";
 import { sendOrderToIndexers } from "../indexer/indexerHelpers";
+import { submitTransaction } from "../transactions/transactionsActions";
 import {
   setDelegateRule,
   setError,
@@ -46,14 +52,12 @@ const createDelegateRule = async (
   params: CreateOrderParams,
   dispatch: AppDispatch
 ) => {
-  // For a delegate rule, the sender and signer are reversed compared to an otc order
-
-  const signerAmount = toAtomicString(
+  const senderAmount = toAtomicString(
     params.senderAmount,
     params.senderTokenInfo.decimals
   );
 
-  const senderAmount = toAtomicString(
+  const signerAmount = toAtomicString(
     params.signerAmount,
     params.signerTokenInfo.decimals
   );
@@ -63,19 +67,14 @@ const createDelegateRule = async (
     params.chainId
   );
 
-  // const rules = await delegateContract.rules(
-  //   params.signerWallet,
-  //   params.signerToken,
-  //   params.senderToken
-  // );
-
+  // For a delegate rule, the sender and signer are reversed compared to an otc order
   const rule: DelegateRule = {
     chainId: params.chainId,
-    senderWallet: params.senderWallet,
-    senderToken: params.senderToken,
-    senderAmount: senderAmount,
-    signerToken: params.signerToken,
-    signerAmount: signerAmount,
+    senderWallet: params.signerWallet,
+    senderToken: params.signerToken,
+    senderAmount: signerAmount,
+    signerToken: params.senderToken,
+    signerAmount: senderAmount,
     expiry: Number(params.expiry),
   };
 
@@ -91,8 +90,15 @@ const createDelegateRule = async (
       rule.expiry
     );
 
-    // TODO: Add tx to pending transactions
-    console.log("tx", tx);
+    const transaction: SubmittedSetRuleTransaction = {
+      type: TransactionTypes.setDelegateRule,
+      rule,
+      hash: tx.hash,
+      timestamp: Date.now(),
+      status: TransactionStatusType.processing,
+    };
+
+    dispatch(submitTransaction(transaction));
   } catch (error) {
     const appError = transformUnknownErrorToAppError(error);
     if (appError.type === AppErrorType.rejectedByUser) {

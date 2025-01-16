@@ -5,7 +5,15 @@ import { useAppDispatch } from "../../app/hooks";
 import Page from "../../components/Page/Page";
 import { InvalidOrder } from "../OtcOrderDetail/subcomponents";
 
+// TODO: Add ChainId to the URL
+
 // http://localhost:3000/#/limit-order/0xf450ef4f268eaf2d3d8f9ed0354852e255a5eaef/0x20aaebad8c7c6ffb6fdaa5a622c399561562beea/0x2de63F2D35943Aa17Aa835Ea69fd3f768b9F6337
+
+// const rules = await delegateContract.rules(
+//   params.signerWallet,
+//   params.signerToken,
+//   params.senderToken
+// );
 
 const LimitOrderDetail: FC = () => {
   const dispatch = useAppDispatch();

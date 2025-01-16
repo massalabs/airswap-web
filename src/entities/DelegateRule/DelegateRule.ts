@@ -7,3 +7,9 @@ export interface DelegateRule {
   signerAmount: string;
   expiry: number;
 }
+
+export interface DelegateSetRuleEvent extends DelegateRule {
+  name: "SetRule";
+  hash: string;
+  status?: number;
+}

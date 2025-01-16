@@ -5,6 +5,7 @@ import { TransactionEvent } from "../../../types/transactionTypes";
 import useLatestApproveFromEvents from "./useLatestApproveFromEvents";
 import useLatestCancelFromEvents from "./useLatestCancelFromEvents";
 import useLatestDepositOrWithdrawFromEvents from "./useLatestDepositOrWithdrawFromEvents";
+import useLatestSetRuleFromEvents from "./useLatestSetRuleFromEvents";
 import useLatestSwapFromEvents from "./useLatestSwapFromEvents";
 
 const useLatestTransactionEvent = () => {
@@ -17,6 +18,7 @@ const useLatestTransactionEvent = () => {
     account
   );
   const latestCancelEvent = useLatestCancelFromEvents(chainId, account);
+  const latestSetRuleEvent = useLatestSetRuleFromEvents(chainId, account);
 
   const [latestEvent, setLatestEvent] = useState<TransactionEvent>();
 
@@ -43,6 +45,12 @@ const useLatestTransactionEvent = () => {
       setLatestEvent(latestCancelEvent);
     }
   }, [latestCancelEvent]);
+
+  useEffect(() => {
+    if (latestSetRuleEvent) {
+      setLatestEvent(latestSetRuleEvent);
+    }
+  }, [latestSetRuleEvent]);
 
   return latestEvent;
 };
