@@ -51,7 +51,7 @@ type CreateOrderParams = {
 const createDelegateRule = async (
   params: CreateOrderParams,
   dispatch: AppDispatch
-) => {
+): Promise<SubmittedSetRuleTransaction | undefined> => {
   const senderAmount = toAtomicString(
     params.senderAmount,
     params.senderTokenInfo.decimals
@@ -101,6 +101,9 @@ const createDelegateRule = async (
     };
 
     dispatch(submitTransaction(transaction));
+    dispatch(setStatus("idle"));
+
+    return transaction;
   } catch (error) {
     const appError = transformUnknownErrorToAppError(error);
     if (appError.type === AppErrorType.rejectedByUser) {
@@ -113,14 +116,12 @@ const createDelegateRule = async (
 
     return;
   }
-
-  dispatch(setDelegateRule(rule));
 };
 
 const createOtcOrder = async (
   params: CreateOrderParams,
   dispatch: AppDispatch
-) => {
+): Promise<undefined> => {
   const signerAmount = toAtomicString(
     params.signerAmount,
     params.signerTokenInfo.decimals
@@ -175,12 +176,17 @@ const createOtcOrder = async (
     sendOrderToIndexers(fullOrder, params.activeIndexers);
   }
 
+  dispatch(setStatus("idle"));
   dispatch(setUserOrder(fullOrder));
+
+  return;
 };
 
-export const createOrder = createAsyncThunk(
-  "make-otc/createOrder",
-  async (params: CreateOrderParams, { dispatch }) => {
+export const createOrder =
+  (params: CreateOrderParams) =>
+  async (
+    dispatch: AppDispatch
+  ): Promise<SubmittedSetRuleTransaction | undefined> => {
     try {
       const [signerWallet, senderWallet] = await Promise.all([
         getJustifiedAddress(params.library, params.signerWallet),
@@ -205,16 +211,13 @@ export const createOrder = createAsyncThunk(
       };
 
       if (params.isLimitOrder) {
-        createDelegateRule(justifiedParams, dispatch as AppDispatch);
-
-        return;
+        return createDelegateRule(justifiedParams, dispatch as AppDispatch);
       }
 
-      createOtcOrder(justifiedParams, dispatch as AppDispatch);
+      return createOtcOrder(justifiedParams, dispatch as AppDispatch);
     } catch (error) {
       console.error(error);
       dispatch(setStatus("failed"));
       dispatch(setError({ type: AppErrorType.unknownError }));
     }
-  }
-);
+  };

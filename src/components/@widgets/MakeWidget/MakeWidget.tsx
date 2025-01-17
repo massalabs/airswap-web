@@ -50,12 +50,14 @@ import useInsufficientBalance from "../../../hooks/useInsufficientBalance";
 import useMaxAmount from "../../../hooks/useMaxAmount";
 import useNativeWrappedToken from "../../../hooks/useNativeWrappedToken";
 import useNetworkSupported from "../../../hooks/useNetworkSupported";
+import useSetRuleTransaction from "../../../hooks/useSetRuleTransaction";
 import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTokenAmount";
 import useTokenInfo from "../../../hooks/useTokenInfo";
 import useValidAddress from "../../../hooks/useValidAddress";
 import { routes } from "../../../routes";
 import { OrderScopeType, OrderType } from "../../../types/orderTypes";
 import { TokenSelectModalTypes } from "../../../types/tokenSelectModalTypes";
+import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
 import MakeOrderReview from "../../@reviewScreens/MakeOrderReview/MakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
@@ -65,6 +67,7 @@ import { SelectOption } from "../../Dropdown/Dropdown";
 import OrderTypesModal from "../../InformationModals/subcomponents/OrderTypesModal/OrderTypesModal";
 import ModalOverlay from "../../ModalOverlay/ModalOverlay";
 import ProtocolFeeOverlay from "../../ProtocolFeeOverlay/ProtocolFeeOverlay";
+import SetRuleSubmittedScreen from "../../SetRuleSubmittedScreen/SetRuleSubmittedScreen";
 import { notifyOrderCreated } from "../../Toasts/ToastController";
 import TokenList from "../../TokenList/TokenList";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
@@ -166,8 +169,10 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     !!maxAmount &&
     makerTokenInfo?.address === ADDRESS_ZERO &&
     !!nativeCurrencySafeTransactionFee[makerTokenInfo.chainId];
+  const [activeSetRuleHash, setActiveSetRuleHash] = useState<string>();
   const approvalTransaction = useApprovalPending(makerTokenInfo?.address, true);
   const depositTransaction = useDepositPending(true);
+  const setRuleTransaction = useSetRuleTransaction(activeSetRuleHash);
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const shouldDepositNativeTokenAmount = useShouldDepositNativeToken(
     makerTokenInfo?.address,
@@ -306,7 +311,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     setState(MakeWidgetState.review);
   };
 
-  const createOrder = () => {
+  const createOrder = async () => {
     const expiryDate = Date.now() + expiry;
     const makerTokenAddress = makerTokenInfo?.address || "";
     const takerTokenAddress = takerTokenInfo?.address || "";
@@ -320,7 +325,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         ? getWethAddress(chainId!)
         : takerTokenAddress;
 
-    dispatch(
+    const transaction = await dispatch(
       createOrderAction({
         isLimitOrder,
         nonce: expiryDate.toString(),
@@ -341,6 +346,10 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         shouldSendToIndexers: orderType === OrderType.publicListed,
       })
     );
+
+    if (transaction !== undefined) {
+      setActiveSetRuleHash(transaction.hash);
+    }
   };
 
   const approveToken = () => {
@@ -405,6 +414,18 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     setTakerAddress(value);
     if (error?.type === AppErrorType.invalidAddress) {
       dispatch(setError(undefined));
+    }
+  };
+
+  const handleShowLimitOrderButtonClick = () => {
+    if (setRuleTransaction) {
+      history.push(
+        routes.limitOrder(
+          setRuleTransaction.rule.senderWallet,
+          setRuleTransaction.rule.senderToken,
+          setRuleTransaction.rule.signerToken
+        )
+      );
     }
   };
 
@@ -591,6 +612,17 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
           <DepositSubmittedScreen
             chainId={chainId}
             transaction={depositTransaction}
+          />
+        )}
+      </TransactionOverlay>
+
+      <TransactionOverlay isHidden={!setRuleTransaction}>
+        {setRuleTransaction && (
+          <SetRuleSubmittedScreen
+            chainId={chainId}
+            transaction={setRuleTransaction}
+            onMakeNewLimitOrderButtonClick={restart}
+            onShowLimitOrderButtonClick={handleShowLimitOrderButtonClick}
           />
         )}
       </TransactionOverlay>
