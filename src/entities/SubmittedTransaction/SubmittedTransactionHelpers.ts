@@ -203,3 +203,29 @@ export const getOrderTransactionLabel = (
     senderToken: adjustedSignerToken.symbol,
   });
 };
+
+export const getSetRuleTransactionLabel = (
+  transaction: SubmittedSetRuleTransaction
+) => {
+  const { signerToken, senderToken } = transaction;
+  const signerAmount = parseFloat(
+    Number(
+      formatUnits(transaction.rule.signerAmount, signerToken.decimals)
+    ).toFixed(5)
+  );
+
+  const senderAmount = parseFloat(
+    Number(
+      formatUnits(transaction.rule.senderAmount, senderToken.decimals)
+    ).toFixed(5)
+  );
+
+  const transactionLabel = i18n.t("wallet.transaction", {
+    signerAmount,
+    signerToken: signerToken.symbol,
+    senderAmount,
+    senderToken: senderToken.symbol,
+  });
+
+  return `Set rule: ${transactionLabel}`;
+};

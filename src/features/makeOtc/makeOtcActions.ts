@@ -96,6 +96,8 @@ const createDelegateRule = async (
       hash: tx.hash,
       timestamp: Date.now(),
       status: TransactionStatusType.processing,
+      signerToken: params.senderTokenInfo,
+      senderToken: params.signerTokenInfo,
     };
 
     dispatch(submitTransaction(transaction));

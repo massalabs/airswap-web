@@ -77,4 +77,6 @@ export interface SubmittedWithdrawTransaction
 export interface SubmittedSetRuleTransaction extends SubmittedTransaction {
   type: TransactionTypes.setDelegateRule;
   rule: DelegateRule;
+  signerToken: TokenInfo;
+  senderToken: TokenInfo;
 }

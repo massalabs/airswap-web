@@ -5,9 +5,11 @@ import { HTMLMotionProps } from "framer-motion";
 
 import { SubmittedTransaction } from "../../../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
+  getSetRuleTransactionLabel,
   isApprovalTransaction,
   isCancelTransaction,
   isDepositTransaction,
+  isSetRuleTransaction,
   isSubmittedOrder,
   isSubmittedOrderUnderConsideration,
   isWithdrawTransaction,
@@ -169,6 +171,28 @@ const WalletTransaction = ({
         </TextContainer>
 
         {!isSubmittedOrderUnderConsideration(transaction) && (
+          <StyledTransactionLink
+            hideLabel
+            chainId={chainId}
+            hash={transaction.hash}
+          />
+        )}
+      </Container>
+    );
+  }
+
+  // TODO: Add limit order text
+  if (isSetRuleTransaction(transaction)) {
+    const label = getSetRuleTransactionLabel(transaction);
+
+    return (
+      <Container>
+        <TextContainer>
+          <SpanTitle>{label}</SpanTitle>
+          <SpanSubtitle>{statusText}</SpanSubtitle>
+        </TextContainer>
+
+        {transaction.hash && (
           <StyledTransactionLink
             hideLabel
             chainId={chainId}
