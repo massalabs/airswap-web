@@ -9,7 +9,8 @@ import useWeb3 from "../../features/web3/web3Hooks";
 import Cancel from "../../pages/Cancel/Cancel";
 import LimitOrderDetail from "../../pages/LimitOrderDetail/LimitOrderDetail";
 import MakePage from "../../pages/Make/Make";
-import MySwapsPage from "../../pages/MyOrders/MyOrders";
+import MyLimitOrdersPage from "../../pages/MyLimitOrders/MyLimitOrders";
+import MyOtcOrdersPage from "../../pages/MyOtcOrders/MyOtcOrders";
 import OtcOrderDetail from "../../pages/OtcOrderDetail/OtcOrderDetail";
 import SwapPage from "../../pages/Swap/Swap";
 import { AppRoutes } from "../../routes";
@@ -35,8 +36,13 @@ const Routes: FC = () => {
       />
       <Route
         path={`/${AppRoutes.myOtcOrders}`}
-        component={MySwapsPage}
-        key="my-swaps"
+        component={MyOtcOrdersPage}
+        key="my-otc-orders"
+      />
+      <Route
+        path={`/${AppRoutes.myLimitOrders}`}
+        component={MyLimitOrdersPage}
+        key="my-limit-orders"
       />
       <Route
         exact

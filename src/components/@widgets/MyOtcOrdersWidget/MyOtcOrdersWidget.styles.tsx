@@ -28,6 +28,7 @@ export const InfoSectionContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-grow: 1;
   margin-top: 1rem;
   text-align: center;
 `;

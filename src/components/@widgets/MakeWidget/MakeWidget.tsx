@@ -241,7 +241,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         routes.limitOrder(
           lastDelegateRule.senderWallet,
           lastDelegateRule.senderToken,
-          lastDelegateRule.signerToken
+          lastDelegateRule.signerToken,
+          lastDelegateRule.chainId
         )
       );
 
@@ -423,7 +424,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         routes.limitOrder(
           setRuleTransaction.rule.senderWallet,
           setRuleTransaction.rule.senderToken,
-          setRuleTransaction.rule.signerToken
+          setRuleTransaction.rule.signerToken,
+          setRuleTransaction.rule.chainId
         )
       );
     }

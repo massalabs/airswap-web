@@ -11,7 +11,8 @@ import { MyOrder } from "../../entities/Order";
 import MyOrdersList from "../MyOrdersList/MyOrdersList";
 import { getFullOrderERC20DataAndTransformToOrder } from "./helpers";
 
-interface MyOrdersListProps {
+interface MyOtcOrdersListProps {
+  activeCancellationId?: string;
   activeSortType: OrdersSortType;
   activeTokens: TokenInfo[];
   erc20Orders: FullOrderERC20[];
@@ -22,7 +23,8 @@ interface MyOrdersListProps {
   className?: string;
 }
 
-const MyOtcOrdersList: FC<MyOrdersListProps> = ({
+const MyOtcOrdersList: FC<MyOtcOrdersListProps> = ({
+  activeCancellationId,
   activeSortType,
   erc20Orders,
   library,
@@ -45,7 +47,7 @@ const MyOtcOrdersList: FC<MyOrdersListProps> = ({
 
     setOrders(newOrders);
     setIsLoading(false);
-  }, [erc20Orders, activeTokens]);
+  }, [erc20Orders, activeTokens, activeCancellationId]);
 
   const handleDeleteOrderButtonClick = (order: MyOrder): void => {
     const orderToDelete = erc20Orders.find((o) => o.nonce === order.id);
@@ -54,6 +56,19 @@ const MyOtcOrdersList: FC<MyOrdersListProps> = ({
       onDeleteOrderButtonClick(orderToDelete);
     }
   };
+
+  useEffect(() => {
+    if (!activeCancellationId) {
+      return;
+    }
+
+    setOrders(
+      orders.map((order) => ({
+        ...order,
+        isLoading: order.id === activeCancellationId,
+      }))
+    );
+  }, [activeCancellationId]);
 
   useEffect(() => {
     callGetOrders();

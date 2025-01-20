@@ -21,6 +21,7 @@ import {
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
+  SubmittedSetRuleTransaction,
   SubmittedTransaction,
   SubmittedWithdrawTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
@@ -135,15 +136,10 @@ export const handleTransactionEvent =
       (transaction) => transaction.status === TransactionStatusType.processing
     );
 
-    console.log("pendingTransactions", pendingTransactions);
-    console.log("event", event);
-
     const matchingTransaction = getMatchingTransaction(
       event,
       pendingTransactions
     );
-
-    console.log("matchingTransaction", matchingTransaction);
 
     if (!matchingTransaction) {
       return;
@@ -157,8 +153,6 @@ export const handleTransactionEvent =
           ? TransactionStatusType.succeeded
           : TransactionStatusType.declined,
     };
-
-    console.log("updatedTransaction", updatedTransaction);
 
     if (isFullSwapERC20Event(event) && isSubmittedOrder(updatedTransaction)) {
       updatedTransaction.swap = event.swap;
@@ -210,3 +204,21 @@ export const updateTransactionWithReceipt =
       })
     );
   };
+
+export const getUniqueSetRuleTransactions = (
+  transactions: SubmittedSetRuleTransaction[]
+) => {
+  return Object.values(
+    transactions.reduce((acc, tx) => {
+      const key = `${tx.rule.senderWallet}-${tx.rule.senderToken}-${tx.rule.signerToken}`;
+
+      if (acc[key]) {
+        return acc;
+      }
+
+      acc[key] = tx;
+
+      return acc;
+    }, {} as Record<string, SubmittedSetRuleTransaction>)
+  );
+};

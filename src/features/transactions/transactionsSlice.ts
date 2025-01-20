@@ -5,9 +5,13 @@ import {
   SubmittedApprovalTransaction,
   SubmittedCancellation,
   SubmittedDepositTransaction,
+  SubmittedSetRuleTransaction,
   SubmittedTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
-import { isSubmittedOrder } from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
+import {
+  isSetRuleTransaction,
+  isSubmittedOrder,
+} from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import { compareAddresses } from "../../helpers/string";
 import { ClearOrderType } from "../../types/clearOrderType";
 import {
@@ -21,6 +25,7 @@ import {
   submitTransaction,
   updateTransactions,
 } from "./transactionsActions";
+import { getUniqueSetRuleTransactions } from "./transactionsHelpers";
 import { filterTransactionByDate } from "./transactionsUtils";
 
 export interface TransactionsState {
@@ -223,5 +228,13 @@ export const selectPendingCancellations = (state: RootState) =>
 export const selectTransactionsFilter = (state: RootState) => {
   return state.transactions.filter;
 };
+
+export const selectSetRuleTransactions = (state: RootState) =>
+  state.transactions.transactions.filter(isSetRuleTransaction);
+
+export const selectUniqueSetRuleTransactions = createSelector(
+  selectSetRuleTransactions,
+  getUniqueSetRuleTransactions
+);
 
 export default transactionsSlice.reducer;

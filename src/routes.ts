@@ -28,8 +28,10 @@ export const routes = {
   limitOrder: (
     senderWallet: string,
     senderToken: string,
-    signerToken: string
-  ) => `/${AppRoutes.limitOrder}/${senderToken}/${signerToken}/${senderWallet}`,
+    signerToken: string,
+    chainId: number
+  ) =>
+    `/${AppRoutes.limitOrder}/${senderToken}/${signerToken}/${senderWallet}/${chainId}`,
   cancelOtcOrder: (compressedOrder: string) =>
     `/${AppRoutes.otcOrder}/${compressedOrder}/cancel`,
   swap: () => `/${AppRoutes.swap}`,

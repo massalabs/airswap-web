@@ -8,7 +8,7 @@ import {
 } from "@airswap/utils";
 
 import useTokenInfo from "../../../../hooks/useTokenInfo";
-import { getTokenAmountWithDecimals } from "../../../@widgets/MyOrdersWidget/helpers";
+import { getTokenAmountWithDecimals } from "../../../@widgets/MyOtcOrdersWidget/helpers";
 import { Container, Text } from "./Order.styles";
 
 interface OrderProps {

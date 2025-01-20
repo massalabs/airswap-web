@@ -8,8 +8,9 @@ import MyOrdersListSortButtons from "../MyOrdersListSortButtons/MyOrdersListSort
 export const Container = styled.div<{ hasOverflow?: boolean }>`
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
   position: relative;
-  min-height: 14.5rem;
 
   -webkit-mask-image: ${({ hasOverflow }) =>
     hasOverflow

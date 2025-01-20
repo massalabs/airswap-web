@@ -4,6 +4,7 @@ import { OrderStatus } from "../../../../types/orderStatus";
 
 export interface MyOrder {
   id: string;
+  isLoading?: boolean;
   chainId: number;
   senderToken?: TokenInfo;
   senderAmount: string;

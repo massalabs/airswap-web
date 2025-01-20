@@ -1,23 +1,21 @@
-import React, { FC, useContext, useMemo, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
-import { FullOrderERC20 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
+import { SubmittedSetRuleTransaction } from "../../../entities/SubmittedTransaction/SubmittedTransaction";
 import { selectAllTokenInfo } from "../../../features/metadata/metadataSlice";
 import {
   OrdersSortType,
-  removeUserOrder,
   selectMyOrdersReducer,
   setActiveSortType,
 } from "../../../features/myOrders/myOrdersSlice";
-import { getNonceUsed } from "../../../features/orders/ordersHelpers";
-import { cancelOrder } from "../../../features/takeOtc/takeOtcActions";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
+import { selectUniqueSetRuleTransactions } from "../../../features/transactions/transactionsSlice";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import { AppRoutes } from "../../../routes";
@@ -28,12 +26,12 @@ import {
   Container,
   InfoSectionContainer,
   StyledActionButtons,
-} from "./MyOrdersWidget.styles";
-import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import InfoSection from "./subcomponents/InfoSection/InfoSection";
-import MyOtcOrdersList from "./subcomponents/MyOtcOrdersList/MyOtcOrdersList";
+} from "../MyOtcOrdersWidget/MyOtcOrdersWidget.styles";
+import { ButtonActions } from "../MyOtcOrdersWidget/subcomponents/ActionButtons/ActionButtons";
+import InfoSection from "../MyOtcOrdersWidget/subcomponents/InfoSection/InfoSection";
+import MyLimitOrdersList from "./subcomponents/MyLimitOrdersList/MyLimitOrdersList";
 
-const MyOrdersWidget: FC = () => {
+const MyLimitOrdersWidget: FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
@@ -42,7 +40,8 @@ const MyOrdersWidget: FC = () => {
     (state) => state.web3
   );
   const history = useHistory();
-  const allTokens = useAppSelector(selectAllTokenInfo);
+  const userDelegateRules = useAppSelector(selectUniqueSetRuleTransactions);
+
   const { userOrders, sortTypeDirection, activeSortType } = useAppSelector(
     selectMyOrdersReducer
   );
@@ -58,21 +57,6 @@ const MyOrdersWidget: FC = () => {
   // Modal states
   const { setShowWalletList } = useContext(InterfaceContext);
 
-  const cancelOrderOnChain = async (order: FullOrderERC20) => {
-    const expiry = parseInt(order.expiry) * 1000;
-    const isExpired = new Date().getTime() > expiry;
-    const nonceUsed = await getNonceUsed(order, library!);
-
-    if (!isExpired && !nonceUsed) {
-      setActiveCancellationNonce(order.nonce);
-      await dispatch(
-        cancelOrder({ order: order, chainId: chainId!, library: library! })
-      );
-    } else {
-      dispatch(removeUserOrder(order));
-    }
-  };
-
   const handleActionButtonClick = (action: ButtonActions) => {
     if (action === ButtonActions.connectWallet) {
       setShowWalletList(true);
@@ -86,13 +70,21 @@ const MyOrdersWidget: FC = () => {
     }
   };
 
-  const handleDeleteOrderButtonClick = async (order: FullOrderERC20) => {
-    await cancelOrderOnChain(order);
+  const handleDeleteOrderButtonClick = async (
+    order: SubmittedSetRuleTransaction
+  ) => {
+    // TODO: Implement
   };
 
   const handleSortButtonClick = (type: OrdersSortType) => {
     dispatch(setActiveSortType(type));
   };
+
+  useEffect(() => {
+    if (!pendingCancelTranssaction) {
+      setActiveCancellationNonce(undefined);
+    }
+  }, [pendingCancelTranssaction]);
 
   if (!isInitialized) {
     return <Container />;
@@ -116,10 +108,11 @@ const MyOrdersWidget: FC = () => {
       </TransactionOverlay>
 
       {!!userOrders.length && (
-        <MyOtcOrdersList
+        <MyLimitOrdersList
+          activeCancellationId={activeCancellationNonce}
           activeSortType={activeSortType}
-          activeTokens={allTokens}
-          erc20Orders={userOrders}
+          activeTokens={[]}
+          limitOrders={userDelegateRules}
           sortTypeDirection={sortTypeDirection}
           library={library!}
           onDeleteOrderButtonClick={handleDeleteOrderButtonClick}
@@ -144,4 +137,4 @@ const MyOrdersWidget: FC = () => {
   );
 };
 
-export default MyOrdersWidget;
+export default MyLimitOrdersWidget;
