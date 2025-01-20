@@ -16,6 +16,7 @@ export const getExpiryTranslation = (
   expiry: Date,
   now: Date
 ): string | undefined => {
+  console.log(now, expiry, compareAsc(now, expiry));
   if (compareAsc(now, expiry) === -1) {
     return undefined;
   }

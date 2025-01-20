@@ -32,41 +32,6 @@ const sortTokensBySymbol = (
     : 1;
 };
 
-export const getSortedOrders = (
-  orders: FullOrderERC20[],
-  sortType: OrdersSortType,
-  tokens: TokenInfo[],
-  chainId: number,
-  isReverse: boolean
-) => {
-  const array = [...orders];
-
-  if (sortType === "senderToken") {
-    array.sort((a, b) =>
-      sortTokensBySymbol(a.senderToken, b.senderToken, tokens, chainId)
-    );
-  }
-
-  if (sortType === "signerToken") {
-    array.sort((a, b) =>
-      sortTokensBySymbol(a.signerToken, b.signerToken, tokens, chainId)
-    );
-  }
-
-  // TODO: sort on order canceled or not
-  if (sortType === "active" || sortType === "expiry") {
-    array.sort((a, b) => {
-      return parseInt(b.expiry) - parseInt(a.expiry);
-    });
-  }
-
-  if (isReverse) {
-    array.reverse();
-  }
-
-  return array;
-};
-
 export const getOrderStatusTranslation = (status: OrderStatus): string => {
   if (status === OrderStatus.canceled) {
     return i18n.t("common.canceled");

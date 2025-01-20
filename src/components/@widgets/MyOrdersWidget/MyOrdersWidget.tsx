@@ -18,28 +18,29 @@ import {
 import { getNonceUsed } from "../../../features/orders/ordersHelpers";
 import { cancelOrder } from "../../../features/takeOtc/takeOtcActions";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
-import { selectPendingCancellations } from "../../../features/transactions/transactionsSlice";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import { AppRoutes } from "../../../routes";
 import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
-import { Container, InfoSectionContainer } from "./MyOrdersWidget.styles";
-import { getSortedOrders } from "./helpers";
-import ActionButtons, {
-  ButtonActions,
-} from "./subcomponents/ActionButtons/ActionButtons";
+import {
+  Container,
+  InfoSectionContainer,
+  StyledActionButtons,
+} from "./MyOrdersWidget.styles";
+import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
 import InfoSection from "./subcomponents/InfoSection/InfoSection";
-import MyOrdersList from "./subcomponents/MyOrdersList/MyOrdersList";
-import MyOrdersWidgetHeader from "./subcomponents/MyOrdersWidgetHeader/MyOrdersWidgetHeader";
+import MyOtcOrdersList from "./subcomponents/MyOtcOrdersList/MyOtcOrdersList";
 
 const MyOrdersWidget: FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const { provider: library } = useWeb3React<Web3Provider>();
-  const { isActive, chainId } = useAppSelector((state) => state.web3);
+  const { isActive, isInitialized, chainId } = useAppSelector(
+    (state) => state.web3
+  );
   const history = useHistory();
   const allTokens = useAppSelector(selectAllTokenInfo);
   const { userOrders, sortTypeDirection, activeSortType } = useAppSelector(
@@ -56,18 +57,6 @@ const MyOrdersWidget: FC = () => {
 
   // Modal states
   const { setShowWalletList } = useContext(InterfaceContext);
-
-  const sortedUserOrders = useMemo(() => {
-    return chainId
-      ? getSortedOrders(
-          userOrders,
-          activeSortType,
-          allTokens,
-          chainId,
-          !sortTypeDirection[activeSortType]
-        )
-      : userOrders;
-  }, [userOrders, activeSortType, allTokens, chainId, sortTypeDirection]);
 
   const cancelOrderOnChain = async (order: FullOrderERC20) => {
     const expiry = parseInt(order.expiry) * 1000;
@@ -105,6 +94,10 @@ const MyOrdersWidget: FC = () => {
     dispatch(setActiveSortType(type));
   };
 
+  if (!isInitialized) {
+    return <Container />;
+  }
+
   return (
     <Container>
       <TransactionOverlay isHidden={status !== "signing"}>
@@ -122,28 +115,28 @@ const MyOrdersWidget: FC = () => {
         )}
       </TransactionOverlay>
 
-      {!!sortedUserOrders.length && (
-        <>
-          <MyOrdersList
-            activeSortType={activeSortType}
-            orders={sortedUserOrders}
-            sortTypeDirection={sortTypeDirection}
-            onDeleteOrderButtonClick={handleDeleteOrderButtonClick}
-            onSortButtonClick={handleSortButtonClick}
-          />
-        </>
+      {!!userOrders.length && (
+        <MyOtcOrdersList
+          activeSortType={activeSortType}
+          activeTokens={allTokens}
+          erc20Orders={userOrders}
+          sortTypeDirection={sortTypeDirection}
+          library={library!}
+          onDeleteOrderButtonClick={handleDeleteOrderButtonClick}
+          onSortButtonClick={handleSortButtonClick}
+        />
       )}
 
-      {!sortedUserOrders.length && (
+      {!userOrders.length && (
         <InfoSectionContainer>
           <InfoSection
-            userHasNoOrders={!sortedUserOrders.length}
+            userHasNoOrders={!userOrders.length}
             walletIsNotConnected={!isActive}
           />
         </InfoSectionContainer>
       )}
 
-      <ActionButtons
+      <StyledActionButtons
         walletIsNotConnected={!isActive}
         onActionButtonClick={handleActionButtonClick}
       />

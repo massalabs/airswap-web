@@ -1,32 +1,36 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import { FullOrderERC20 } from "@airswap/utils";
 
 import { OrdersSortType } from "../../../../../features/myOrders/myOrdersSlice";
 import useIsOverflowing from "../../../../../hooks/useIsOverflowing";
 import useWindowSize from "../../../../../hooks/useWindowSize";
 import { OrderStatus } from "../../../../../types/orderStatus";
+import { MyOrder } from "../../entities/Order";
 import { getOrderStatusTranslation } from "../../helpers";
-import Order from "../Order/Order";
+import NewOrder from "../NewOrder/NewOrder";
 import {
   Container,
   DeleteButtonTooltip,
   OrderIndicatorTooltip,
   OrdersContainer,
+  StyledLoadingSpinner,
   StyledMyOrdersListSortButtons,
+  LoadingSpinnerContainer,
 } from "./MyOrdersList.styles";
+import { getSortedOrders } from "./helpers";
 
 interface MyOrdersListProps {
+  isLoading: boolean;
   activeSortType: OrdersSortType;
-  orders: FullOrderERC20[];
+  orders: MyOrder[];
   sortTypeDirection: Record<OrdersSortType, boolean>;
-  onDeleteOrderButtonClick: (order: FullOrderERC20) => void;
+  onDeleteOrderButtonClick: (order: MyOrder) => void;
   onSortButtonClick: (type: OrdersSortType) => void;
   className?: string;
 }
 
 const MyOrdersList: FC<MyOrdersListProps> = ({
+  isLoading,
   activeSortType,
   orders,
   sortTypeDirection,
@@ -50,7 +54,15 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
 
   const [, hasOverflow] = useIsOverflowing(containerRef);
 
-  const handleDeleteOrderButtonClick = (order: FullOrderERC20) => {
+  const sortedOrders = useMemo(() => {
+    return getSortedOrders(
+      orders,
+      activeSortType,
+      sortTypeDirection[activeSortType]
+    );
+  }, [orders, activeSortType, sortTypeDirection]);
+
+  const handleDeleteOrderButtonClick = (order: MyOrder) => {
     setActiveDeleteButtonTooltipIndex(undefined);
     onDeleteOrderButtonClick(order);
   };
@@ -104,6 +116,23 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
     setContainerWidth(containerRef.current?.scrollWidth || 0);
   }, [containerRef, windowWidth]);
 
+  if (isLoading) {
+    return (
+      <Container className={className}>
+        <StyledMyOrdersListSortButtons
+          width={containerWidth}
+          activeSortType={activeSortType}
+          hasOverflow={hasOverflow}
+          sortTypeDirection={sortTypeDirection}
+          onSortButtonClick={onSortButtonClick}
+        />
+        <LoadingSpinnerContainer>
+          <StyledLoadingSpinner />
+        </LoadingSpinnerContainer>
+      </Container>
+    );
+  }
+
   return (
     <Container className={className} hasOverflow={hasOverflow}>
       <StyledMyOrdersListSortButtons
@@ -114,9 +143,9 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
         onSortButtonClick={onSortButtonClick}
       />
       <OrdersContainer ref={containerRef}>
-        {orders.map((order, index) => (
-          <Order
-            key={order.nonce}
+        {sortedOrders.map((order, index) => (
+          <NewOrder
+            key={order.id}
             order={order}
             index={index}
             onDeleteOrderButtonClick={handleDeleteOrderButtonClick}
@@ -124,6 +153,7 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
             onDeleteOrderButtonMouseLeave={handleDeleteOrderButtonMouseLeave}
             onStatusIndicatorMouseEnter={handleStatusIndicatorMouseEnter}
             onStatusIndicatorMouseLeave={handleStatusIndicatorMouseLeave}
+            isCancelInProgress={false}
           />
         ))}
         {activeDeleteButtonTooltipIndex !== undefined && (

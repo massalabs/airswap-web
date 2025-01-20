@@ -14,11 +14,13 @@ export enum ButtonActions {
 
 type ActionButtonsProps = {
   walletIsNotConnected: boolean;
+  className?: string;
   onActionButtonClick: (action: ButtonActions) => void;
 };
 
 const ActionButtons: FC<ActionButtonsProps> = ({
   walletIsNotConnected,
+  className,
   onActionButtonClick,
 }) => {
   const buttonText = useMemo(() => {
@@ -39,7 +41,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   };
 
   return (
-    <Container>
+    <Container className={className}>
       {showNewOrderLink ? (
         <StyledLink to={AppRoutes.makeOtcOrder}>{buttonText}</StyledLink>
       ) : (

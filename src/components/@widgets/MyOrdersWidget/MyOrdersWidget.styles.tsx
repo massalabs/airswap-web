@@ -2,11 +2,13 @@ import { css } from "styled-components";
 import styled from "styled-components/macro";
 
 import breakPoints from "../../../style/breakpoints";
+import ActionButtons from "./subcomponents/ActionButtons/ActionButtons";
 
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 20rem;
 `;
 
 export const MyOrdersGrid = css`
@@ -28,4 +30,9 @@ export const InfoSectionContainer = styled.div`
   align-items: center;
   margin-top: 1rem;
   text-align: center;
+`;
+
+export const StyledActionButtons = styled(ActionButtons)`
+  justify-self: flex-end;
+  margin-top: auto;
 `;
