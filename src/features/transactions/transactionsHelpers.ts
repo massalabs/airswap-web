@@ -49,6 +49,7 @@ import {
   handleSubmittedCancelOrder,
   handleSubmittedDepositOrder,
   handleSubmittedOrder,
+  handleSubmittedSetRuleOrder,
   handleSubmittedWithdrawOrder,
 } from "../orders/ordersActions";
 import { setTransactions } from "./transactionsSlice";
@@ -162,7 +163,8 @@ export const handleTransactionEvent =
   };
 
 export const handleTransactionResolved = (
-  transaction: SubmittedTransaction
+  transaction: SubmittedTransaction,
+  dispatch: AppDispatch
 ) => {
   if (isApprovalTransaction(transaction)) {
     handleApproveTransaction(transaction.status);
@@ -182,6 +184,10 @@ export const handleTransactionResolved = (
 
   if (isCancelTransaction(transaction)) {
     handleSubmittedCancelOrder(transaction.status);
+  }
+
+  if (isSetRuleTransaction(transaction)) {
+    handleSubmittedSetRuleOrder(transaction, dispatch);
   }
 };
 
@@ -204,21 +210,3 @@ export const updateTransactionWithReceipt =
       })
     );
   };
-
-export const getUniqueSetRuleTransactions = (
-  transactions: SubmittedSetRuleTransaction[]
-) => {
-  return Object.values(
-    transactions.reduce((acc, tx) => {
-      const key = `${tx.rule.senderWallet}-${tx.rule.senderToken}-${tx.rule.signerToken}`;
-
-      if (acc[key]) {
-        return acc;
-      }
-
-      acc[key] = tx;
-
-      return acc;
-    }, {} as Record<string, SubmittedSetRuleTransaction>)
-  );
-};

@@ -1,33 +1,48 @@
+import { TokenInfo } from "@airswap/utils";
+
 import { ethers } from "ethers";
 
-import { SubmittedSetRuleTransaction } from "../../../../../../entities/SubmittedTransaction/SubmittedTransaction";
+import { DelegateRule } from "../../../../../../entities/DelegateRule/DelegateRule";
 import { routes } from "../../../../../../routes";
 import { OrderStatus } from "../../../../../../types/orderStatus";
 import { MyOrder } from "../../../../MyOtcOrdersWidget/entities/Order";
+import { findTokenInfo } from "../../../../MyOtcOrdersWidget/subcomponents/MyOtcOrdersList/helpers";
 
 export const getDelegateRuleDataAndTransformToOrder = async (
-  order: SubmittedSetRuleTransaction,
+  delegateRule: DelegateRule,
+  activeTokens: TokenInfo[],
   provider: ethers.providers.BaseProvider
 ): Promise<MyOrder> => {
   const link = routes.limitOrder(
-    order.rule.senderWallet,
-    order.rule.senderToken,
-    order.rule.signerToken,
-    order.rule.chainId
+    delegateRule.senderWallet,
+    delegateRule.senderToken,
+    delegateRule.signerToken,
+    delegateRule.chainId
   );
 
   // TODO: Implement taken / filled status
-  const isExpired = new Date().getTime() > order.rule.expiry * 1000;
+  const isExpired = new Date().getTime() > delegateRule.expiry * 1000;
+
+  const signerToken = await findTokenInfo(
+    delegateRule.signerToken,
+    activeTokens,
+    provider
+  );
+  const senderToken = await findTokenInfo(
+    delegateRule.senderToken,
+    activeTokens,
+    provider
+  );
 
   return {
-    id: order.hash,
+    id: delegateRule.id,
     status: isExpired ? OrderStatus.expired : OrderStatus.open,
-    senderToken: order.senderToken,
-    signerToken: order.signerToken,
-    chainId: order.rule.chainId,
-    senderAmount: order.rule.senderAmount,
-    signerAmount: order.rule.signerAmount,
-    expiry: new Date(order.rule.expiry * 1000),
+    senderToken: senderToken,
+    signerToken: signerToken,
+    chainId: delegateRule.chainId,
+    senderAmount: delegateRule.senderAmount,
+    signerAmount: delegateRule.signerAmount,
+    expiry: new Date(delegateRule.expiry * 1000),
     link,
   };
 };

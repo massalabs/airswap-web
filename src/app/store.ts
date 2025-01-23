@@ -1,7 +1,5 @@
 import {
   configureStore,
-  ThunkAction,
-  Action,
   ThunkDispatch,
   AnyAction,
   Store,
@@ -12,6 +10,7 @@ import {
   balancesReducer,
   allowancesReducer,
 } from "../features/balances/balancesSlice";
+import delegateRulesReducer from "../features/delegateRules/delegateRulesSlice";
 import gasCostReducer from "../features/gasCost/gasCostSlice";
 import indexerReducer from "../features/indexer/indexerSlice";
 import makeOtcReducer from "../features/makeOtc/makeOtcSlice";
@@ -30,6 +29,7 @@ const reducers = {
   allowances: allowancesReducer,
   transactions: transactionsReducer,
   balances: balancesReducer,
+  delegateRules: delegateRulesReducer,
   metadata: metadataReducer,
   tradeTerms: tradeTermsReducer,
   indexer: indexerReducer,

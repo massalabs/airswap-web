@@ -16,12 +16,14 @@ import {
   notifyRejectedByUserError,
 } from "../../components/Toasts/ToastController";
 import nativeCurrency from "../../constants/nativeCurrency";
+import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { transformUnsignedOrderERC20ToOrderERC20 } from "../../entities/OrderERC20/OrderERC20Transformers";
 import {
   SubmittedApprovalTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
+  SubmittedSetRuleTransaction,
   SubmittedWithdrawTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
@@ -39,6 +41,7 @@ import { getSwapErc20Address } from "../../helpers/swapErc20";
 import toRoundedAtomicString from "../../helpers/toRoundedAtomicString";
 import i18n from "../../i18n/i18n";
 import { TransactionStatusType } from "../../types/transactionTypes";
+import { submitDelegateRuleToStore } from "../delegateRules/delegateRulesActions";
 import {
   declineTransaction,
   revertTransaction,
@@ -113,6 +116,22 @@ export const handleSubmittedCancelOrder = (
 
     return;
   }
+};
+
+export const handleSubmittedSetRuleOrder = (
+  transaction: SubmittedSetRuleTransaction,
+  dispatch: AppDispatch
+): void => {
+  if (status === TransactionStatusType.failed) {
+    notifyError({
+      heading: i18n.t("toast.orderFail"),
+      cta: i18n.t("validatorErrors.unknownError"),
+    });
+
+    return;
+  }
+
+  dispatch(submitDelegateRuleToStore(transaction.rule));
 };
 
 // replaces WETH to ETH on Wrapper orders

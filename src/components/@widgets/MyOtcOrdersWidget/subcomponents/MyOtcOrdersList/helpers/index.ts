@@ -8,7 +8,7 @@ import { OrderStatus } from "../../../../../../types/orderStatus";
 import { MyOrder } from "../../../entities/Order";
 import { transformErc20OrderToMyOrder } from "../../../entities/OrderTransformers";
 
-const findTokenInfo = async (
+export const findTokenInfo = async (
   token: string,
   activeTokens: TokenInfo[],
   provider: ethers.providers.BaseProvider

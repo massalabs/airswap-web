@@ -7,15 +7,13 @@ import { useWeb3React } from "@web3-react/core";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
-import { SubmittedSetRuleTransaction } from "../../../entities/SubmittedTransaction/SubmittedTransaction";
-import { selectAllTokenInfo } from "../../../features/metadata/metadataSlice";
+import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
 import {
   OrdersSortType,
   selectMyOrdersReducer,
   setActiveSortType,
 } from "../../../features/myOrders/myOrdersSlice";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
-import { selectUniqueSetRuleTransactions } from "../../../features/transactions/transactionsSlice";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import { AppRoutes } from "../../../routes";
@@ -40,9 +38,10 @@ const MyLimitOrdersWidget: FC = () => {
     (state) => state.web3
   );
   const history = useHistory();
-  const userDelegateRules = useAppSelector(selectUniqueSetRuleTransactions);
+  const { delegateRules, isInitialized: isDelegateRulesInitialized } =
+    useAppSelector((state) => state.delegateRules);
 
-  const { userOrders, sortTypeDirection, activeSortType } = useAppSelector(
+  const { sortTypeDirection, activeSortType } = useAppSelector(
     selectMyOrdersReducer
   );
 
@@ -70,9 +69,7 @@ const MyLimitOrdersWidget: FC = () => {
     }
   };
 
-  const handleDeleteOrderButtonClick = async (
-    order: SubmittedSetRuleTransaction
-  ) => {
+  const handleDeleteOrderButtonClick = async (order: DelegateRule) => {
     // TODO: Implement
   };
 
@@ -86,7 +83,7 @@ const MyLimitOrdersWidget: FC = () => {
     }
   }, [pendingCancelTranssaction]);
 
-  if (!isInitialized) {
+  if (!isInitialized || !isDelegateRulesInitialized) {
     return <Container />;
   }
 
@@ -107,12 +104,12 @@ const MyLimitOrdersWidget: FC = () => {
         )}
       </TransactionOverlay>
 
-      {!!userOrders.length && (
+      {!!delegateRules.length && (
         <MyLimitOrdersList
           activeCancellationId={activeCancellationNonce}
           activeSortType={activeSortType}
           activeTokens={[]}
-          limitOrders={userDelegateRules}
+          delegateRules={delegateRules}
           sortTypeDirection={sortTypeDirection}
           library={library!}
           onDeleteOrderButtonClick={handleDeleteOrderButtonClick}
@@ -120,10 +117,10 @@ const MyLimitOrdersWidget: FC = () => {
         />
       )}
 
-      {!userOrders.length && (
+      {!delegateRules.length && (
         <InfoSectionContainer>
           <InfoSection
-            userHasNoOrders={!userOrders.length}
+            userHasNoOrders={!delegateRules.length}
             walletIsNotConnected={!isActive}
           />
         </InfoSectionContainer>

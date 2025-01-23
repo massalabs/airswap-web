@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Route, Switch } from "react-router-dom";
 
 import useBalances from "../../features/balances/balancesHooks";
+import { useDelegateRules } from "../../features/delegateRules/delegateRulesHooks";
 import useMetadata from "../../features/metadata/metadataHooks";
 import useMyOrders from "../../features/myOrders/myOrdersHooks";
 import { useTransactions } from "../../features/transactions/transactionsHooks";
@@ -19,6 +20,7 @@ const Routes: FC = () => {
   useBalances();
   useMetadata();
   useTransactions();
+  useDelegateRules();
   useMyOrders();
   useWeb3();
 

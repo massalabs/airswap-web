@@ -5,7 +5,7 @@ import { TokenInfo } from "@airswap/utils";
 import * as ethers from "ethers";
 
 import { useAppSelector } from "../../../../../app/hooks";
-import { SubmittedSetRuleTransaction } from "../../../../../entities/SubmittedTransaction/SubmittedTransaction";
+import { DelegateRule } from "../../../../../entities/DelegateRule/DelegateRule";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
 import { OrdersSortType } from "../../../../../features/myOrders/myOrdersSlice";
 import { MyOrder } from "../../../MyOtcOrdersWidget/entities/Order";
@@ -16,10 +16,10 @@ interface MyLimitOrdersListProps {
   activeCancellationId?: string;
   activeSortType: OrdersSortType;
   activeTokens: TokenInfo[];
-  limitOrders: SubmittedSetRuleTransaction[];
+  delegateRules: DelegateRule[];
   sortTypeDirection: Record<OrdersSortType, boolean>;
   library: ethers.providers.BaseProvider;
-  onDeleteOrderButtonClick: (order: SubmittedSetRuleTransaction) => void;
+  onDeleteOrderButtonClick: (order: DelegateRule) => void;
   onSortButtonClick: (type: OrdersSortType) => void;
   className?: string;
 }
@@ -27,7 +27,7 @@ interface MyLimitOrdersListProps {
 const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
   activeCancellationId,
   activeSortType,
-  limitOrders,
+  delegateRules,
   library,
   sortTypeDirection,
   onDeleteOrderButtonClick,
@@ -41,17 +41,17 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
 
   const callGetOrders = useCallback(async () => {
     const newOrders = await Promise.all(
-      limitOrders.map((order) =>
-        getDelegateRuleDataAndTransformToOrder(order, library)
+      delegateRules.map((order) =>
+        getDelegateRuleDataAndTransformToOrder(order, activeTokens, library)
       )
     );
 
     setOrders(newOrders);
     setIsLoading(false);
-  }, [limitOrders, activeTokens, activeCancellationId]);
+  }, [delegateRules, activeTokens, activeCancellationId]);
 
   const handleDeleteOrderButtonClick = (order: MyOrder): void => {
-    const orderToDelete = limitOrders.find((o) => o.hash === order.id);
+    const orderToDelete = delegateRules.find((o) => o.id === order.id);
 
     if (orderToDelete) {
       onDeleteOrderButtonClick(orderToDelete);

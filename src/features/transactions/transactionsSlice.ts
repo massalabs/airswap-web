@@ -25,10 +25,10 @@ import {
   submitTransaction,
   updateTransactions,
 } from "./transactionsActions";
-import { getUniqueSetRuleTransactions } from "./transactionsHelpers";
 import { filterTransactionByDate } from "./transactionsUtils";
 
 export interface TransactionsState {
+  isInitialized: boolean;
   transactions: SubmittedTransaction[];
   filter: {
     [ClearOrderType.failed]?: number;
@@ -37,6 +37,7 @@ export interface TransactionsState {
 }
 
 const initialState: TransactionsState = {
+  isInitialized: false,
   transactions: [],
   filter: {},
 };
@@ -95,6 +96,9 @@ export const transactionsSlice = createSlice({
     setTransactions: (state, action: PayloadAction<SubmittedTransaction[]>) => {
       state.transactions = action.payload.slice(0, 20);
     },
+    setIsInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(submitTransaction, (state, action) => {
@@ -129,8 +133,13 @@ export const transactionsSlice = createSlice({
   },
 });
 
-export const { clear, setFilter, setFilters, setTransactions } =
-  transactionsSlice.actions;
+export const {
+  clear,
+  setIsInitialized,
+  setFilter,
+  setFilters,
+  setTransactions,
+} = transactionsSlice.actions;
 
 export const selectTransactions = (state: RootState): SubmittedTransaction[] =>
   state.transactions.transactions;
@@ -231,10 +240,5 @@ export const selectTransactionsFilter = (state: RootState) => {
 
 export const selectSetRuleTransactions = (state: RootState) =>
   state.transactions.transactions.filter(isSetRuleTransaction);
-
-export const selectUniqueSetRuleTransactions = createSelector(
-  selectSetRuleTransactions,
-  getUniqueSetRuleTransactions
-);
 
 export default transactionsSlice.reducer;

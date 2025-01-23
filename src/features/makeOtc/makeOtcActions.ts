@@ -14,6 +14,7 @@ import { ethers } from "ethers";
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
+import { transformToDelegateRule } from "../../entities/DelegateRule/DelegateRuleTransformers";
 import { SubmittedSetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import { AppErrorType, isAppError } from "../../errors/appError";
 import transformUnknownErrorToAppError from "../../errors/transformUnknownErrorToAppError";
@@ -68,15 +69,15 @@ const createDelegateRule = async (
   );
 
   // For a delegate rule, the sender and signer are reversed compared to an otc order
-  const rule: DelegateRule = {
-    chainId: params.chainId,
-    senderWallet: params.signerWallet,
-    senderToken: params.signerToken,
-    senderAmount: signerAmount,
-    signerToken: params.senderToken,
-    signerAmount: senderAmount,
-    expiry: Number(params.expiry),
-  };
+  const rule = transformToDelegateRule(
+    params.signerWallet,
+    params.signerToken,
+    signerAmount,
+    params.senderToken,
+    senderAmount,
+    params.chainId,
+    Number(params.expiry)
+  );
 
   dispatch(setStatus("signing"));
 
