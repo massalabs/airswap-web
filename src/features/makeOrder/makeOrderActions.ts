@@ -7,13 +7,11 @@ import {
   TokenInfo,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
-import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { ethers } from "ethers";
 
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
-import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { transformToDelegateRule } from "../../entities/DelegateRule/DelegateRuleTransformers";
 import { SubmittedSetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import { AppErrorType, isAppError } from "../../errors/appError";
@@ -26,12 +24,7 @@ import {
 } from "../../types/transactionTypes";
 import { sendOrderToIndexers } from "../indexer/indexerHelpers";
 import { submitTransaction } from "../transactions/transactionsActions";
-import {
-  setDelegateRule,
-  setError,
-  setStatus,
-  setUserOrder,
-} from "./makeOtcSlice";
+import { setError, setStatus, setOtcOrder } from "./makeOrderSlice";
 
 const getJustifiedAddress = async (library: Web3Provider, address: string) => {
   return ethers.utils.isAddress(address)
@@ -178,7 +171,7 @@ const createOtcOrder = async (
   }
 
   dispatch(setStatus("idle"));
-  dispatch(setUserOrder(fullOrder));
+  dispatch(setOtcOrder(fullOrder));
 
   return;
 };

@@ -19,13 +19,13 @@ import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
 import { fetchIndexerUrls } from "../../../features/indexer/indexerActions";
 import { selectIndexerReducer } from "../../../features/indexer/indexerSlice";
-import { createOrder as createOrderAction } from "../../../features/makeOtc/makeOtcActions";
+import { createOrder as createOrderAction } from "../../../features/makeOrder/makeOrderActions";
 import {
   clearLastUserOrder,
   reset,
-  selectMakeOtcReducer,
+  selectMakeOrderReducer,
   setError,
-} from "../../../features/makeOtc/makeOtcSlice";
+} from "../../../features/makeOrder/makeOrderSlice";
 import {
   selectActiveTokens,
   selectAllTokenInfo,
@@ -57,7 +57,6 @@ import useValidAddress from "../../../hooks/useValidAddress";
 import { routes } from "../../../routes";
 import { OrderScopeType, OrderType } from "../../../types/orderTypes";
 import { TokenSelectModalTypes } from "../../../types/tokenSelectModalTypes";
-import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
 import MakeOrderReview from "../../@reviewScreens/MakeOrderReview/MakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
@@ -113,8 +112,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     status: makeOtcStatus,
     error,
     lastDelegateRule,
-    lastUserOrder,
-  } = useAppSelector(selectMakeOtcReducer);
+    lastOtcOrder: lastUserOrder,
+  } = useAppSelector(selectMakeOrderReducer);
   const ordersStatus = useAppSelector(selectOrdersStatus);
   const { provider: library } = useWeb3React<Web3Provider>();
   const { isActive, chainId, account } = useAppSelector((state) => state.web3);

@@ -13,7 +13,7 @@ import {
 import delegateRulesReducer from "../features/delegateRules/delegateRulesSlice";
 import gasCostReducer from "../features/gasCost/gasCostSlice";
 import indexerReducer from "../features/indexer/indexerSlice";
-import makeOtcReducer from "../features/makeOtc/makeOtcSlice";
+import makeOrderReducer from "../features/makeOrder/makeOrderSlice";
 import metadataReducer from "../features/metadata/metadataSlice";
 import myOrdersReducer from "../features/myOrders/myOrdersSlice";
 import ordersReducer from "../features/orders/ordersSlice";
@@ -37,7 +37,7 @@ const reducers = {
   gasCost: gasCostReducer,
   registry: registryReducer,
   userSettings: userSettingsReducer,
-  makeOtc: makeOtcReducer,
+  makeOrder: makeOrderReducer,
   myOrders: myOrdersReducer,
   takeOtc: takeOtcReducer,
   web3: web3Reducer,

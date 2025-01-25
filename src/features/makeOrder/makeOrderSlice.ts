@@ -5,25 +5,25 @@ import { RootState } from "../../app/store";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { AppError } from "../../errors/appError";
 
-export interface MakeOtcState {
+export interface MakeOrderState {
   lastDelegateRule?: DelegateRule;
-  lastUserOrder?: FullOrderERC20;
+  lastOtcOrder?: FullOrderERC20;
   status: "idle" | "signing" | "failed" | "reset";
   error?: AppError;
 }
 
-const initialState: MakeOtcState = {
+const initialState: MakeOrderState = {
   status: "idle",
 };
 
-export const makeOtcSlice = createSlice({
-  name: "make-otc",
+export const makeOrderSlice = createSlice({
+  name: "make-order",
   initialState,
   reducers: {
     setStatus: (
       state,
-      action: PayloadAction<MakeOtcState["status"]>
-    ): MakeOtcState => {
+      action: PayloadAction<MakeOrderState["status"]>
+    ): MakeOrderState => {
       return {
         ...state,
         status: action.payload,
@@ -32,38 +32,38 @@ export const makeOtcSlice = createSlice({
     setDelegateRule: (
       state,
       action: PayloadAction<DelegateRule>
-    ): MakeOtcState => {
+    ): MakeOrderState => {
       return {
         ...state,
         lastDelegateRule: action.payload,
       };
     },
-    setUserOrder: (
+    setOtcOrder: (
       state,
       action: PayloadAction<FullOrderERC20>
-    ): MakeOtcState => {
+    ): MakeOrderState => {
       return {
         ...state,
-        lastUserOrder: action.payload,
+        lastOtcOrder: action.payload,
       };
     },
-    clearLastUserOrder: (state): MakeOtcState => {
+    clearLastUserOrder: (state): MakeOrderState => {
       return {
         ...state,
-        lastUserOrder: undefined,
+        lastOtcOrder: undefined,
         lastDelegateRule: undefined,
       };
     },
     setError: (
       state,
       action: PayloadAction<AppError | undefined>
-    ): MakeOtcState => {
+    ): MakeOrderState => {
       return {
         ...state,
         error: action.payload,
       };
     },
-    reset: (): MakeOtcState => {
+    reset: (): MakeOrderState => {
       return initialState;
     },
   },
@@ -72,12 +72,12 @@ export const makeOtcSlice = createSlice({
 export const {
   setDelegateRule,
   setStatus,
-  setUserOrder,
+  setOtcOrder,
   clearLastUserOrder,
   setError,
   reset,
-} = makeOtcSlice.actions;
+} = makeOrderSlice.actions;
 
-export const selectMakeOtcReducer = (state: RootState) => state.makeOtc;
+export const selectMakeOrderReducer = (state: RootState) => state.makeOrder;
 
-export default makeOtcSlice.reducer;
+export default makeOrderSlice.reducer;

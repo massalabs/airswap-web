@@ -2,7 +2,7 @@ import { FullOrderERC20 } from "@airswap/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
-import { setUserOrder } from "../makeOtc/makeOtcSlice";
+import { setOtcOrder } from "../makeOrder/makeOrderSlice";
 import { walletChanged, walletDisconnected } from "../web3/web3Actions";
 import { writeUserOrdersToLocalStorage } from "./myOrdersHelpers";
 
@@ -90,7 +90,7 @@ export const myOrdersSlice = createSlice({
     builder.addCase(walletDisconnected, (): MyOrdersState => initialState);
     builder.addCase(walletChanged, (): MyOrdersState => initialState);
 
-    builder.addCase(setUserOrder, (state, action) => {
+    builder.addCase(setOtcOrder, (state, action) => {
       const userOrders = [action.payload, ...state.userOrders];
       const { signerWallet, chainId } = action.payload;
       writeUserOrdersToLocalStorage(userOrders, signerWallet, chainId);
