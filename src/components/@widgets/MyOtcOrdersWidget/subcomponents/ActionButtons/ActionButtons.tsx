@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react";
+import { FC, useMemo } from "react";
 
 import { AppRoutes } from "../../../../../routes";
 import { Container, SignButton, StyledLink } from "./ActionButtons.styles";
@@ -8,17 +8,17 @@ export enum ButtonActions {
   connectWallet,
   switchNetwork,
   newOrder,
-  removeOrder,
-  goBack,
 }
 
 type ActionButtonsProps = {
+  isLimitOrder?: boolean;
   walletIsNotConnected: boolean;
   className?: string;
   onActionButtonClick: (action: ButtonActions) => void;
 };
 
 const ActionButtons: FC<ActionButtonsProps> = ({
+  isLimitOrder,
   walletIsNotConnected,
   className,
   onActionButtonClick,
@@ -43,7 +43,11 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   return (
     <Container className={className}>
       {showNewOrderLink ? (
-        <StyledLink to={AppRoutes.makeOtcOrder}>{buttonText}</StyledLink>
+        <StyledLink
+          to={isLimitOrder ? AppRoutes.makeLimitOrder : AppRoutes.makeOtcOrder}
+        >
+          {buttonText}
+        </StyledLink>
       ) : (
         <SignButton intent="primary" onClick={handleActionButtonClick}>
           {buttonText}

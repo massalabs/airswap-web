@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setDelegateRuleFilledState } from "./delegateRulesActions";
 import { setDelegateRules, setIsInitialized } from "./delegateRulesSlice";
 import useSetRuleLogs from "./hooks/useSetRuleLogs";
 
@@ -10,8 +11,6 @@ export const useDelegateRules = () => {
   const { isInitialized: isTransactionsInitialized } = useAppSelector(
     (state) => state.transactions
   );
-  const { isInitialized: isDelegateRulesInitialized, delegateRules } =
-    useAppSelector((state) => state.delegateRules);
 
   const dispatch = useAppDispatch();
   const { result: setRuleLogs, status } = useSetRuleLogs(
@@ -34,6 +33,7 @@ export const useDelegateRules = () => {
     }
 
     dispatch(setDelegateRules(setRuleLogs.delegateRules));
+    dispatch(setDelegateRuleFilledState(setRuleLogs.delegateRules));
     dispatch(setIsInitialized(true));
   }, [
     isTransactionsInitialized,

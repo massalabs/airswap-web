@@ -2,6 +2,7 @@ import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
+import { selectDelegateRulesReducer } from "../../features/delegateRules/delegateRulesSlice";
 import { selectMyOrdersReducer } from "../../features/myOrders/myOrdersSlice";
 import { AppRoutes, routes } from "../../routes";
 import { Container, StyledNavLink } from "./PageNavigation.styles";
@@ -14,6 +15,8 @@ const PageNavigation: FC<PageNavigationProps> = ({ className }) => {
   const { t } = useTranslation();
   const userHasOrders =
     useSelector(selectMyOrdersReducer).userOrders.length > 0;
+  const userHasLimitOrders =
+    useSelector(selectDelegateRulesReducer).delegateRules.length > 0;
 
   return (
     <Container className={className}>
@@ -42,7 +45,9 @@ const PageNavigation: FC<PageNavigationProps> = ({ className }) => {
         {t("common.otc")}
       </StyledNavLink>
       <StyledNavLink
-        to={userHasOrders ? routes.myLimitOrders() : routes.makeLimitOrder()}
+        to={
+          userHasLimitOrders ? routes.myLimitOrders() : routes.makeLimitOrder()
+        }
         isActive={(match, location) => {
           return (
             location.pathname.includes(AppRoutes.myLimitOrders) ||

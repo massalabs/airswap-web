@@ -20,6 +20,7 @@ import {
 import { getSortedOrders } from "./helpers";
 
 interface MyOrdersListProps {
+  hasFilledColumn?: boolean;
   isLoading: boolean;
   activeSortType: OrdersSortType;
   orders: MyOrder[];
@@ -30,6 +31,7 @@ interface MyOrdersListProps {
 }
 
 const MyOrdersList: FC<MyOrdersListProps> = ({
+  hasFilledColumn,
   isLoading,
   activeSortType,
   orders,
@@ -136,9 +138,10 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
   return (
     <Container className={className} hasOverflow={hasOverflow}>
       <StyledMyOrdersListSortButtons
+        hasFilledColumn={hasFilledColumn}
+        hasOverflow={hasOverflow}
         width={containerWidth}
         activeSortType={activeSortType}
-        hasOverflow={hasOverflow}
         sortTypeDirection={sortTypeDirection}
         onSortButtonClick={onSortButtonClick}
       />
@@ -146,6 +149,7 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
         {sortedOrders.map((order, index) => (
           <NewOrder
             key={order.id}
+            hasFilledColumn={hasFilledColumn}
             order={order}
             index={index}
             onDeleteOrderButtonClick={handleDeleteOrderButtonClick}

@@ -7,6 +7,7 @@ import { Container, PairButtonWrapper } from "./MyOrdersListSortButtons.styles";
 
 interface MyOrdersListProps {
   activeSortType: OrdersSortType;
+  hasFilledColumn?: boolean;
   hasOverflow: boolean;
   sortTypeDirection: Record<OrdersSortType, boolean>;
   onSortButtonClick: (type: OrdersSortType) => void;
@@ -15,6 +16,7 @@ interface MyOrdersListProps {
 
 const MyOrdersListSortButtons: FC<MyOrdersListProps> = ({
   activeSortType,
+  hasFilledColumn,
   hasOverflow,
   sortTypeDirection,
   onSortButtonClick,
@@ -23,7 +25,11 @@ const MyOrdersListSortButtons: FC<MyOrdersListProps> = ({
   const { t } = useTranslation();
 
   return (
-    <Container className={className} hasOverflow={hasOverflow}>
+    <Container
+      className={className}
+      hasOverflow={hasOverflow}
+      hasFilledColumn={hasFilledColumn}
+    >
       <SortButton
         isSortable
         isActive={activeSortType === "active"}
@@ -33,6 +39,16 @@ const MyOrdersListSortButtons: FC<MyOrdersListProps> = ({
       <PairButtonWrapper>
         <SortButton isDisabled>{t("common.pair")}</SortButton>
       </PairButtonWrapper>
+      {hasFilledColumn && (
+        <SortButton
+          isSortable
+          isActive={activeSortType === "filled"}
+          isDescending={sortTypeDirection.filled}
+          onClick={() => onSortButtonClick("filled")}
+        >
+          {t("common.filled")}
+        </SortButton>
+      )}
       <SortButton
         isSortable
         isActive={activeSortType === "signerToken"}

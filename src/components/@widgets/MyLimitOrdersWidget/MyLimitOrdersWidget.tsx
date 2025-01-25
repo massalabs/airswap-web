@@ -127,6 +127,7 @@ const MyLimitOrdersWidget: FC = () => {
       )}
 
       <StyledActionButtons
+        isLimitOrder
         walletIsNotConnected={!isActive}
         onActionButtonClick={handleActionButtonClick}
       />

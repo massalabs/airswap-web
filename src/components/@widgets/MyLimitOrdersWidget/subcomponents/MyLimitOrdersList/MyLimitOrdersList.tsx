@@ -77,6 +77,7 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
 
   return (
     <MyOrdersList
+      hasFilledColumn
       isLoading={isLoading}
       activeSortType={activeSortType}
       orders={orders}

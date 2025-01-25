@@ -8,9 +8,10 @@ import { writeUserOrdersToLocalStorage } from "./myOrdersHelpers";
 
 export type OrdersSortType =
   | "active"
+  | "expiry"
+  | "filled"
   | "senderToken"
-  | "signerToken"
-  | "expiry";
+  | "signerToken";
 
 export interface MyOrdersState {
   userOrders: FullOrderERC20[];
@@ -23,9 +24,10 @@ const initialState: MyOrdersState = {
   activeSortType: "active",
   sortTypeDirection: {
     active: true,
+    expiry: true,
+    filled: true,
     senderToken: true,
     signerToken: true,
-    expiry: true,
   },
 };
 

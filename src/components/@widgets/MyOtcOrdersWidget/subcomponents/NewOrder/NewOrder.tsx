@@ -22,6 +22,7 @@ import {
 } from "./NewOrder.styles";
 
 interface NewOrderProps {
+  hasFilledColumn?: boolean;
   isCancelInProgress: boolean;
   order: MyOrderInterface;
   index: number;
@@ -34,6 +35,7 @@ interface NewOrderProps {
 }
 
 const NewOrder: FC<PropsWithChildren<NewOrderProps>> = ({
+  hasFilledColumn,
   isCancelInProgress,
   order,
   index,
@@ -97,7 +99,11 @@ const NewOrder: FC<PropsWithChildren<NewOrderProps>> = ({
   };
 
   return (
-    <Container orderStatus={order.status} className={className}>
+    <Container
+      hasFilledColumn={hasFilledColumn}
+      orderStatus={order.status}
+      className={className}
+    >
       <StatusIndicator
         onMouseEnter={() => onStatusIndicatorMouseEnter(index, order.status)}
         onMouseLeave={onStatusIndicatorMouseLeave}
@@ -108,6 +114,7 @@ const NewOrder: FC<PropsWithChildren<NewOrderProps>> = ({
         <TokenIcon logoURI={order.signerToken?.logoURI} />
         <TokenIcon logoURI={order.senderToken?.logoURI} />
       </Tokens>
+      {hasFilledColumn && <Text>{`0 ${order.signerToken?.symbol || ""}`}</Text>}
       <Text>{`${signerAmount} ${order.signerToken?.symbol || ""}`}</Text>
       <Text>{`${senderAmount} ${order.senderToken?.symbol || ""}`}</Text>
       <Text>

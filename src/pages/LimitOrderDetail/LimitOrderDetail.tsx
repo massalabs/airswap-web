@@ -17,17 +17,18 @@ import { InvalidOrder } from "../OtcOrderDetail/subcomponents";
 
 const LimitOrderDetail: FC = () => {
   const dispatch = useAppDispatch();
-  const { signerWallet, signerToken, senderToken } = useParams<{
+  const { signerWallet, signerToken, senderToken, chainId } = useParams<{
     signerWallet: string;
     signerToken: string;
     senderToken: string;
+    chainId: string;
   }>();
 
   const status = "idle";
 
   useEffect(() => {
-    console.log(signerWallet, signerToken, senderToken);
-  }, [signerWallet, signerToken, senderToken]);
+    console.log(signerWallet, signerToken, senderToken, chainId);
+  }, [signerWallet, signerToken, senderToken, chainId]);
 
   // useEffect(() => {
   //   if (activeOrder && !isFetchingAllTokens) {
