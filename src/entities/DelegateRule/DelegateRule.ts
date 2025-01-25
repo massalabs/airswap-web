@@ -1,6 +1,7 @@
 export interface DelegateRule {
   id: string;
   chainId: number;
+  senderFilledAmount: string;
   senderWallet: string;
   senderToken: string;
   senderAmount: string;

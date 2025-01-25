@@ -1,8 +1,15 @@
 import React, { FC, useEffect } from "react";
 import { useParams } from "react-router";
 
-import { useAppDispatch } from "../../app/hooks";
+import { useWeb3React } from "@web3-react/core";
+
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import Page from "../../components/Page/Page";
+import { fetchAllTokens } from "../../features/metadata/metadataActions";
+import { selectMetaDataReducer } from "../../features/metadata/metadataSlice";
+import { getDelegateOrder } from "../../features/takeLimit/takeLimitActions";
+import { reset } from "../../features/takeLimit/takeLimitSlice";
+import useDefaultLibrary from "../../hooks/useDefaultLibrary";
 import { InvalidOrder } from "../OtcOrderDetail/subcomponents";
 
 // TODO: Add ChainId to the URL
@@ -17,27 +24,52 @@ import { InvalidOrder } from "../OtcOrderDetail/subcomponents";
 
 const LimitOrderDetail: FC = () => {
   const dispatch = useAppDispatch();
-  const { signerWallet, signerToken, senderToken, chainId } = useParams<{
-    signerWallet: string;
-    signerToken: string;
+
+  const { senderWallet, senderToken, signerToken, chainId } = useParams<{
+    senderWallet: string;
     senderToken: string;
+    signerToken: string;
     chainId: string;
   }>();
 
-  const status = "idle";
+  const defaultLibrary = useDefaultLibrary(Number(chainId));
+  const library = useWeb3React();
+
+  const { status, delegateRule } = useAppSelector((state) => state.takeLimit);
+  const { isFetchingAllTokens } = useAppSelector(selectMetaDataReducer);
 
   useEffect(() => {
-    console.log(signerWallet, signerToken, senderToken, chainId);
-  }, [signerWallet, signerToken, senderToken, chainId]);
+    if (
+      !defaultLibrary ||
+      !senderWallet ||
+      !signerToken ||
+      !senderToken ||
+      !chainId
+    ) {
+      return;
+    }
 
-  // useEffect(() => {
-  //   if (activeOrder && !isFetchingAllTokens) {
-  //     dispatch(fetchAllTokens(activeOrder.chainId));
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [activeOrder]);
+    dispatch(
+      getDelegateOrder({
+        senderWallet,
+        senderToken: signerToken,
+        signerToken,
+        chainId: Number(chainId),
+        library: defaultLibrary,
+      })
+    );
 
-  // @ts-ignore
+    return () => {
+      dispatch(reset());
+    };
+  }, []);
+
+  useEffect(() => {
+    if (delegateRule && !isFetchingAllTokens) {
+      dispatch(fetchAllTokens(delegateRule.chainId));
+    }
+  }, [delegateRule]);
+
   if (status === "invalid") {
     return (
       <Page>
@@ -46,9 +78,17 @@ const LimitOrderDetail: FC = () => {
     );
   }
 
-  // if (status === "idle") {
-  //   return <Page />;
+  // if (status === "not-found") {
+  //   return (
+  //     <Page>
+  //       <NotFound />
+  //     </Page>
+  //   );
   // }
+
+  if (status === "idle") {
+    return <Page />;
+  }
 
   return <Page>LimitOrderWidget here</Page>;
 };

@@ -54,7 +54,7 @@ const Routes: FC = () => {
       />
       <Route
         exact
-        path={`/${AppRoutes.limitOrder}/:signerWallet/:signerToken/:senderToken/:chainId`}
+        path={`/${AppRoutes.limitOrder}/:senderWallet/:senderToken/:signerToken/:chainId`}
         component={LimitOrderDetail}
         key="limit-order-detail"
       />

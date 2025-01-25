@@ -19,6 +19,7 @@ import myOrdersReducer from "../features/myOrders/myOrdersSlice";
 import ordersReducer from "../features/orders/ordersSlice";
 import quotesReducer from "../features/quotes/quotesSlice";
 import registryReducer from "../features/registry/registrySlice";
+import takeLimitReducer from "../features/takeLimit/takeLimitSlice";
 import takeOtcReducer from "../features/takeOtc/takeOtcSlice";
 import tradeTermsReducer from "../features/tradeTerms/tradeTermsSlice";
 import transactionsReducer from "../features/transactions/transactionsSlice";
@@ -40,6 +41,7 @@ const reducers = {
   makeOrder: makeOrderReducer,
   myOrders: myOrdersReducer,
   takeOtc: takeOtcReducer,
+  takeLimit: takeLimitReducer,
   web3: web3Reducer,
   quotes: quotesReducer,
 };
