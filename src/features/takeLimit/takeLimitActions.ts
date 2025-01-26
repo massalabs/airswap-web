@@ -1,8 +1,17 @@
-import { ADDRESS_ZERO } from "@airswap/utils";
-import { BaseProvider } from "@ethersproject/providers";
+import { ADDRESS_ZERO, createOrderERC20 } from "@airswap/utils";
+import { BaseProvider, Web3Provider } from "@ethersproject/providers";
 
 import { AppDispatch } from "../../app/store";
-import { getDelegateRuleCall } from "../../entities/DelegateRule/DelegateRuleService";
+import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
+import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
+import {
+  getDelegateRuleCall,
+  getSwapErc20ContractAddress,
+  takeDelegateRuleCall,
+} from "../../entities/DelegateRule/DelegateRuleService";
+import { AppErrorType } from "../../errors/appError";
+import { isAppError } from "../../errors/appError";
+import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import { setDelegateRule, setStatus } from "./takeLimitSlice";
 
 type GetDelegateOrderParams = {
@@ -24,6 +33,8 @@ export const getDelegateOrder =
         return;
       }
 
+      console.log("delegateRule", delegateRule);
+
       if (delegateRule.senderWallet === ADDRESS_ZERO) {
         dispatch(setStatus("not-found"));
 
@@ -36,5 +47,79 @@ export const getDelegateOrder =
       console.error(error);
 
       dispatch(setStatus("failed"));
+    }
+  };
+
+type TakeLimitOrderParams = {
+  delegateRule: DelegateRule;
+  protocolFee: number;
+  signerWallet: string;
+  senderFilledAmount: string;
+  library: Web3Provider;
+};
+
+export const takeLimitOrder =
+  (params: TakeLimitOrderParams) => async (dispatch: AppDispatch) => {
+    try {
+      const {
+        delegateRule,
+        protocolFee,
+        signerWallet,
+        senderFilledAmount,
+        library,
+      } = params;
+
+      const swapErc20ContractAddress = await getSwapErc20ContractAddress(
+        library,
+        delegateRule.chainId
+      );
+
+      console.log("swapErc20ContractAddress", swapErc20ContractAddress);
+
+      const unsignedOrder = createOrderERC20({
+        expiry: delegateRule.expiry,
+        nonce: Date.now().toString(),
+        senderWallet: delegateRule.senderWallet,
+        signerWallet: signerWallet,
+        signerToken: delegateRule.signerToken,
+        senderToken: delegateRule.senderToken,
+        protocolFee,
+        signerAmount: delegateRule.signerAmount,
+        senderAmount: senderFilledAmount,
+        chainId: delegateRule.chainId,
+      });
+
+      dispatch(setStatus("signing"));
+
+      const signature = await createOrderERC20Signature(
+        unsignedOrder,
+        library.getSigner(),
+        swapErc20ContractAddress,
+        delegateRule.chainId
+      );
+
+      console.log("unsignedOrder", unsignedOrder);
+      console.log("signature", signature);
+
+      if (isAppError(signature)) {
+        if (signature.type === AppErrorType.rejectedByUser) {
+          dispatch(setStatus("idle"));
+          notifyRejectedByUserError();
+        } else {
+          dispatch(setStatus("failed"));
+          // dispatch(setError(signature));
+        }
+        return;
+      }
+
+      takeDelegateRuleCall({
+        library,
+        senderFilledAmount,
+        signature,
+        signerWallet,
+        unsignedOrder,
+      });
+    } catch (error) {
+      console.error(error);
     }
   };

@@ -12,7 +12,7 @@ import {
 interface FilledAndStatusProps {
   isLoading?: boolean;
   expiry: Date;
-  filledAmount: number;
+  filledAmount?: string;
   filledPercentage: number;
   link?: string;
   orderType: OrderType;

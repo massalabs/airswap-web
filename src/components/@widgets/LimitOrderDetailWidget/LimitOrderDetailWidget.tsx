@@ -12,6 +12,7 @@ import { BigNumber } from "bignumber.js";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
+import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
 import {
   fetchIndexerUrls,
   getFilteredOrders,
@@ -24,6 +25,7 @@ import {
   selectOrdersErrors,
   selectOrdersStatus,
 } from "../../../features/orders/ordersSlice";
+import { takeLimitOrder } from "../../../features/takeLimit/takeLimitActions";
 import {
   reset,
   selectTakeOtcErrors,
@@ -57,29 +59,30 @@ import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import {
   Container,
   StyledActionButtons,
+  StyledFilledAndStatus,
   StyledInfoSection,
-  StyledRecipientAndStatus,
-} from "./OtcOrderDetailWidget.styles";
-import useFormattedTokenAmount from "./hooks/useFormattedTokenAmount";
-import { useOrderStatus } from "./hooks/useOrderStatus";
-import useSessionOrderTransaction from "./hooks/useSessionOrderTransaction";
-import useTakerTokenInfo from "./hooks/useTakerTokenInfo";
-import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import OrderDetailWidgetHeader from "./subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
+} from "../OtcOrderDetailWidget/OtcOrderDetailWidget.styles";
+import useFormattedTokenAmount from "../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
+import useTakerTokenInfo from "../OtcOrderDetailWidget/hooks/useTakerTokenInfo";
+import { ButtonActions } from "../OtcOrderDetailWidget/subcomponents/ActionButtons/ActionButtons";
+import OrderDetailWidgetHeader from "../OtcOrderDetailWidget/subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 
-interface OtcOrderDetailWidgetProps {
-  order: FullOrderERC20;
+interface LimitOrderDetailWidgetProps {
+  delegateRule: DelegateRule;
 }
 
-export enum OtcOrderDetailWidgetState {
+export enum LimitOrderDetailWidgetState {
   overview = "overview",
   review = "review",
 }
 
-const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
+const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
+  delegateRule,
+}) => {
   const { t } = useTranslation();
   const { provider: library } = useWeb3React<Web3Provider>();
   const { isActive, account, chainId } = useAppSelector((state) => state.web3);
+  const { protocolFee } = useAppSelector((state) => state.metadata);
 
   const history = useHistory();
   const dispatch = useAppDispatch();
@@ -94,35 +97,43 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
 
   const errors = [...ordersErrors, ...takeOtcErrors];
 
-  const [state, setState] = useState<OtcOrderDetailWidgetState>(
-    OtcOrderDetailWidgetState.overview
+  const [state, setState] = useState<LimitOrderDetailWidgetState>(
+    LimitOrderDetailWidgetState.overview
   );
-  const [orderStatus, isOrderStatusLoading] = useOrderStatus(order);
+
+  const orderStatus = OrderStatus.open;
   const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
-    order.senderToken,
-    order.chainId
+    delegateRule.senderToken,
+    delegateRule.chainId
   );
   const [signerToken, isSignerTokenLoading] = useTakerTokenInfo(
-    order.signerToken,
-    order.chainId
+    delegateRule.signerToken,
+    delegateRule.chainId
   );
   const isBalanceLoading = useBalanceLoading();
   const senderAmount = useFormattedTokenAmount(
-    order.senderAmount,
+    delegateRule.senderAmount,
     senderToken?.decimals
   );
   const signerAmount = useFormattedTokenAmount(
-    order.signerAmount,
+    delegateRule.signerAmount,
     signerToken?.decimals
+  );
+  const filledAmount = useFormattedTokenAmount(
+    delegateRule.senderFilledAmount,
+    senderToken?.decimals
   );
   const senderTokenSymbol = senderToken?.symbol;
   const signerTokenSymbol = signerToken?.symbol;
   const tokenExchangeRate = new BigNumber(senderAmount!).dividedBy(
     signerAmount!
   );
-  const approvalTransaction = useApprovalPending(order.senderToken, true);
+  const approvalTransaction = useApprovalPending(
+    delegateRule.senderToken,
+    true
+  );
   const wrappedNativeToken = useNativeWrappedToken(chainId);
-  const orderTransaction = useSessionOrderTransaction(order.nonce);
+  const orderTransaction = undefined; // useSessionOrderTransaction(delegateRule.id);
 
   const { hasSufficientAllowance } = useAllowance(
     senderToken,
@@ -142,22 +153,18 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   const isAllowancesOrBalancesFailed = useAllowancesOrBalancesFailed();
   const shouldDepositNativeToken = !!shouldDepositNativeTokenAmount;
   const hasDepositPending = !!useDepositPending();
-  const orderTransactionLink = useOrderTransactionLink(order.nonce);
-  const orderChainId = useMemo(() => order.chainId, [order]);
+  const orderTransactionLink = useOrderTransactionLink(delegateRule.id);
+  const orderChainId = useMemo(() => delegateRule.chainId, [delegateRule]);
   const walletChainIdIsDifferentThanOrderChainId =
     !!chainId && orderChainId !== chainId;
 
-  const orderType =
-    order.senderWallet === ADDRESS_ZERO
-      ? OrderType.publicUnlisted
-      : OrderType.private;
-  const userIsMakerOfSwap = order.signerWallet === account;
-  const userIsIntendedRecipient =
-    compareAddresses(order.senderWallet, account || "") ||
-    order.senderWallet === ADDRESS_ZERO;
+  const orderType = OrderType.publicUnlisted;
+  const userIsMakerOfSwap = account
+    ? compareAddresses(delegateRule.senderWallet, account)
+    : false;
   const parsedExpiry = useMemo(() => {
-    return new Date(parseInt(order.expiry) * 1000);
-  }, [order]);
+    return new Date(delegateRule.expiry * 1000);
+  }, [delegateRule]);
 
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
   const [showViewAllQuotes, toggleShowViewAllQuotes] = useToggle(false);
@@ -190,21 +197,17 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   };
 
   const takeOrder = async () => {
-    if (!library) return;
+    if (!library || !account) return;
 
-    const errors = await check(
-      order,
-      order.senderWallet,
-      order.chainId,
-      library
+    dispatch(
+      takeLimitOrder({
+        delegateRule,
+        protocolFee,
+        signerWallet: account,
+        senderFilledAmount: delegateRule.senderAmount,
+        library,
+      })
     );
-
-    if (errors.length) {
-      dispatch(setErrors(errors));
-      return;
-    }
-
-    await dispatch(take(order, signerToken!, senderToken!, library, "Swap"));
   };
 
   const openTransactionsTab = () => {
@@ -238,7 +241,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   };
 
   const backToOverview = () => {
-    setState(OtcOrderDetailWidgetState.overview);
+    setState(LimitOrderDetailWidgetState.overview);
   };
 
   const handleActionButtonClick = async (action: ButtonActions) => {
@@ -247,7 +250,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
     }
 
     if (action === ButtonActions.switchNetwork) {
-      addAndSwitchToChain(order.chainId);
+      addAndSwitchToChain(delegateRule.chainId);
     }
 
     if (action === ButtonActions.restart) {
@@ -259,7 +262,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
     }
 
     if (action === ButtonActions.review) {
-      setState(OtcOrderDetailWidgetState.review);
+      setState(LimitOrderDetailWidgetState.review);
     }
 
     if (action === ButtonActions.cancel) {
@@ -277,7 +280,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
 
   const renderScreens = () => {
     if (
-      state === OtcOrderDetailWidgetState.review &&
+      state === LimitOrderDetailWidgetState.review &&
       shouldDepositNativeToken &&
       !orderTransaction
     ) {
@@ -294,11 +297,11 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
       );
     }
 
-    if (state === OtcOrderDetailWidgetState.review) {
+    if (state === LimitOrderDetailWidgetState.review) {
       return (
         <TakeOrderReview
           errors={errors}
-          expiry={+order.expiry}
+          expiry={delegateRule.expiry}
           senderAmount={senderAmount || "0"}
           senderToken={senderToken}
           signerAmount={signerAmount || "0"}
@@ -316,7 +319,8 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
         <OrderDetailWidgetHeader isMakerOfSwap={userIsMakerOfSwap} />
         <SwapInputs
           readOnly
-          disabled={orderStatus === OrderStatus.canceled}
+          // disabled={orderStatus === OrderStatus.canceled}
+          disabled={false}
           isRequestingBaseAmount={isSignerTokenLoading}
           isRequestingBaseToken={isSignerTokenLoading}
           isRequestingQuoteAmount={isSenderTokenLoading}
@@ -334,21 +338,22 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
           onMaxButtonClick={() => {}}
         />
 
-        <StyledRecipientAndStatus
-          isLoading={isOrderStatusLoading}
+        <StyledFilledAndStatus
           expiry={parsedExpiry}
-          link={orderTransactionLink}
+          filledAmount={filledAmount}
+          filledPercentage={0}
           orderType={orderType}
-          recipient={order.senderWallet}
           status={orderStatus}
-          userAddress={account || undefined}
+          tokenSymbol={senderTokenSymbol}
+          link={orderTransactionLink}
         />
 
         <StyledInfoSection
           isAllowancesFailed={isAllowancesOrBalancesFailed}
-          isExpired={orderStatus === OrderStatus.expired}
+          // isExpired={orderStatus === OrderStatus.expired}
+          isExpired={false}
           isDifferentChainId={walletChainIdIsDifferentThanOrderChainId}
-          isIntendedRecipient={userIsIntendedRecipient}
+          isIntendedRecipient={true}
           isMakerOfSwap={userIsMakerOfSwap}
           isNotConnected={!isActive}
           orderChainId={orderChainId}
@@ -361,11 +366,13 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
         <StyledActionButtons
           hasInsufficientBalance={hasInsufficientTokenBalance}
           hasInsufficientAllowance={!hasSufficientAllowance}
-          isExpired={orderStatus === OrderStatus.expired}
-          isCanceled={orderStatus === OrderStatus.canceled}
-          isTaken={orderStatus === OrderStatus.taken}
+          // isExpired={orderStatus === OrderStatus.expired}
+          isExpired={false}
+          isCanceled={false}
+          // isTaken={orderStatus === OrderStatus.taken}
+          isTaken={false}
           isDifferentChainId={walletChainIdIsDifferentThanOrderChainId}
-          isIntendedRecipient={userIsIntendedRecipient}
+          isIntendedRecipient={true}
           isLoading={isBalanceLoading}
           isMakerOfSwap={userIsMakerOfSwap}
           isNotConnected={!isActive}
@@ -442,4 +449,4 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   );
 };
 
-export default OtcOrderDetailWidget;
+export default LimitOrderDetailWidget;

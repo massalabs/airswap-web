@@ -1,5 +1,6 @@
 import { Delegate } from "@airswap/libraries";
-import { BaseProvider } from "@ethersproject/providers";
+import { Signature, UnsignedOrderERC20 } from "@airswap/utils";
+import { BaseProvider, Web3Provider } from "@ethersproject/providers";
 
 import { DelegateRule } from "./DelegateRule";
 import { transformToDelegateRule } from "./DelegateRuleTransformers";
@@ -35,4 +36,62 @@ export const getDelegateRuleCall = async (
   );
 
   return delegateRule;
+};
+
+type TakeDelegateRuleParams = {
+  senderFilledAmount: string;
+  signature: Signature;
+  signerWallet: string;
+  unsignedOrder: UnsignedOrderERC20;
+  library: Web3Provider;
+};
+
+export const takeDelegateRuleCall = async (params: TakeDelegateRuleParams) => {
+  const {
+    unsignedOrder,
+    senderFilledAmount,
+    signature,
+    signerWallet,
+    library,
+  } = params;
+  const delegateContract = Delegate.getContract(library.getSigner(), 11155111);
+
+  console.log(
+    unsignedOrder.senderWallet,
+    unsignedOrder.nonce,
+    unsignedOrder.expiry,
+    signerWallet,
+    unsignedOrder.signerToken,
+    unsignedOrder.signerAmount,
+    unsignedOrder.senderToken,
+    unsignedOrder.senderAmount,
+    signature.v,
+    signature.r,
+    signature.s
+  );
+
+  const tx = await delegateContract.swap(
+    unsignedOrder.senderWallet,
+    unsignedOrder.nonce,
+    unsignedOrder.expiry,
+    unsignedOrder.signerWallet,
+    unsignedOrder.signerToken,
+    unsignedOrder.signerAmount,
+    unsignedOrder.senderToken,
+    unsignedOrder.senderAmount,
+    signature.v,
+    signature.r,
+    signature.s
+  );
+
+  console.log(tx);
+};
+
+export const getSwapErc20ContractAddress = (
+  library: Web3Provider,
+  chainId: number
+) => {
+  const delegateContract = Delegate.getContract(library, chainId);
+
+  return delegateContract.swapERC20Contract();
 };
