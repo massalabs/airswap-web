@@ -39,7 +39,7 @@ export const getDelegateRuleCall = async (
 };
 
 type TakeDelegateRuleParams = {
-  senderFilledAmount: string;
+  chainId: number;
   signature: Signature;
   signerWallet: string;
   unsignedOrder: UnsignedOrderERC20;
@@ -48,13 +48,13 @@ type TakeDelegateRuleParams = {
 
 export const takeDelegateRuleCall = async (params: TakeDelegateRuleParams) => {
   const {
+    chainId,
     unsignedOrder,
-    senderFilledAmount,
     signature,
     signerWallet,
     library,
   } = params;
-  const delegateContract = Delegate.getContract(library.getSigner(), 11155111);
+  const delegateContract = Delegate.getContract(library.getSigner(), chainId);
 
   console.log(
     unsignedOrder.senderWallet,

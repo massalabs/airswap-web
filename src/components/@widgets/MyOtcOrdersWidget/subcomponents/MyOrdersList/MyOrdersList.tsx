@@ -7,7 +7,7 @@ import useWindowSize from "../../../../../hooks/useWindowSize";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import { MyOrder } from "../../entities/Order";
 import { getOrderStatusTranslation } from "../../helpers";
-import NewOrder from "../NewOrder/NewOrder";
+import Order from "../Order/Order";
 import {
   Container,
   DeleteButtonTooltip,
@@ -147,7 +147,7 @@ const MyOrdersList: FC<MyOrdersListProps> = ({
       />
       <OrdersContainer ref={containerRef}>
         {sortedOrders.map((order, index) => (
-          <NewOrder
+          <Order
             key={order.id}
             hasFilledColumn={hasFilledColumn}
             order={order}

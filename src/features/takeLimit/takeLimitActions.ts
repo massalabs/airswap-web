@@ -113,8 +113,8 @@ export const takeLimitOrder =
       }
 
       takeDelegateRuleCall({
+        chainId: delegateRule.chainId,
         library,
-        senderFilledAmount,
         signature,
         signerWallet,
         unsignedOrder,

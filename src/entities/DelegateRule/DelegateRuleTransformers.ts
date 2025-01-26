@@ -7,7 +7,7 @@ const getDelegateRuleId = (
   chainId: number,
   expiry: number
 ) => {
-  return `${senderWallet.toLowerCase()}-${senderToken.toLowerCase()}-${signerToken.toLowerCase()}-${expiry}-${chainId}`;
+  return `${senderWallet}-${senderToken}-${signerToken}-${expiry}-${chainId}`;
 };
 
 export const transformToDelegateRule = (
@@ -29,10 +29,10 @@ export const transformToDelegateRule = (
       expiry
     ),
     senderFilledAmount,
-    senderWallet: senderWallet.toLowerCase(),
-    senderToken: senderToken.toLowerCase(),
+    senderWallet,
+    senderToken,
     senderAmount,
-    signerToken: signerToken.toLowerCase(),
+    signerToken,
     signerAmount,
     chainId,
     expiry,
@@ -60,10 +60,10 @@ export const transformToDelegateSetRuleEvent = (
       expiry
     ),
     senderFilledAmount: "0",
-    senderWallet: senderWallet.toLowerCase(),
-    senderToken: senderToken.toLowerCase(),
+    senderWallet,
+    senderToken,
     senderAmount,
-    signerToken: signerToken.toLowerCase(),
+    signerToken,
     signerAmount,
     chainId,
     expiry,
