@@ -9,7 +9,7 @@ import useCancellationSuccess from "../../../../hooks/useCancellationSuccess";
 import useDefaultLibrary from "../../../../hooks/useDefaultLibrary";
 import { OrderStatus } from "../../../../types/orderStatus";
 
-export const useOrderStatus = (
+export const useOtcOrderStatus = (
   order: FullOrderERC20
 ): [OrderStatus, boolean] => {
   const library = useDefaultLibrary(order.chainId);

@@ -34,8 +34,6 @@ export const getDelegateOrder =
         return;
       }
 
-      console.log("delegateRule", delegateRule);
-
       if (delegateRule.senderWallet === ADDRESS_ZERO) {
         dispatch(setStatus("not-found"));
 

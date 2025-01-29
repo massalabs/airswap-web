@@ -61,7 +61,7 @@ import {
   StyledRecipientAndStatus,
 } from "./OtcOrderDetailWidget.styles";
 import useFormattedTokenAmount from "./hooks/useFormattedTokenAmount";
-import { useOrderStatus } from "./hooks/useOrderStatus";
+import { useOtcOrderStatus } from "./hooks/useOtcOrderStatus";
 import useSessionOrderTransaction from "./hooks/useSessionOrderTransaction";
 import useTakerTokenInfo from "./hooks/useTakerTokenInfo";
 import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
@@ -97,7 +97,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   const [state, setState] = useState<OtcOrderDetailWidgetState>(
     OtcOrderDetailWidgetState.overview
   );
-  const [orderStatus, isOrderStatusLoading] = useOrderStatus(order);
+  const [orderStatus, isOrderStatusLoading] = useOtcOrderStatus(order);
   const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
     order.senderToken,
     order.chainId

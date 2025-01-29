@@ -1,9 +1,7 @@
 import { FC, useContext, useMemo, useState } from "react";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 
-import { FullOrderERC20, ADDRESS_ZERO } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useToggle } from "@react-hookz/web";
 import { useWeb3React } from "@web3-react/core";
@@ -13,13 +11,8 @@ import { BigNumber } from "bignumber.js";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
-import {
-  fetchIndexerUrls,
-  getFilteredOrders,
-} from "../../../features/indexer/indexerActions";
 import { selectIndexerReducer } from "../../../features/indexer/indexerSlice";
-import { approve, deposit, take } from "../../../features/orders/ordersActions";
-import { check } from "../../../features/orders/ordersHelpers";
+import { approve, deposit } from "../../../features/orders/ordersActions";
 import {
   clear,
   selectOrdersErrors,
@@ -29,7 +22,6 @@ import { takeLimitOrder } from "../../../features/takeLimit/takeLimitActions";
 import {
   reset,
   selectTakeOtcErrors,
-  setErrors,
 } from "../../../features/takeOtc/takeOtcSlice";
 import { compareAddresses } from "../../../helpers/string";
 import useAllowance from "../../../hooks/useAllowance";
@@ -47,7 +39,6 @@ import { OrderType } from "../../../types/orderTypes";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
 import ApprovalSubmittedScreen from "../../ApprovalSubmittedScreen/ApprovalSubmittedScreen";
-import AvailableOrdersWidget from "../../AvailableOrdersWidget/AvailableOrdersWidget";
 import addAndSwitchToChain from "../../ChainSelectionPopover/helpers/addAndSwitchToChain";
 import { ErrorList } from "../../ErrorList/ErrorList";
 import ProtocolFeeModal from "../../InformationModals/subcomponents/ProtocolFeeModal/ProtocolFeeModal";
@@ -56,6 +47,8 @@ import OrderSubmittedScreen from "../../OrderSubmittedScreen/OrderSubmittedScree
 import SwapInputs from "../../SwapInputs/SwapInputs";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
+import { useFilledStatus } from "../MyLimitOrdersWidget/hooks/useFilledStatus";
+import { useLimitOrderStatus } from "../MyLimitOrdersWidget/hooks/useLimitOrderStatus";
 import {
   Container,
   StyledActionButtons,
@@ -93,7 +86,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const ordersStatus = useAppSelector(selectOrdersStatus);
   const ordersErrors = useAppSelector(selectOrdersErrors);
   const takeOtcErrors = useAppSelector(selectTakeOtcErrors);
-  const { indexerUrls } = useAppSelector(selectIndexerReducer);
 
   const errors = [...ordersErrors, ...takeOtcErrors];
 
@@ -101,7 +93,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     LimitOrderDetailWidgetState.overview
   );
 
-  const orderStatus = OrderStatus.open;
+  const orderStatus = useLimitOrderStatus(delegateRule);
   const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
     delegateRule.senderToken,
     delegateRule.chainId
@@ -119,14 +111,10 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     delegateRule.signerAmount,
     signerToken?.decimals
   );
-  const filledAmount = useFormattedTokenAmount(
-    delegateRule.senderFilledAmount,
+  const [filledAmount, filledPercentage] = useFilledStatus(
+    delegateRule,
     senderToken?.decimals
   );
-  const filledPercentage = new BigNumber(delegateRule.senderFilledAmount)
-    .dividedBy(delegateRule.senderAmount)
-    .multipliedBy(100)
-    .toNumber();
 
   const senderTokenSymbol = senderToken?.symbol;
   const signerTokenSymbol = signerToken?.symbol;
@@ -173,33 +161,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
   const [showViewAllQuotes, toggleShowViewAllQuotes] = useToggle(false);
 
-  useEffect(() => {
-    if (!indexerUrls && library) {
-      dispatch(fetchIndexerUrls({ provider: library }));
-    }
-  }, [indexerUrls]);
-
-  useEffect(() => {
-    if (indexerUrls && senderToken && signerToken) {
-      dispatch(
-        getFilteredOrders({
-          filter: {
-            senderToken: senderToken.address,
-            signerToken: signerToken.address,
-          },
-        })
-      );
-    }
-  }, [indexerUrls, senderToken, signerToken]);
-
-  // button handlers
-  const backToSwapPage = () => {
-    history.push({
-      pathname: `/${AppRoutes.swap}/${senderToken?.address}/${signerToken?.address}`,
-      state: { isFromOrderDetailPage: true },
-    });
-  };
-
   const takeOrder = async () => {
     if (!library || !account) return;
 
@@ -239,7 +200,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   const restart = () => {
-    history.push({ pathname: `/${AppRoutes.makeOtcOrder}` });
+    history.push(routes.makeLimitOrder());
     dispatch(clear());
     dispatch(reset());
   };
@@ -278,7 +239,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     }
 
     if (action === ButtonActions.back) {
-      history.push(routes.makeOtcOrder());
+      history.push(routes.makeLimitOrder());
     }
   };
 
@@ -354,8 +315,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
         <StyledInfoSection
           isAllowancesFailed={isAllowancesOrBalancesFailed}
-          // isExpired={orderStatus === OrderStatus.expired}
-          isExpired={false}
+          isExpired={orderStatus === OrderStatus.expired}
           isDifferentChainId={walletChainIdIsDifferentThanOrderChainId}
           isIntendedRecipient={true}
           isMakerOfSwap={userIsMakerOfSwap}
@@ -370,11 +330,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
         <StyledActionButtons
           hasInsufficientBalance={hasInsufficientTokenBalance}
           hasInsufficientAllowance={!hasSufficientAllowance}
-          // isExpired={orderStatus === OrderStatus.expired}
-          isExpired={false}
+          isExpired={orderStatus === OrderStatus.expired}
           isCanceled={false}
-          // isTaken={orderStatus === OrderStatus.taken}
-          isTaken={false}
+          isTaken={orderStatus === OrderStatus.taken}
           isDifferentChainId={walletChainIdIsDifferentThanOrderChainId}
           isIntendedRecipient={true}
           isLoading={isBalanceLoading}
@@ -408,21 +366,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       >
         <ErrorList errors={errors} onBackButtonClick={restart} />
       </ModalOverlay>
-
-      {signerToken && senderToken && (
-        <ModalOverlay
-          title={t("orders.availableOrders")}
-          isHidden={!showViewAllQuotes}
-          onClose={() => toggleShowViewAllQuotes()}
-        >
-          <AvailableOrdersWidget
-            senderToken={senderToken}
-            signerToken={signerToken}
-            onSwapLinkClick={backToSwapPage}
-            onFullOrderLinkClick={toggleShowViewAllQuotes}
-          />
-        </ModalOverlay>
-      )}
 
       <TransactionOverlay isHidden={ordersStatus !== "signing"}>
         <WalletSignScreen type="swap" />
