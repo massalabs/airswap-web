@@ -10,15 +10,30 @@ import { selectAllTokenInfo } from "../features/metadata/metadataSlice";
 import findEthOrTokenByAddress from "../helpers/findEthOrTokenByAddress";
 import getWethAddress from "../helpers/getWethAddress";
 
+/**
+ * Hook to get the allowance of a token.
+ * @param token - The token to get the allowance of.
+ * @param amount - The amount of the token to get the allowance of.
+ * @param options - The options to get the allowance of.
+ * @param options.wrapNativeToken - Whether to wrap the native token.
+ * @param options.spenderAddressType - The type of spender address to get the allowance of.
+ * @returns An object with the allowance, whether it has sufficient allowance, and the readable allowance.
+ */
+
 const useAllowance = (
   token: TokenInfo | null,
   amount?: string,
-  wrapNativeToken?: boolean
+  options?: {
+    spenderAddressType?: "Swap" | "Delegate";
+    wrapNativeToken?: boolean;
+  }
 ): {
   hasSufficientAllowance: boolean;
   allowance: string;
   readableAllowance: string;
 } => {
+  const spenderAddressType = options?.spenderAddressType || "Swap";
+  const wrapNativeToken = options?.wrapNativeToken || true;
   const { chainId } = useAppSelector((state) => state.web3);
   const allTokens = useAppSelector(selectAllTokenInfo);
   const allowances = useAppSelector(selectAllowances);
@@ -65,7 +80,11 @@ const useAllowance = (
       return;
     }
 
-    const tokenAllowance = allowances.swap.values[justifiedToken.address];
+    const values =
+      spenderAddressType === "Swap"
+        ? allowances.swap.values
+        : allowances.delegate.values;
+    const tokenAllowance = values[justifiedToken.address];
 
     if (!tokenAllowance) {
       // safer to return true here (has allowance) as validator will catch the

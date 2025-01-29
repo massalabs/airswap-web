@@ -260,7 +260,7 @@ export const approve =
     amount: string,
     token: TokenInfo,
     library: Web3Provider,
-    contractType: "Wrapper" | "Swap"
+    contractType: "Wrapper" | "Swap" | "Delegate"
   ) =>
   async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setStatus("signing"));

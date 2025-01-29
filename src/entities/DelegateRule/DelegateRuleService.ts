@@ -39,7 +39,7 @@ export const getDelegateRuleCall = async (
 };
 
 type TakeDelegateRuleParams = {
-  chainId: number;
+  delegateRule: DelegateRule;
   signature: Signature;
   signerWallet: string;
   unsignedOrder: UnsignedOrderERC20;
@@ -47,14 +47,12 @@ type TakeDelegateRuleParams = {
 };
 
 export const takeDelegateRuleCall = async (params: TakeDelegateRuleParams) => {
-  const {
-    chainId,
-    unsignedOrder,
-    signature,
-    signerWallet,
-    library,
-  } = params;
-  const delegateContract = Delegate.getContract(library.getSigner(), chainId);
+  const { delegateRule, signature, signerWallet, unsignedOrder, library } =
+    params;
+  const delegateContract = Delegate.getContract(
+    library.getSigner(),
+    delegateRule.chainId
+  );
 
   console.log(
     unsignedOrder.senderWallet,
@@ -71,7 +69,7 @@ export const takeDelegateRuleCall = async (params: TakeDelegateRuleParams) => {
   );
 
   const tx = await delegateContract.swap(
-    unsignedOrder.senderWallet,
+    delegateRule.senderWallet,
     unsignedOrder.nonce,
     unsignedOrder.expiry,
     unsignedOrder.signerWallet,

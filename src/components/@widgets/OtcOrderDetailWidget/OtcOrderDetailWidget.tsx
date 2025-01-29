@@ -124,11 +124,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const orderTransaction = useSessionOrderTransaction(order.nonce);
 
-  const { hasSufficientAllowance } = useAllowance(
-    senderToken,
-    senderAmount,
-    true
-  );
+  const { hasSufficientAllowance } = useAllowance(senderToken, senderAmount);
 
   const hasInsufficientTokenBalance = useInsufficientBalance(
     senderToken,

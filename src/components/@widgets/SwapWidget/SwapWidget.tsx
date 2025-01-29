@@ -178,7 +178,9 @@ const SwapWidget: FC = () => {
   const swapType = useSwapType(baseTokenInfo, quoteTokenInfo);
   const nativeTokenInfo = useNativeToken(chainId);
   const wrappedNativeTokenInfo = useNativeWrappedToken(chainId);
-  const { hasSufficientAllowance } = useAllowance(baseTokenInfo, baseAmount);
+  const { hasSufficientAllowance } = useAllowance(baseTokenInfo, baseAmount, {
+    wrapNativeToken: false,
+  });
   const isBalanceLoading = useBalanceLoading();
 
   const activeOrderTransaction = useOrderTransaction(

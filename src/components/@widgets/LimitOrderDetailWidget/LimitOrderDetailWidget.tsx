@@ -123,6 +123,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     delegateRule.senderFilledAmount,
     senderToken?.decimals
   );
+  const filledPercentage = new BigNumber(delegateRule.senderFilledAmount)
+    .dividedBy(delegateRule.senderAmount)
+    .multipliedBy(100)
+    .toNumber();
+
   const senderTokenSymbol = senderToken?.symbol;
   const signerTokenSymbol = signerToken?.symbol;
   const tokenExchangeRate = new BigNumber(senderAmount!).dividedBy(
@@ -135,10 +140,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const orderTransaction = undefined; // useSessionOrderTransaction(delegateRule.id);
 
-  const { hasSufficientAllowance } = useAllowance(
+  const { hasSufficientAllowance, readableAllowance } = useAllowance(
     senderToken,
-    senderAmount,
-    true
+    senderAmount
   );
 
   const hasInsufficientTokenBalance = useInsufficientBalance(
@@ -341,7 +345,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
         <StyledFilledAndStatus
           expiry={parsedExpiry}
           filledAmount={filledAmount}
-          filledPercentage={0}
+          filledPercentage={filledPercentage}
           orderType={orderType}
           status={orderStatus}
           tokenSymbol={senderTokenSymbol}

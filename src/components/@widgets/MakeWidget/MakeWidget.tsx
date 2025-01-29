@@ -150,7 +150,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     makerTokenInfo,
     makerAmountPlusFee,
-    true
+    { spenderAddressType: isLimitOrder ? "Delegate" : "Swap" }
   );
   const hasInsufficientBalance = useInsufficientBalance(
     makerTokenInfo,
@@ -358,7 +358,14 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         ? wrappedNativeToken
         : makerTokenInfo;
 
-    dispatch(approve(makerAmountPlusFee, justifiedToken!, library!, "Swap"));
+    dispatch(
+      approve(
+        makerAmountPlusFee,
+        justifiedToken!,
+        library!,
+        isLimitOrder ? "Delegate" : "Swap"
+      )
+    );
   };
 
   const depositNativeToken = async () => {

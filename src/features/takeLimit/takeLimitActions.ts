@@ -1,3 +1,4 @@
+import { Delegate } from "@airswap/libraries";
 import { ADDRESS_ZERO, createOrderERC20 } from "@airswap/utils";
 import { BaseProvider, Web3Provider } from "@ethersproject/providers";
 
@@ -74,12 +75,10 @@ export const takeLimitOrder =
         delegateRule.chainId
       );
 
-      console.log("swapErc20ContractAddress", swapErc20ContractAddress);
-
       const unsignedOrder = createOrderERC20({
         expiry: delegateRule.expiry,
         nonce: Date.now().toString(),
-        senderWallet: delegateRule.senderWallet,
+        senderWallet: Delegate.getAddress(delegateRule.chainId),
         signerWallet: signerWallet,
         signerToken: delegateRule.signerToken,
         senderToken: delegateRule.senderToken,
@@ -98,9 +97,6 @@ export const takeLimitOrder =
         delegateRule.chainId
       );
 
-      console.log("unsignedOrder", unsignedOrder);
-      console.log("signature", signature);
-
       if (isAppError(signature)) {
         if (signature.type === AppErrorType.rejectedByUser) {
           dispatch(setStatus("idle"));
@@ -113,7 +109,7 @@ export const takeLimitOrder =
       }
 
       takeDelegateRuleCall({
-        chainId: delegateRule.chainId,
+        delegateRule,
         library,
         signature,
         signerWallet,
