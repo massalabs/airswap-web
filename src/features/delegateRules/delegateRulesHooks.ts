@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 
+import { useWeb3React } from "@web3-react/core";
+
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { setDelegateRuleFilledState } from "./delegateRulesActions";
-import { setDelegateRules, setIsInitialized } from "./delegateRulesSlice";
+import { fetchDelegateRules } from "./delegateRulesApi";
 import useSetRuleLogs from "./hooks/useSetRuleLogs";
 
 export const useDelegateRules = () => {
+  const { provider: library } = useWeb3React();
   const { account, chainId } = useAppSelector((state) => state.web3);
   // We need to wait for the transactions to be initialized to prevent querying the contract events simultaneously
   const { isInitialized: isTransactionsInitialized } = useAppSelector(
@@ -19,7 +21,7 @@ export const useDelegateRules = () => {
   );
 
   useEffect(() => {
-    if (!setRuleLogs) {
+    if (!setRuleLogs || !library) {
       return;
     }
 
@@ -32,9 +34,9 @@ export const useDelegateRules = () => {
       return;
     }
 
-    dispatch(setDelegateRules(setRuleLogs.delegateRules));
-    dispatch(setDelegateRuleFilledState(setRuleLogs.delegateRules));
-    dispatch(setIsInitialized(true));
+    dispatch(
+      fetchDelegateRules({ delegateRules: setRuleLogs.delegateRules, library })
+    );
   }, [
     isTransactionsInitialized,
     status,

@@ -8,6 +8,18 @@ import { OrderStatus } from "../../../../../../types/orderStatus";
 import { MyOrder } from "../../../../MyOtcOrdersWidget/entities/Order";
 import { findTokenInfo } from "../../../../MyOtcOrdersWidget/subcomponents/MyOtcOrdersList/helpers";
 
+const getOrderStatus = (delegateRule: DelegateRule): OrderStatus => {
+  if (new Date().getTime() > delegateRule.expiry * 1000) {
+    return OrderStatus.expired;
+  }
+
+  if (delegateRule.senderFilledAmount === delegateRule.senderAmount) {
+    return OrderStatus.taken;
+  }
+
+  return OrderStatus.open;
+};
+
 export const getDelegateRuleDataAndTransformToOrder = async (
   delegateRule: DelegateRule,
   activeTokens: TokenInfo[],
@@ -20,8 +32,7 @@ export const getDelegateRuleDataAndTransformToOrder = async (
     delegateRule.chainId
   );
 
-  // TODO: Implement taken / filled status
-  const isExpired = new Date().getTime() > delegateRule.expiry * 1000;
+  const status = getOrderStatus(delegateRule);
 
   const signerToken = await findTokenInfo(
     delegateRule.signerToken,
@@ -36,9 +47,10 @@ export const getDelegateRuleDataAndTransformToOrder = async (
 
   return {
     id: delegateRule.id,
-    status: isExpired ? OrderStatus.expired : OrderStatus.open,
+    status,
     senderToken: senderToken,
     signerToken: signerToken,
+    senderFilledAmount: delegateRule.senderFilledAmount,
     chainId: delegateRule.chainId,
     senderAmount: delegateRule.senderAmount,
     signerAmount: delegateRule.signerAmount,

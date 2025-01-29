@@ -8,6 +8,7 @@ export interface MyOrder {
   chainId: number;
   senderToken?: TokenInfo;
   senderAmount: string;
+  senderFilledAmount?: string;
   signerToken?: TokenInfo;
   signerAmount: string;
   status: OrderStatus;

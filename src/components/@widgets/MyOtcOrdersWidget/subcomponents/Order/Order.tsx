@@ -4,6 +4,7 @@ import { getExpiryTranslation } from "../../../../../helpers/getExpiryTranslatio
 import { getHumanReadableNumber } from "../../../../../helpers/getHumanReadableNumber";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import LoadingSpinner from "../../../../LoadingSpinner/LoadingSpinner";
+import useFormattedTokenAmount from "../../../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
 import { MyOrder as MyOrderInterface } from "../../entities/Order";
 import {
   getOrderStatusTranslation,
@@ -83,6 +84,11 @@ const Order: FC<PropsWithChildren<OrderProps>> = ({
     [order.status]
   );
 
+  const filledAmount = useFormattedTokenAmount(
+    order.senderFilledAmount,
+    order.senderToken?.decimals
+  );
+
   const handleDeleteOrderButtonClick = () => {
     onDeleteOrderButtonClick(order);
     setIsHoveredActionButton(false);
@@ -114,7 +120,9 @@ const Order: FC<PropsWithChildren<OrderProps>> = ({
         <TokenIcon logoURI={order.signerToken?.logoURI} />
         <TokenIcon logoURI={order.senderToken?.logoURI} />
       </Tokens>
-      {hasFilledColumn && <Text>{`0 ${order.signerToken?.symbol || ""}`}</Text>}
+      {hasFilledColumn && (
+        <Text>{`${filledAmount} ${order.signerToken?.symbol || ""}`}</Text>
+      )}
       <Text>{`${signerAmount} ${order.signerToken?.symbol || ""}`}</Text>
       <Text>{`${senderAmount} ${order.senderToken?.symbol || ""}`}</Text>
       <Text>

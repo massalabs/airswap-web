@@ -159,7 +159,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   }, [delegateRule]);
 
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
-  const [showViewAllQuotes, toggleShowViewAllQuotes] = useToggle(false);
 
   const takeOrder = async () => {
     if (!library || !account) return;
