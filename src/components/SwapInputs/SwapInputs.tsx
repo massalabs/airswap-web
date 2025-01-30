@@ -25,6 +25,7 @@ const SwapInputs: FC<{
   isRequestingBaseToken?: boolean;
   isRequestingQuoteAmount?: boolean;
   isRequestingQuoteToken?: boolean;
+  isSelectTokenDisabled?: boolean;
   readOnly?: boolean;
   showMaxButton?: boolean;
   showMaxInfoButton?: boolean;
@@ -54,6 +55,7 @@ const SwapInputs: FC<{
   isRequestingBaseToken = false,
   isRequestingQuoteAmount = false,
   isRequestingQuoteToken = false,
+  isSelectTokenDisabled = false,
   readOnly = false,
   showMaxButton = false,
   showMaxInfoButton = false,
@@ -128,6 +130,7 @@ const SwapInputs: FC<{
         isRequestingToken={
           !isSell ? isRequestingQuoteToken : isRequestingBaseToken
         }
+        isSelectTokenDisabled={isSelectTokenDisabled || readOnly}
         showMaxButton={showMaxButton}
         showMaxInfoButton={showMaxInfoButton}
         readOnly={readOnly}
@@ -148,7 +151,7 @@ const SwapInputs: FC<{
         onInfoLabelMouseLeave={handleInfoLabelMouseLeave}
       />
       <SwitchTokensButton
-        disabled={tradeNotAllowed || readOnly}
+        disabled={tradeNotAllowed || readOnly || isSelectTokenDisabled}
         onClick={onSwitchTokensButtonClick}
       >
         {getSwitchTokensButtonIcon(tradeNotAllowed, isQuote)}
@@ -162,6 +165,7 @@ const SwapInputs: FC<{
         isRequestingToken={
           isSell ? isRequestingQuoteToken : isRequestingBaseToken
         }
+        isSelectTokenDisabled={isSelectTokenDisabled}
         showTokenContractLink={showTokenContractLink}
         amount={isSell ? quoteAmount : baseAmount}
         includeAmountInput={

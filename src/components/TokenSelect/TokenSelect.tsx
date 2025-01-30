@@ -87,6 +87,10 @@ export type TokenSelectProps = {
    */
   isRequestingToken?: boolean;
   /**
+   * Whether or not the token select is disabled
+   */
+  isSelectTokenDisabled?: boolean;
+  /**
    * Show max button
    */
   showMaxButton?: boolean;
@@ -117,6 +121,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
   onAmountChange,
   isRequestingAmount = false,
   isRequestingToken = false,
+  isSelectTokenDisabled = false,
   isQuote = false,
   hasError = false,
   showMaxButton = false,
@@ -164,7 +169,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
         )}
         {!isRequestingToken ? (
           <ContainingButton
-            disabled={readOnly}
+            disabled={isSelectTokenDisabled || readOnly}
             onClick={onChangeTokenClicked}
             onBlur={handleTokenBlur}
             onFocus={handleTokenFocus}
@@ -178,7 +183,9 @@ const TokenSelect: FC<TokenSelectProps> = ({
                 <StyledSelectButtonContent>
                   {tokenText}
                 </StyledSelectButtonContent>
-                <StyledDownArrow $invisible={readOnly} />
+                <StyledDownArrow
+                  $invisible={isSelectTokenDisabled || readOnly}
+                />
               </StyledSelectItem>
             </StyledSelector>
           </ContainingButton>

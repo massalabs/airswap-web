@@ -1,4 +1,4 @@
-import { FC, useContext, useMemo, useState } from "react";
+import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 
@@ -11,7 +11,6 @@ import { BigNumber } from "bignumber.js";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
-import { selectIndexerReducer } from "../../../features/indexer/indexerSlice";
 import { approve, deposit } from "../../../features/orders/ordersActions";
 import {
   clear,
@@ -59,6 +58,7 @@ import useFormattedTokenAmount from "../OtcOrderDetailWidget/hooks/useFormattedT
 import useTakerTokenInfo from "../OtcOrderDetailWidget/hooks/useTakerTokenInfo";
 import { ButtonActions } from "../OtcOrderDetailWidget/subcomponents/ActionButtons/ActionButtons";
 import OrderDetailWidgetHeader from "../OtcOrderDetailWidget/subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
+import { getCustomSenderAmount, getCustomSignerAmount } from "./helpers";
 
 interface LimitOrderDetailWidgetProps {
   delegateRule: DelegateRule;
@@ -111,6 +111,10 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     delegateRule.signerAmount,
     signerToken?.decimals
   );
+
+  const [customSignerAmount, setCustomSignerAmount] = useState<string>();
+  const [customSenderAmount, setCustomSenderAmount] = useState<string>();
+
   const [filledAmount, filledPercentage] = useFilledStatus(
     delegateRule,
     senderToken?.decimals
@@ -159,6 +163,31 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   }, [delegateRule]);
 
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
+
+  const handleBaseAmountChange = (value: string): void => {
+    const {
+      signerAmount: newCustomSignerAmount,
+      senderAmount: newCustomSenderAmount,
+    } = getCustomSignerAmount(delegateRule, value, signerToken?.decimals);
+
+    setCustomSignerAmount(newCustomSignerAmount);
+    setCustomSenderAmount(newCustomSenderAmount);
+  };
+
+  const handleQuoteAmountChange = (value: string): void => {
+    const {
+      signerAmount: newCustomSignerAmount,
+      senderAmount: newCustomSenderAmount,
+    } = getCustomSenderAmount(delegateRule, value, senderToken?.decimals);
+
+    setCustomSignerAmount(newCustomSignerAmount);
+    setCustomSenderAmount(newCustomSenderAmount);
+  };
+
+  const handleMaxButtonClick = () => {
+    setCustomSignerAmount(signerAmount);
+    setCustomSenderAmount(senderAmount);
+  };
 
   const takeOrder = async () => {
     if (!library || !account) return;
@@ -242,6 +271,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     }
   };
 
+  useEffect(() => {
+    setCustomSignerAmount(signerAmount);
+    setCustomSenderAmount(senderAmount);
+  }, [senderAmount, signerAmount]);
+
   const renderScreens = () => {
     if (
       state === LimitOrderDetailWidgetState.review &&
@@ -282,24 +316,27 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       <>
         <OrderDetailWidgetHeader isMakerOfSwap={userIsMakerOfSwap} />
         <SwapInputs
-          readOnly
-          // disabled={orderStatus === OrderStatus.canceled}
-          disabled={false}
+          showMaxButton={orderStatus === OrderStatus.open}
+          // readOnly={orderStatus !== OrderStatus.open}
+          disabled={orderStatus !== OrderStatus.open}
+          canSetQuoteAmount
+          // disabled={false}
+          isSelectTokenDisabled
           isRequestingBaseAmount={isSignerTokenLoading}
           isRequestingBaseToken={isSignerTokenLoading}
           isRequestingQuoteAmount={isSenderTokenLoading}
           isRequestingQuoteToken={isSenderTokenLoading}
-          showTokenContractLink
-          baseAmount={signerAmount || "0.00"}
+          baseAmount={customSignerAmount || "0.00"}
           baseTokenInfo={signerToken}
           maxAmount={null}
           side={userIsMakerOfSwap ? "buy" : "sell"}
           tradeNotAllowed={walletChainIdIsDifferentThanOrderChainId}
-          quoteAmount={senderAmount || "0.00"}
+          quoteAmount={customSenderAmount || "0.00"}
           quoteTokenInfo={senderToken}
-          onBaseAmountChange={() => {}}
+          onBaseAmountChange={handleBaseAmountChange}
+          onQuoteAmountChange={handleQuoteAmountChange}
           onChangeTokenClick={() => {}}
-          onMaxButtonClick={() => {}}
+          onMaxButtonClick={handleMaxButtonClick}
         />
 
         <StyledFilledAndStatus
