@@ -43,7 +43,7 @@ const SwapInputs: FC<{
   quoteAmountError?: AppError;
 
   onBaseAmountChange: (newValue: string) => void;
-  onChangeTokenClick: (baseOrQuote: "base" | "quote") => void;
+  onChangeTokenClick?: (baseOrQuote: "base" | "quote") => void;
   onMaxButtonClick: () => void;
   onQuoteAmountChange?: (newValue: string) => void;
   onSwitchTokensButtonClick?: () => void;
@@ -144,7 +144,7 @@ const SwapInputs: FC<{
         subText={baseAmountSubText}
         onAmountChange={(e) => handleTokenAmountChange(e, onBaseAmountChange)}
         onChangeTokenClicked={() => {
-          onChangeTokenClick(isSell ? "base" : "quote");
+          onChangeTokenClick?.(isSell ? "base" : "quote");
         }}
         onMaxClicked={handleMaxButtonClick}
         onInfoLabelMouseEnter={handleInfoLabelMouseEnter}
@@ -180,7 +180,7 @@ const SwapInputs: FC<{
           handleTokenAmountChange(e, onQuoteAmountChange || onBaseAmountChange)
         }
         onChangeTokenClicked={() => {
-          onChangeTokenClick(!isSell ? "base" : "quote");
+          onChangeTokenClick?.(!isSell ? "base" : "quote");
         }}
       />
       {!showMaxButton &&

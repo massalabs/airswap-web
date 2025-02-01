@@ -56,7 +56,7 @@ export type TokenSelectProps = {
   /**
    * Called when the user has clicked on the token dropdown to change token
    */
-  onChangeTokenClicked: MouseEventHandler<HTMLButtonElement>;
+  onChangeTokenClicked?: MouseEventHandler<HTMLButtonElement>;
   /**
    * Called when user clicks the 'use max' button. Presence of this prop is used
    * to imply presence of use max button in DOM.

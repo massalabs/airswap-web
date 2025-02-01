@@ -1,67 +1,80 @@
 import BigNumber from "bignumber.js";
-import { ethers } from "ethers";
 
 import { DelegateRule } from "../../../../entities/DelegateRule/DelegateRule";
 import toMaxAllowedDecimalsNumberString from "../../../../helpers/toMaxAllowedDecimalsNumberString";
 
-const getTokenExchangeRate = (delegateRule: DelegateRule) => {
-  return new BigNumber(delegateRule.senderAmount!).dividedBy(
-    delegateRule.signerAmount!
+export const getDelegateRuleTokensExchangeRate = (
+  delegateRule: DelegateRule
+) => {
+  return new BigNumber(delegateRule.senderAmount).dividedBy(
+    delegateRule.signerAmount
   );
 };
 
-const getJustifiedAmount = (amount: string, maxAmount: string) => {
-  return new BigNumber(amount).gt(maxAmount) ? maxAmount : amount;
-};
+/**
+ * This function will calculate the senderAmount based on the signerAmount filled in by the user.
+ * This is calculated based on the exchangeRate and what remains to be filled.
+ * There's also checked if the amounts don't exceed the max allowed decimals.
+ */
 
 export const getCustomSenderAmount = (
-  delegateRule: DelegateRule,
+  exchangeRate: BigNumber,
   signerAmount: string,
-  tokenDecimals = 18
+  availableSignerAmount: string,
+  signerTokenDecimals = 18,
+  senderTokenDecimals = 18
 ): { signerAmount: string; senderAmount: string } => {
-  const tokenExchangeRate = getTokenExchangeRate(delegateRule);
-
-  const justifiedSignerAmount = getJustifiedAmount(
-    signerAmount,
-    ethers.utils.formatUnits(delegateRule.signerAmount, tokenDecimals)
-  );
+  const justifiedSignerAmount = new BigNumber(signerAmount).isGreaterThan(
+    availableSignerAmount
+  )
+    ? availableSignerAmount
+    : signerAmount;
+  const senderAmount = new BigNumber(justifiedSignerAmount)
+    .dividedBy(exchangeRate)
+    .toString();
 
   return {
     signerAmount: toMaxAllowedDecimalsNumberString(
       justifiedSignerAmount,
-      tokenDecimals
+      signerTokenDecimals
     ),
     senderAmount: toMaxAllowedDecimalsNumberString(
-      new BigNumber(justifiedSignerAmount)
-        .multipliedBy(tokenExchangeRate)
-        .toString(),
-      tokenDecimals
+      senderAmount,
+      senderTokenDecimals
     ),
   };
 };
 
-export const getCustomSignerAmount = (
-  delegateRule: DelegateRule,
-  senderAmount: string,
-  tokenDecimals = 18
-): { signerAmount: string; senderAmount: string } => {
-  const tokenExchangeRate = getTokenExchangeRate(delegateRule);
+/**
+ * This function will calculate the signerAmount based on the senderAmount filled in by the user.
+ * This is calculated based on the exchangeRate and what remains to be filled.
+ * There's also checked if the amounts don't exceed the max allowed decimals.
+ */
 
-  const justifiedSenderAmount = getJustifiedAmount(
-    senderAmount,
-    ethers.utils.formatUnits(delegateRule.senderAmount, tokenDecimals)
-  );
+export const getCustomSignerAmount = (
+  exchangeRate: BigNumber,
+  senderAmount: string,
+  availableSenderAmount: string,
+  senderTokenDecimals = 18,
+  signerTokenDecimals = 18
+): { signerAmount: string; senderAmount: string } => {
+  const justifiedSenderAmount = new BigNumber(senderAmount).isGreaterThan(
+    availableSenderAmount
+  )
+    ? availableSenderAmount
+    : senderAmount;
+  const signerAmount = new BigNumber(justifiedSenderAmount)
+    .multipliedBy(exchangeRate)
+    .toString();
 
   return {
     signerAmount: toMaxAllowedDecimalsNumberString(
-      new BigNumber(justifiedSenderAmount)
-        .dividedBy(tokenExchangeRate)
-        .toString(),
-      tokenDecimals
+      signerAmount,
+      signerTokenDecimals
     ),
     senderAmount: toMaxAllowedDecimalsNumberString(
       justifiedSenderAmount,
-      tokenDecimals
+      senderTokenDecimals
     ),
   };
 };

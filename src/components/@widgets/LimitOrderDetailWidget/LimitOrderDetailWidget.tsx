@@ -54,11 +54,15 @@ import {
   StyledFilledAndStatus,
   StyledInfoSection,
 } from "../OtcOrderDetailWidget/OtcOrderDetailWidget.styles";
-import useFormattedTokenAmount from "../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
 import useTakerTokenInfo from "../OtcOrderDetailWidget/hooks/useTakerTokenInfo";
 import { ButtonActions } from "../OtcOrderDetailWidget/subcomponents/ActionButtons/ActionButtons";
 import OrderDetailWidgetHeader from "../OtcOrderDetailWidget/subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
-import { getCustomSenderAmount, getCustomSignerAmount } from "./helpers";
+import {
+  getCustomSenderAmount,
+  getCustomSignerAmount,
+  getDelegateRuleTokensExchangeRate,
+} from "./helpers";
+import { useAvailableSenderAndSignerAmount } from "./hooks/useAvailableSenderAndSignerAmount";
 
 interface LimitOrderDetailWidgetProps {
   delegateRule: DelegateRule;
@@ -103,14 +107,13 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     delegateRule.chainId
   );
   const isBalanceLoading = useBalanceLoading();
-  const senderAmount = useFormattedTokenAmount(
-    delegateRule.senderAmount,
-    senderToken?.decimals
-  );
-  const signerAmount = useFormattedTokenAmount(
-    delegateRule.signerAmount,
-    signerToken?.decimals
-  );
+
+  const { availableSenderAmount, availableSignerAmount } =
+    useAvailableSenderAndSignerAmount(
+      delegateRule,
+      senderToken?.decimals,
+      signerToken?.decimals
+    );
 
   const [customSignerAmount, setCustomSignerAmount] = useState<string>();
   const [customSenderAmount, setCustomSenderAmount] = useState<string>();
@@ -122,9 +125,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const senderTokenSymbol = senderToken?.symbol;
   const signerTokenSymbol = signerToken?.symbol;
-  const tokenExchangeRate = new BigNumber(senderAmount!).dividedBy(
-    signerAmount!
-  );
+  const tokenExchangeRate = getDelegateRuleTokensExchangeRate(delegateRule);
   const approvalTransaction = useApprovalPending(
     delegateRule.senderToken,
     true
@@ -132,19 +133,19 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const orderTransaction = undefined; // useSessionOrderTransaction(delegateRule.id);
 
-  const { hasSufficientAllowance, readableAllowance } = useAllowance(
+  const { hasSufficientAllowance } = useAllowance(
     senderToken,
-    senderAmount
+    customSenderAmount
   );
 
   const hasInsufficientTokenBalance = useInsufficientBalance(
     senderToken,
-    senderAmount!
+    customSenderAmount!
   );
 
   const shouldDepositNativeTokenAmount = useShouldDepositNativeToken(
     senderToken?.address,
-    senderAmount
+    customSenderAmount
   );
   const isAllowancesOrBalancesFailed = useAllowancesOrBalancesFailed();
   const shouldDepositNativeToken = !!shouldDepositNativeTokenAmount;
@@ -164,29 +165,49 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
 
-  const handleBaseAmountChange = (value: string): void => {
+  const handleSignerAmountChange = (value: string): void => {
+    if (!availableSignerAmount) {
+      return;
+    }
+
     const {
       signerAmount: newCustomSignerAmount,
       senderAmount: newCustomSenderAmount,
-    } = getCustomSignerAmount(delegateRule, value, signerToken?.decimals);
+    } = getCustomSenderAmount(
+      tokenExchangeRate,
+      value,
+      availableSignerAmount,
+      signerToken?.decimals,
+      senderToken?.decimals
+    );
 
     setCustomSignerAmount(newCustomSignerAmount);
     setCustomSenderAmount(newCustomSenderAmount);
   };
 
-  const handleQuoteAmountChange = (value: string): void => {
+  const handleSenderAmountChange = (value: string): void => {
+    if (!availableSenderAmount) {
+      return;
+    }
+
     const {
       signerAmount: newCustomSignerAmount,
       senderAmount: newCustomSenderAmount,
-    } = getCustomSenderAmount(delegateRule, value, senderToken?.decimals);
+    } = getCustomSignerAmount(
+      tokenExchangeRate,
+      value,
+      availableSenderAmount,
+      signerToken?.decimals,
+      senderToken?.decimals
+    );
 
     setCustomSignerAmount(newCustomSignerAmount);
     setCustomSenderAmount(newCustomSenderAmount);
   };
 
   const handleMaxButtonClick = () => {
-    setCustomSignerAmount(signerAmount);
-    setCustomSenderAmount(senderAmount);
+    setCustomSignerAmount(availableSignerAmount);
+    setCustomSenderAmount(availableSenderAmount);
   };
 
   const takeOrder = async () => {
@@ -208,11 +229,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   const approveToken = () => {
-    if (!senderToken || !senderAmount || !library) {
+    if (!senderToken || !customSenderAmount || !library) {
       return;
     }
 
-    dispatch(approve(senderAmount, senderToken, library, "Swap"));
+    dispatch(approve(customSenderAmount, senderToken, library, "Swap"));
   };
 
   const depositNativeToken = async () => {
@@ -272,9 +293,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   useEffect(() => {
-    setCustomSignerAmount(signerAmount);
-    setCustomSenderAmount(senderAmount);
-  }, [senderAmount, signerAmount]);
+    setCustomSignerAmount(availableSignerAmount);
+    setCustomSenderAmount(availableSenderAmount);
+  }, [availableSenderAmount, availableSignerAmount]);
 
   const renderScreens = () => {
     if (
@@ -285,7 +306,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       return (
         <WrapReview
           isLoading={hasDepositPending}
-          amount={senderAmount || "0"}
+          amount={customSenderAmount || "0"}
           errors={errors}
           shouldDepositNativeTokenAmount={shouldDepositNativeTokenAmount}
           wrappedNativeToken={wrappedNativeToken}
@@ -300,9 +321,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
         <TakeOrderReview
           errors={errors}
           expiry={delegateRule.expiry}
-          senderAmount={senderAmount || "0"}
+          senderAmount={customSenderAmount || "0"}
           senderToken={senderToken}
-          signerAmount={signerAmount || "0"}
+          signerAmount={customSignerAmount || "0"}
           signerToken={signerToken}
           wrappedNativeToken={wrappedNativeToken}
           onEditButtonClick={backToOverview}
@@ -316,7 +337,10 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       <>
         <OrderDetailWidgetHeader isMakerOfSwap={userIsMakerOfSwap} />
         <SwapInputs
-          showMaxButton={orderStatus === OrderStatus.open}
+          showMaxButton={
+            orderStatus === OrderStatus.open &&
+            customSignerAmount !== availableSignerAmount
+          }
           // readOnly={orderStatus !== OrderStatus.open}
           disabled={orderStatus !== OrderStatus.open}
           canSetQuoteAmount
@@ -333,9 +357,8 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           tradeNotAllowed={walletChainIdIsDifferentThanOrderChainId}
           quoteAmount={customSenderAmount || "0.00"}
           quoteTokenInfo={senderToken}
-          onBaseAmountChange={handleBaseAmountChange}
-          onQuoteAmountChange={handleQuoteAmountChange}
-          onChangeTokenClick={() => {}}
+          onBaseAmountChange={handleSignerAmountChange}
+          onQuoteAmountChange={handleSenderAmountChange}
           onMaxButtonClick={handleMaxButtonClick}
         />
 
