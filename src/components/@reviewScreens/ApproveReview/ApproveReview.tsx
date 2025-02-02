@@ -103,7 +103,7 @@ const ApproveReview: FC<ApproveReviewProps> = ({
         tokenUri={justifiedToken?.logoURI}
       />
       <ReviewList>
-        {roundedFeeAmount && (
+        {!!amountPlusFee && (
           <>
             <ReviewListItem>
               <ReviewListItemLabel>

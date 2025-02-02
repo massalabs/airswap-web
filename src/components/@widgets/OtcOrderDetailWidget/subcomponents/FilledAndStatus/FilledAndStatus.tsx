@@ -31,11 +31,13 @@ export const FilledAndStatus: FC<FilledAndStatusProps> = ({
   tokenSymbol = "?",
   className,
 }) => {
+  const roundedFilledPercentage = Math.round(filledPercentage * 100) / 100;
+
   return (
     <Container className={className}>
       <FilledAmount>
         <Title>Filled:</Title>
-        {`${filledAmount} ${tokenSymbol} (${filledPercentage}%)`}
+        {`${filledAmount} ${tokenSymbol} (${roundedFilledPercentage}%)`}
       </FilledAmount>
 
       <StyledOrderStatusInfo

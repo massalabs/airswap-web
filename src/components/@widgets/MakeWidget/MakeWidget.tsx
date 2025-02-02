@@ -149,12 +149,12 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     makerTokenInfo,
-    makerAmountPlusFee,
+    isLimitOrder ? makerAmount : makerAmountPlusFee,
     { spenderAddressType: isLimitOrder ? "Delegate" : "Swap" }
   );
   const hasInsufficientBalance = useInsufficientBalance(
     makerTokenInfo,
-    makerAmount,
+    isLimitOrder ? makerAmount : makerAmountPlusFee,
     true
   );
   const isBalanceLoading = useBalanceLoading();
@@ -463,7 +463,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
             hasEditButton
             isLoading={!!approvalTransaction}
             amount={makerAmount}
-            amountPlusFee={makerAmountPlusFee}
+            amountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
             readableAllowance={readableAllowance}
             token={makerTokenInfo}
             wrappedNativeToken={wrappedNativeToken}
@@ -486,7 +486,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
             senderAmount={takerAmount}
             senderToken={takerTokenInfo}
             signerAmount={makerAmount}
-            signerAmountPlusFee={makerAmountPlusFee}
+            signerAmountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
             signerToken={makerTokenInfo}
             wrappedNativeToken={wrappedNativeToken}
             onEditButtonClick={handleEditButtonClick}

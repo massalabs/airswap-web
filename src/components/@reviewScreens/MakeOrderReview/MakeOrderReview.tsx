@@ -35,7 +35,7 @@ interface MakeOrderReviewProps {
   senderAmount: string;
   senderToken: TokenInfo | null;
   signerAmount: string;
-  signerAmountPlusFee: string;
+  signerAmountPlusFee?: string;
   signerToken: TokenInfo | null;
   wrappedNativeToken: TokenInfo | null;
   onEditButtonClick: () => void;
@@ -83,6 +83,10 @@ const MakeOrderReview: FC<MakeOrderReviewProps> = ({
     [expiry]
   );
   const roundedFeeAmount = useMemo(() => {
+    if (!signerAmountPlusFee) {
+      return undefined;
+    }
+
     const amount = new BigNumber(signerAmountPlusFee)
       .minus(signerAmount)
       .toString();
@@ -90,6 +94,10 @@ const MakeOrderReview: FC<MakeOrderReviewProps> = ({
   }, [signerAmount, signerAmountPlusFee, justifiedSignerToken]);
 
   const roundedSignerAmountPlusFee = useMemo(() => {
+    if (!signerAmountPlusFee) {
+      return undefined;
+    }
+
     return toRoundedNumberString(
       signerAmountPlusFee,
       justifiedSignerToken?.decimals
@@ -143,25 +151,29 @@ const MakeOrderReview: FC<MakeOrderReviewProps> = ({
           <ReviewListItemValue>{rate}</ReviewListItemValue>
         </ReviewListItem>
 
-        <ReviewListItem>
-          <ReviewListItemLabel>
-            {t("orders.protocolFee")}
-            <StyledIconButton
-              icon="information-circle-outline"
-              onClick={toggleShowFeeInfo}
-            />
-          </ReviewListItemLabel>
-          <ReviewListItemValue>
-            {roundedFeeAmount} {justifiedSignerToken?.symbol}
-          </ReviewListItemValue>
-        </ReviewListItem>
+        {!!signerAmountPlusFee && (
+          <>
+            <ReviewListItem>
+              <ReviewListItemLabel>
+                {t("orders.protocolFee")}
+                <StyledIconButton
+                  icon="information-circle-outline"
+                  onClick={toggleShowFeeInfo}
+                />
+              </ReviewListItemLabel>
+              <ReviewListItemValue>
+                {roundedFeeAmount} {justifiedSignerToken?.symbol}
+              </ReviewListItemValue>
+            </ReviewListItem>
 
-        <ReviewListItem>
-          <ReviewListItemLabel>{t("orders.total")}</ReviewListItemLabel>
-          <ReviewListItemValue>
-            {roundedSignerAmountPlusFee} {justifiedSignerToken?.symbol}
-          </ReviewListItemValue>
-        </ReviewListItem>
+            <ReviewListItem>
+              <ReviewListItemLabel>{t("orders.total")}</ReviewListItemLabel>
+              <ReviewListItemValue>
+                {roundedSignerAmountPlusFee} {justifiedSignerToken?.symbol}
+              </ReviewListItemValue>
+            </ReviewListItem>
+          </>
+        )}
       </ReviewList>
 
       <StyledActionButtons
