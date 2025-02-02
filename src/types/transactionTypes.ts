@@ -13,11 +13,12 @@ export type TransactionEvent =
 
 export enum TransactionTypes {
   approval = "approval",
+  cancel = "cancel",
+  delegateSwap = "delegateSwap",
+  deposit = "deposit",
   order = "order",
   setDelegateRule = "setDelegateRule",
-  deposit = "deposit",
   withdraw = "withdraw",
-  cancel = "cancel",
 }
 
 export enum TransactionStatusType {

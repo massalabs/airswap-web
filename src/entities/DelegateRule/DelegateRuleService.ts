@@ -2,6 +2,9 @@ import { Delegate } from "@airswap/libraries";
 import { Signature, UnsignedOrderERC20 } from "@airswap/utils";
 import { BaseProvider, Web3Provider } from "@ethersproject/providers";
 
+import { Transaction } from "ethers";
+
+import { transformToSubmittedDelegateSwapTransaction } from "../SubmittedTransaction/SubmittedTransactionTransformers";
 import { DelegateRule } from "./DelegateRule";
 import { transformToDelegateRule } from "./DelegateRuleTransformers";
 
@@ -46,29 +49,16 @@ type TakeDelegateRuleParams = {
   library: Web3Provider;
 };
 
-export const takeDelegateRuleCall = async (params: TakeDelegateRuleParams) => {
-  const { delegateRule, signature, signerWallet, unsignedOrder, library } =
-    params;
+export const takeDelegateRuleCall = async (
+  params: TakeDelegateRuleParams
+): Promise<Transaction> => {
+  const { delegateRule, signature, unsignedOrder, library } = params;
   const delegateContract = Delegate.getContract(
     library.getSigner(),
     delegateRule.chainId
   );
 
-  console.log(
-    unsignedOrder.senderWallet,
-    unsignedOrder.nonce,
-    unsignedOrder.expiry,
-    signerWallet,
-    unsignedOrder.signerToken,
-    unsignedOrder.signerAmount,
-    unsignedOrder.senderToken,
-    unsignedOrder.senderAmount,
-    signature.v,
-    signature.r,
-    signature.s
-  );
-
-  const tx = await delegateContract.swap(
+  return delegateContract.swap(
     delegateRule.senderWallet,
     unsignedOrder.nonce,
     unsignedOrder.expiry,
@@ -81,8 +71,6 @@ export const takeDelegateRuleCall = async (params: TakeDelegateRuleParams) => {
     signature.r,
     signature.s
   );
-
-  console.log(tx);
 };
 
 export const getSwapErc20ContractAddress = (

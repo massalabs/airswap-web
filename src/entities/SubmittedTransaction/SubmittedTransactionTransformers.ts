@@ -1,11 +1,18 @@
-import { FullSwapERC20, OrderERC20, TokenInfo } from "@airswap/utils";
+import {
+  FullSwapERC20,
+  OrderERC20,
+  TokenInfo,
+  UnsignedOrderERC20,
+} from "@airswap/utils";
 
 import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
+import { DelegateRule } from "../DelegateRule/DelegateRule";
 import {
   SubmittedApprovalTransaction,
+  SubmittedDelegateSwapTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
@@ -104,6 +111,25 @@ export const transformToSubmittedTransactionWithOrderUnderConsideration = (
   isLastLook: true,
   type: TransactionTypes.order,
   order,
+  senderToken,
+  signerToken,
+  status,
+  timestamp,
+});
+
+export const transformToSubmittedDelegateSwapTransaction = (
+  hash: string,
+  order: UnsignedOrderERC20,
+  delegateRule: DelegateRule,
+  senderToken: TokenInfo,
+  signerToken: TokenInfo,
+  status: TransactionStatusType = TransactionStatusType.processing,
+  timestamp = Date.now()
+): SubmittedDelegateSwapTransaction => ({
+  type: TransactionTypes.delegateSwap,
+  hash,
+  order,
+  delegateRule,
   senderToken,
   signerToken,
   status,

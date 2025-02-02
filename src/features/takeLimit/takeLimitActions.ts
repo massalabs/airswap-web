@@ -10,10 +10,13 @@ import {
   getSwapErc20ContractAddress,
   takeDelegateRuleCall,
 } from "../../entities/DelegateRule/DelegateRuleService";
+import { transformToSubmittedDelegateSwapTransaction } from "../../entities/SubmittedTransaction/SubmittedTransactionTransformers";
 import { AppErrorType } from "../../errors/appError";
 import { isAppError } from "../../errors/appError";
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import toAtomicString from "../../helpers/toAtomicString";
+import { TransactionStatusType } from "../../types/transactionTypes";
+import { submitTransaction } from "../transactions/transactionsActions";
 import { setDelegateRule, setStatus } from "./takeLimitSlice";
 
 type GetDelegateOrderParams = {
@@ -114,14 +117,36 @@ export const takeLimitOrder =
         return;
       }
 
-      takeDelegateRuleCall({
+      const tx = await takeDelegateRuleCall({
         delegateRule,
         library,
         signature,
         signerWallet,
         unsignedOrder,
       });
+
+      if (!tx.hash) {
+        console.error("Transaction hash is missing.");
+
+        dispatch(setStatus("failed"));
+
+        return;
+      }
+
+      dispatch(setStatus("open"));
+
+      const submittedTransaction = transformToSubmittedDelegateSwapTransaction(
+        tx.hash,
+        unsignedOrder,
+        delegateRule,
+        params.senderTokenInfo,
+        params.signerTokenInfo
+      );
+
+      dispatch(submitTransaction(submittedTransaction));
     } catch (error) {
       console.error(error);
+
+      dispatch(setStatus("failed"));
     }
   };

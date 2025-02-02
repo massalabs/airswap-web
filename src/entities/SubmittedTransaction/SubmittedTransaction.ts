@@ -1,4 +1,5 @@
 import { FullSwapERC20, OrderERC20, TokenInfo } from "@airswap/utils";
+import { UnsignedOrderERC20 } from "@airswap/utils";
 
 import {
   TransactionStatusType,
@@ -74,10 +75,19 @@ export interface SubmittedWithdrawTransaction
   signerToken: TokenInfo;
 }
 
-export interface SubmittedSetRuleTransaction extends SubmittedTransaction {
-  hash: string;
+export interface SubmittedSetRuleTransaction
+  extends SubmittedTransactionWithHash {
   type: TransactionTypes.setDelegateRule;
   rule: DelegateRule;
   signerToken: TokenInfo;
   senderToken: TokenInfo;
+}
+
+export interface SubmittedDelegateSwapTransaction
+  extends SubmittedTransactionWithHash {
+  type: TransactionTypes.delegateSwap;
+  delegateRule: DelegateRule;
+  order: UnsignedOrderERC20;
+  senderToken: TokenInfo;
+  signerToken: TokenInfo;
 }
