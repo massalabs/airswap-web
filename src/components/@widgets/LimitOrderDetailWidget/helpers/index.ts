@@ -6,8 +6,8 @@ import toMaxAllowedDecimalsNumberString from "../../../../helpers/toMaxAllowedDe
 export const getDelegateRuleTokensExchangeRate = (
   delegateRule: DelegateRule
 ) => {
-  return new BigNumber(delegateRule.senderAmount).dividedBy(
-    delegateRule.signerAmount
+  return new BigNumber(delegateRule.signerAmount).dividedBy(
+    delegateRule.senderAmount
   );
 };
 

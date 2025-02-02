@@ -32,7 +32,7 @@ import useInsufficientBalance from "../../../hooks/useInsufficientBalance";
 import useNativeWrappedToken from "../../../hooks/useNativeWrappedToken";
 import useOrderTransactionLink from "../../../hooks/useOrderTransactionLink";
 import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTokenAmount";
-import { AppRoutes, routes } from "../../../routes";
+import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
@@ -211,14 +211,25 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   const takeOrder = async () => {
-    if (!library || !account) return;
+    if (
+      !library ||
+      !account ||
+      !customSignerAmount ||
+      !customSenderAmount ||
+      !signerToken ||
+      !senderToken
+    )
+      return;
 
     dispatch(
       takeLimitOrder({
         delegateRule,
         protocolFee,
         signerWallet: account,
-        senderFilledAmount: delegateRule.senderAmount,
+        signerAmount: customSignerAmount,
+        senderAmount: customSenderAmount,
+        signerTokenInfo: signerToken,
+        senderTokenInfo: senderToken,
         library,
       })
     );
@@ -341,7 +352,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
             orderStatus === OrderStatus.open &&
             customSignerAmount !== availableSignerAmount
           }
-          // readOnly={orderStatus !== OrderStatus.open}
+          readOnly={userIsMakerOfSwap}
           disabled={orderStatus !== OrderStatus.open}
           canSetQuoteAmount
           // disabled={false}
@@ -382,7 +393,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           orderChainId={orderChainId}
           token1={signerTokenSymbol}
           token2={senderTokenSymbol}
-          rate={tokenExchangeRate}
+          rate={new BigNumber(1).dividedBy(tokenExchangeRate)}
           onFeeButtonClick={toggleShowFeeInfo}
         />
 

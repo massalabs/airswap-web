@@ -1,5 +1,5 @@
 import { Delegate } from "@airswap/libraries";
-import { ADDRESS_ZERO, createOrderERC20 } from "@airswap/utils";
+import { ADDRESS_ZERO, createOrderERC20, TokenInfo } from "@airswap/utils";
 import { BaseProvider, Web3Provider } from "@ethersproject/providers";
 
 import { AppDispatch } from "../../app/store";
@@ -13,6 +13,7 @@ import {
 import { AppErrorType } from "../../errors/appError";
 import { isAppError } from "../../errors/appError";
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
+import toAtomicString from "../../helpers/toAtomicString";
 import { setDelegateRule, setStatus } from "./takeLimitSlice";
 
 type GetDelegateOrderParams = {
@@ -53,20 +54,27 @@ type TakeLimitOrderParams = {
   delegateRule: DelegateRule;
   protocolFee: number;
   signerWallet: string;
-  senderFilledAmount: string;
+  signerAmount: string;
+  senderAmount: string;
+  signerTokenInfo: TokenInfo;
+  senderTokenInfo: TokenInfo;
   library: Web3Provider;
 };
 
 export const takeLimitOrder =
   (params: TakeLimitOrderParams) => async (dispatch: AppDispatch) => {
     try {
-      const {
-        delegateRule,
-        protocolFee,
-        signerWallet,
-        senderFilledAmount,
-        library,
-      } = params;
+      const { delegateRule, protocolFee, signerWallet, library } = params;
+
+      const senderAmount = toAtomicString(
+        params.senderAmount,
+        params.senderTokenInfo.decimals
+      );
+
+      const signerAmount = toAtomicString(
+        params.signerAmount,
+        params.signerTokenInfo.decimals
+      );
 
       const swapErc20ContractAddress = await getSwapErc20ContractAddress(
         library,
@@ -81,8 +89,8 @@ export const takeLimitOrder =
         signerToken: delegateRule.signerToken,
         senderToken: delegateRule.senderToken,
         protocolFee,
-        signerAmount: delegateRule.signerAmount,
-        senderAmount: senderFilledAmount,
+        signerAmount,
+        senderAmount,
         chainId: delegateRule.chainId,
       });
 

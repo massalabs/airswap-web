@@ -10,6 +10,7 @@ import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSli
 import { OrdersSortType } from "../../../../../features/myOrders/myOrdersSlice";
 import { MyOrder } from "../../../MyOtcOrdersWidget/entities/Order";
 import MyOrdersList from "../../../MyOtcOrdersWidget/subcomponents/MyOrdersList/MyOrdersList";
+import { StyledMyLimitOrdersList } from "./MyLimitOrdersList.styles";
 import { getDelegateRuleDataAndTransformToOrder } from "./helpers";
 
 interface MyLimitOrdersListProps {
@@ -76,7 +77,7 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
   }, []);
 
   return (
-    <MyOrdersList
+    <StyledMyLimitOrdersList
       hasFilledColumn
       isLoading={isLoading}
       activeSortType={activeSortType}

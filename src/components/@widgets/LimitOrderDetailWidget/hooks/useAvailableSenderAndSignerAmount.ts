@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
+import { ethers } from "ethers";
 
 import { DelegateRule } from "../../../../entities/DelegateRule/DelegateRule";
-import useFormattedTokenAmount from "../../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
 import { getDelegateRuleTokensExchangeRate } from "../helpers";
 
 /**
@@ -19,13 +19,17 @@ export const useAvailableSenderAndSignerAmount = (
   const availableSenderAmount = new BigNumber(delegateRule.senderAmount).minus(
     delegateRule.senderFilledAmount
   );
-  const formattedAvailableSenderAmount = useFormattedTokenAmount(
+
+  const formattedAvailableSenderAmount = ethers.utils.formatUnits(
     availableSenderAmount.toString(),
     senderTokenDecimals
   );
 
-  const formattedAvailableSignerAmount = useFormattedTokenAmount(
-    tokenExchangeRate.multipliedBy(availableSenderAmount).toString(),
+  const formattedAvailableSignerAmount = ethers.utils.formatUnits(
+    tokenExchangeRate
+      .multipliedBy(availableSenderAmount)
+      .integerValue(BigNumber.ROUND_CEIL)
+      .toString(),
     signerTokenDecimals
   );
 

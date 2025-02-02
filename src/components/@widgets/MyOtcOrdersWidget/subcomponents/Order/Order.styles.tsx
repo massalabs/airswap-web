@@ -79,6 +79,11 @@ export const Text = styled.div`
   }
 `;
 
+export const SignerAmount = styled(Text)``;
+export const SenderAmount = styled(Text)``;
+export const FilledAmount = styled(Text)``;
+export const OrderStatusLabel = styled(Text)``;
+
 export const ActionButtonContainer = styled.div`
   position: relative;
 `;

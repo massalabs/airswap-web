@@ -15,6 +15,10 @@ import {
   ActionButtonContainer,
   Circle,
   Container,
+  FilledAmount,
+  OrderStatusLabel,
+  SenderAmount,
+  SignerAmount,
   StatusIndicator,
   StyledNavLink,
   Text,
@@ -121,13 +125,19 @@ const Order: FC<PropsWithChildren<OrderProps>> = ({
         <TokenIcon logoURI={order.senderToken?.logoURI} />
       </Tokens>
       {hasFilledColumn && (
-        <Text>{`${filledAmount} ${order.signerToken?.symbol || ""}`}</Text>
+        <FilledAmount>{`${filledAmount} ${
+          order.signerToken?.symbol || ""
+        }`}</FilledAmount>
       )}
-      <Text>{`${signerAmount} ${order.signerToken?.symbol || ""}`}</Text>
-      <Text>{`${senderAmount} ${order.senderToken?.symbol || ""}`}</Text>
-      <Text>
+      <SignerAmount>{`${signerAmount} ${
+        order.signerToken?.symbol || ""
+      }`}</SignerAmount>
+      <SenderAmount>{`${senderAmount} ${
+        order.senderToken?.symbol || ""
+      }`}</SenderAmount>
+      <OrderStatusLabel>
         {order.status === OrderStatus.open ? timeLeft : orderStatusTranslation}
-      </Text>
+      </OrderStatusLabel>
       <StyledNavLink $isHovered={isHoveredActionButton} to={order.link} />
 
       <ActionButtonContainer>
