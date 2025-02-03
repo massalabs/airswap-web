@@ -43,6 +43,7 @@ import toMaxAllowedDecimalsNumberString from "../../../helpers/toMaxAllowedDecim
 import toRoundedNumberString from "../../../helpers/toRoundedNumberString";
 import useAllowance from "../../../hooks/useAllowance";
 import useAllowancesOrBalancesFailed from "../../../hooks/useAllowancesOrBalancesFailed";
+import { useAmountPlusFee } from "../../../hooks/useAmountPlusFee";
 import useApprovalPending from "../../../hooks/useApprovalPending";
 import { useBalanceLoading } from "../../../hooks/useBalanceLoading";
 import useDepositPending from "../../../hooks/useDepositPending";
@@ -141,11 +142,10 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const takerTokenInfo = useTokenInfo(
     userTokens.tokenTo || defaultTokenToAddress || null
   );
-  const makerAmountPlusFee = useMemo(() => {
-    return new BigNumber(makerAmount)
-      .multipliedBy(1 + protocolFee / 10000)
-      .toString();
-  }, [makerAmount, protocolFee]);
+  const makerAmountPlusFee = useAmountPlusFee(
+    makerAmount,
+    makerTokenInfo?.decimals
+  );
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     makerTokenInfo,

@@ -25,6 +25,7 @@ import {
 import { compareAddresses } from "../../../helpers/string";
 import useAllowance from "../../../hooks/useAllowance";
 import useAllowancesOrBalancesFailed from "../../../hooks/useAllowancesOrBalancesFailed";
+import { useAmountPlusFee } from "../../../hooks/useAmountPlusFee";
 import useApprovalPending from "../../../hooks/useApprovalPending";
 import { useBalanceLoading } from "../../../hooks/useBalanceLoading";
 import useDepositPending from "../../../hooks/useDepositPending";
@@ -117,6 +118,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const [customSignerAmount, setCustomSignerAmount] = useState<string>();
   const [customSenderAmount, setCustomSenderAmount] = useState<string>();
+  const signerAmountPlusFee = useAmountPlusFee(
+    customSignerAmount,
+    signerToken?.decimals
+  );
+  console.log("signerAmountPlusFee", signerAmountPlusFee);
 
   const [filledAmount, filledPercentage] = useFilledStatus(
     delegateRule,
