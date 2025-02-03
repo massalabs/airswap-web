@@ -118,11 +118,10 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const [customSignerAmount, setCustomSignerAmount] = useState<string>();
   const [customSenderAmount, setCustomSenderAmount] = useState<string>();
-  const signerAmountPlusFee = useAmountPlusFee(
+  const customSignerAmountPlusFee = useAmountPlusFee(
     customSignerAmount,
     signerToken?.decimals
   );
-  console.log("signerAmountPlusFee", signerAmountPlusFee);
 
   const [filledAmount, filledPercentage] = useFilledStatus(
     delegateRule,
@@ -336,11 +335,13 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     if (state === LimitOrderDetailWidgetState.review) {
       return (
         <TakeOrderReview
+          isSigner
           errors={errors}
           expiry={delegateRule.expiry}
           senderAmount={customSenderAmount || "0"}
           senderToken={senderToken}
           signerAmount={customSignerAmount || "0"}
+          signerAmountPlusFee={customSignerAmountPlusFee}
           signerToken={signerToken}
           wrappedNativeToken={wrappedNativeToken}
           onEditButtonClick={backToOverview}
@@ -408,6 +409,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           hasInsufficientAllowance={!hasSufficientAllowance}
           isExpired={orderStatus === OrderStatus.expired}
           isCanceled={false}
+          isLimitOrder={true}
           isTaken={orderStatus === OrderStatus.taken}
           isDifferentChainId={walletChainIdIsDifferentThanOrderChainId}
           isIntendedRecipient={true}

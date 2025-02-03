@@ -4,8 +4,11 @@ import { useTranslation } from "react-i18next";
 import { ADDRESS_ZERO, TokenInfo } from "@airswap/utils";
 import { useToggle } from "@react-hookz/web";
 
+import BigNumber from "bignumber.js";
+
 import { AppError } from "../../../errors/appError";
 import { getExpiryTranslation } from "../../../helpers/getExpiryTranslation";
+import toRoundedNumberString from "../../../helpers/toRoundedNumberString";
 import { ReviewList } from "../../../styled-components/ReviewList/ReviewList";
 import {
   ReviewListItem,
@@ -20,16 +23,21 @@ import ProtocolFeeOverlay from "../../ProtocolFeeOverlay/ProtocolFeeOverlay";
 import { Title } from "../../Typography/Typography";
 import {
   Container,
+  OrderReviewSenderToken,
+  OrderReviewSignerToken,
   StyledActionButtons,
+  StyledIconButton,
   StyledWidgetHeader,
 } from "./TakeOrderReview.styles";
 
 interface TakeOrderReviewProps {
+  isSigner?: boolean;
   errors: AppError[];
   expiry: number;
   senderAmount: string;
   senderToken: TokenInfo | null;
   signerAmount: string;
+  signerAmountPlusFee?: string;
   signerToken: TokenInfo | null;
   wrappedNativeToken: TokenInfo | null;
   onEditButtonClick: () => void;
@@ -38,12 +46,14 @@ interface TakeOrderReviewProps {
   className?: string;
 }
 
-const MakeOrderReview: FC<TakeOrderReviewProps> = ({
+const TakeOrderReview: FC<TakeOrderReviewProps> = ({
+  isSigner,
   errors,
   expiry,
   senderAmount,
   senderToken,
   signerAmount,
+  signerAmountPlusFee,
   signerToken,
   wrappedNativeToken,
   onEditButtonClick,
@@ -76,25 +86,47 @@ const MakeOrderReview: FC<TakeOrderReviewProps> = ({
     [expiry]
   );
 
+  const roundedFeeAmount = useMemo(() => {
+    if (!signerAmountPlusFee) {
+      return undefined;
+    }
+
+    const amount = new BigNumber(signerAmountPlusFee)
+      .minus(signerAmount)
+      .toString();
+    return toRoundedNumberString(amount, justifiedSignerToken?.decimals);
+  }, [signerAmount, signerAmountPlusFee, justifiedSignerToken]);
+
+  const roundedSignerAmountPlusFee = useMemo(() => {
+    if (!signerAmountPlusFee) {
+      return undefined;
+    }
+
+    return toRoundedNumberString(
+      signerAmountPlusFee,
+      justifiedSignerToken?.decimals
+    );
+  }, [signerAmountPlusFee, justifiedSignerToken]);
+
   return (
-    <Container className={className}>
+    <Container isSigner={isSigner} className={className}>
       <StyledWidgetHeader>
         <Title type="h2" as="h1">
           {t("common.review")}
         </Title>
       </StyledWidgetHeader>
       {senderToken && (
-        <OrderReviewToken
+        <OrderReviewSenderToken
           amount={senderAmount}
-          label={t("common.send")}
+          label={isSigner ? t("common.receive") : t("common.send")}
           tokenSymbol={justifiedSenderToken?.symbol || "?"}
           tokenUri={justifiedSenderToken?.logoURI}
         />
       )}
       {signerToken && (
-        <OrderReviewToken
+        <OrderReviewSignerToken
           amount={signerAmount}
-          label={t("common.receive")}
+          label={isSigner ? t("common.send") : t("common.receive")}
           tokenSymbol={justifiedSignerToken?.symbol || "?"}
           tokenUri={justifiedSignerToken?.logoURI}
         />
@@ -113,9 +145,36 @@ const MakeOrderReview: FC<TakeOrderReviewProps> = ({
         <ReviewListItem>
           <ReviewListItemLabel>{t("orders.total")}</ReviewListItemLabel>
           <ReviewListItemValue>
-            {senderAmount} {justifiedSenderToken?.symbol}
+            {isSigner ? signerAmount : senderAmount}{" "}
+            {isSigner
+              ? justifiedSignerToken?.symbol
+              : justifiedSenderToken?.symbol}
           </ReviewListItemValue>
         </ReviewListItem>
+
+        {!!signerAmountPlusFee && (
+          <>
+            <ReviewListItem>
+              <ReviewListItemLabel>
+                {t("orders.protocolFee")}
+                <StyledIconButton
+                  icon="information-circle-outline"
+                  onClick={toggleShowFeeInfo}
+                />
+              </ReviewListItemLabel>
+              <ReviewListItemValue>
+                {roundedFeeAmount} {justifiedSignerToken?.symbol}
+              </ReviewListItemValue>
+            </ReviewListItem>
+
+            <ReviewListItem>
+              <ReviewListItemLabel>{t("orders.total")}</ReviewListItemLabel>
+              <ReviewListItemValue>
+                {roundedSignerAmountPlusFee} {justifiedSignerToken?.symbol}
+              </ReviewListItemValue>
+            </ReviewListItem>
+          </>
+        )}
       </ReviewList>
 
       <StyledActionButtons
@@ -141,4 +200,4 @@ const MakeOrderReview: FC<TakeOrderReviewProps> = ({
   );
 };
 
-export default MakeOrderReview;
+export default TakeOrderReview;

@@ -25,6 +25,7 @@ type ActionButtonsProps = {
   hasInsufficientBalance: boolean;
   isCanceled: boolean;
   isExpired: boolean;
+  isLimitOrder?: boolean;
   isTaken: boolean;
   isDifferentChainId: boolean;
   isIntendedRecipient: boolean;
@@ -42,6 +43,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   hasInsufficientBalance,
   isCanceled,
   isExpired,
+  isLimitOrder,
   isTaken,
   isDifferentChainId,
   isIntendedRecipient,
@@ -194,7 +196,11 @@ const ActionButtons: FC<ActionButtonsProps> = ({
       </BackButton>
       <SignButton
         intent="primary"
-        onClick={() => onActionButtonClick(ButtonActions.take)}
+        onClick={() =>
+          isLimitOrder
+            ? onActionButtonClick(ButtonActions.review)
+            : onActionButtonClick(ButtonActions.take)
+        }
       >
         {t("orders.takeSwap")}
       </SignButton>
