@@ -65,6 +65,7 @@ import {
   getDelegateRuleTokensExchangeRate,
 } from "./helpers";
 import { useAvailableSenderAndSignerAmount } from "./hooks/useAvailableSenderAndSignerAmount";
+import useSessionDelegateSwapTransaction from "./hooks/useSessionDelegateSwapTransaction";
 
 interface LimitOrderDetailWidgetProps {
   delegateRule: DelegateRule;
@@ -138,7 +139,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     true
   );
   const wrappedNativeToken = useNativeWrappedToken(chainId);
-  const orderTransaction = undefined; // useSessionOrderTransaction(delegateRule.id);
+  const delegateSwapTransaction = useSessionDelegateSwapTransaction(
+    delegateRule.id
+  );
 
   const { hasSufficientAllowance } = useAllowance(
     senderToken,
@@ -176,7 +179,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const showWrapReview =
     state === LimitOrderDetailWidgetState.review &&
     shouldDepositNativeToken &&
-    !orderTransaction;
+    !delegateSwapTransaction;
   const showOrderReview = state === LimitOrderDetailWidgetState.review;
   // TODO: Add approve review
 
@@ -472,11 +475,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
         )}
       </TransactionOverlay>
 
-      <TransactionOverlay isHidden={!orderTransaction}>
-        {orderTransaction && (
+      <TransactionOverlay isHidden={!delegateSwapTransaction}>
+        {delegateSwapTransaction && (
           <OrderSubmittedScreen
             chainId={chainId}
-            transaction={orderTransaction}
+            transaction={delegateSwapTransaction}
             onMakeNewOrderButtonClick={restart}
             onTrackTransactionButtonClick={openTransactionsTab}
           />

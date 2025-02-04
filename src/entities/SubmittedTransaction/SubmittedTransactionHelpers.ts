@@ -17,6 +17,7 @@ import {
   SubmittedWithdrawTransaction,
   SubmittedOrderUnderConsideration,
   SubmittedSetRuleTransaction,
+  SubmittedDelegateSwapTransaction,
 } from "./SubmittedTransaction";
 
 export const isApprovalTransaction = (
@@ -65,6 +66,11 @@ export const isSetRuleTransaction = (
   transaction: SubmittedTransaction
 ): transaction is SubmittedSetRuleTransaction =>
   transaction.type === TransactionTypes.setDelegateRule;
+
+export const isDelegateSwapTransaction = (
+  transaction: SubmittedTransaction
+): transaction is SubmittedDelegateSwapTransaction =>
+  transaction.type === TransactionTypes.delegateSwap;
 
 export const sortSubmittedTransactionsByExpiry = (
   a: SubmittedTransaction,
