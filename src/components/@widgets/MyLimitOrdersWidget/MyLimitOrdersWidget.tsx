@@ -30,7 +30,6 @@ import InfoSection from "../MyOtcOrdersWidget/subcomponents/InfoSection/InfoSect
 import MyLimitOrdersList from "./subcomponents/MyLimitOrdersList/MyLimitOrdersList";
 
 const MyLimitOrdersWidget: FC = () => {
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const { provider: library } = useWeb3React<Web3Provider>();

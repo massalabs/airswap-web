@@ -19,9 +19,10 @@ import {
 } from "../../../features/orders/ordersSlice";
 import { takeLimitOrder } from "../../../features/takeLimit/takeLimitActions";
 import {
-  reset,
-  selectTakeOtcErrors,
-} from "../../../features/takeOtc/takeOtcSlice";
+  selectTakeLimitErrors,
+  selectTakeLimitStatus,
+} from "../../../features/takeLimit/takeLimitSlice";
+import { reset } from "../../../features/takeOtc/takeOtcSlice";
 import { compareAddresses } from "../../../helpers/string";
 import useAllowance from "../../../hooks/useAllowance";
 import useAllowancesOrBalancesFailed from "../../../hooks/useAllowancesOrBalancesFailed";
@@ -89,10 +90,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     useContext(InterfaceContext);
 
   const ordersStatus = useAppSelector(selectOrdersStatus);
+  const takeLimitStatus = useAppSelector(selectTakeLimitStatus);
   const ordersErrors = useAppSelector(selectOrdersErrors);
-  const takeOtcErrors = useAppSelector(selectTakeOtcErrors);
+  const takeLimitErrors = useAppSelector(selectTakeLimitErrors);
 
-  const errors = [...ordersErrors, ...takeOtcErrors];
+  const errors = [...ordersErrors, ...takeLimitErrors];
 
   const [state, setState] = useState<LimitOrderDetailWidgetState>(
     LimitOrderDetailWidgetState.overview
@@ -169,6 +171,14 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   }, [delegateRule]);
 
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
+
+  // Review states
+  const showWrapReview =
+    state === LimitOrderDetailWidgetState.review &&
+    shouldDepositNativeToken &&
+    !orderTransaction;
+  const showOrderReview = state === LimitOrderDetailWidgetState.review;
+  // TODO: Add approve review
 
   const handleSignerAmountChange = (value: string): void => {
     if (!availableSignerAmount) {
@@ -314,11 +324,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   }, [availableSenderAmount, availableSignerAmount]);
 
   const renderScreens = () => {
-    if (
-      state === LimitOrderDetailWidgetState.review &&
-      shouldDepositNativeToken &&
-      !orderTransaction
-    ) {
+    if (showWrapReview) {
       return (
         <WrapReview
           isLoading={hasDepositPending}
@@ -332,7 +338,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       );
     }
 
-    if (state === LimitOrderDetailWidgetState.review) {
+    if (showOrderReview) {
       return (
         <TakeOrderReview
           isSigner
@@ -425,7 +431,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   return (
-    <Container>
+    <Container hidePageNavigation={showWrapReview || showOrderReview}>
       {renderScreens()}
 
       <ModalOverlay
@@ -445,12 +451,18 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
         <ErrorList errors={errors} onBackButtonClick={restart} />
       </ModalOverlay>
 
-      <TransactionOverlay isHidden={ordersStatus !== "signing"}>
+      <TransactionOverlay
+        isHidden={ordersStatus !== "signing" && takeLimitStatus !== "signing"}
+      >
         <WalletSignScreen type="swap" />
       </TransactionOverlay>
 
       <TransactionOverlay
-        isHidden={ordersStatus === "signing" || !approvalTransaction}
+        isHidden={
+          ordersStatus === "signing" ||
+          takeLimitStatus === "signing" ||
+          !approvalTransaction
+        }
       >
         {approvalTransaction && (
           <ApprovalSubmittedScreen

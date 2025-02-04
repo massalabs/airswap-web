@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { RootState } from "../../app/store";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { AppError } from "../../errors/appError";
 
@@ -34,6 +35,12 @@ export const takeLimitSlice = createSlice({
     reset: () => {
       return initialState;
     },
+    setError: (state, action: PayloadAction<AppError>) => {
+      return {
+        ...state,
+        errors: [...state.errors, action.payload],
+      };
+    },
     setStatus: (
       state,
       action: PayloadAction<TakeLimitOrderState["status"]>
@@ -46,6 +53,12 @@ export const takeLimitSlice = createSlice({
   },
 });
 
-export const { setDelegateRule, reset, setStatus } = takeLimitSlice.actions;
+export const { setDelegateRule, reset, setStatus, setError } =
+  takeLimitSlice.actions;
+
+export const selectTakeLimitErrors = (state: RootState) =>
+  state.takeLimit.errors;
+export const selectTakeLimitStatus = (state: RootState) =>
+  state.takeLimit.status;
 
 export default takeLimitSlice.reducer;

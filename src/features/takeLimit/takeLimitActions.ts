@@ -15,9 +15,8 @@ import { AppErrorType } from "../../errors/appError";
 import { isAppError } from "../../errors/appError";
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import toAtomicString from "../../helpers/toAtomicString";
-import { TransactionStatusType } from "../../types/transactionTypes";
 import { submitTransaction } from "../transactions/transactionsActions";
-import { setDelegateRule, setStatus } from "./takeLimitSlice";
+import { setDelegateRule, setError, setStatus } from "./takeLimitSlice";
 
 type GetDelegateOrderParams = {
   senderWallet: string;
@@ -108,11 +107,11 @@ export const takeLimitOrder =
 
       if (isAppError(signature)) {
         if (signature.type === AppErrorType.rejectedByUser) {
-          dispatch(setStatus("idle"));
+          dispatch(setStatus("open"));
           notifyRejectedByUserError();
         } else {
           dispatch(setStatus("failed"));
-          // dispatch(setError(signature));
+          dispatch(setError(signature));
         }
         return;
       }
