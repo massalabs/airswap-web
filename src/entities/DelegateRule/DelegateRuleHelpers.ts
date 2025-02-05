@@ -1,12 +1,28 @@
+import { Delegate } from "@airswap/libraries";
+
 import { compareAddresses } from "../../helpers/string";
 import { TransactionEvent } from "../../types/transactionTypes";
-import { SubmittedSetRuleTransaction } from "../SubmittedTransaction/SubmittedTransaction";
-import { DelegateRule, DelegateSetRuleEvent } from "./DelegateRule";
+import {
+  SubmittedDelegatedSwapTransaction,
+  SubmittedSetRuleTransaction,
+} from "../SubmittedTransaction/SubmittedTransaction";
+import {
+  DelegateRule,
+  DelegateSetRuleEvent,
+  DelegatedSwapEvent,
+} from "./DelegateRule";
 
 export const isDelegateSetRuleEvent = (
   event: TransactionEvent
 ): event is DelegateSetRuleEvent =>
   typeof event === "object" && "name" in event && event.name === "SetRule";
+
+export const isDelegatedSwapEvent = (
+  event: TransactionEvent
+): event is DelegatedSwapEvent =>
+  typeof event === "object" &&
+  "name" in event &&
+  event.name === "DelegatedSwapFor";
 
 export const findMatchingDelegateSetRuleTransaction = (
   transaction: SubmittedSetRuleTransaction,
@@ -20,6 +36,21 @@ export const findMatchingDelegateSetRuleTransaction = (
     transaction.rule.signerAmount === event.signerAmount &&
     transaction.rule.expiry === event.expiry &&
     transaction.rule.chainId === event.chainId
+  );
+};
+
+export const findMatchingDelegatedSwapTransaction = (
+  transaction: SubmittedDelegatedSwapTransaction,
+  event: DelegatedSwapEvent
+): boolean => {
+  return (
+    compareAddresses(
+      transaction.delegateRule.senderWallet,
+      event.senderWallet
+    ) &&
+    compareAddresses(transaction.order.signerWallet, event.signerWallet) &&
+    transaction.order.nonce === event.nonce &&
+    transaction.delegateRule.chainId === event.chainId
   );
 };
 

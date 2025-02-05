@@ -4,6 +4,7 @@ import { useAppSelector } from "../../../app/hooks";
 import { TransactionEvent } from "../../../types/transactionTypes";
 import useLatestApproveFromEvents from "./useLatestApproveFromEvents";
 import useLatestCancelFromEvents from "./useLatestCancelFromEvents";
+import useLatestDelegatedSwapFromEvents from "./useLatestDelegateSwapFromEvents";
 import useLatestDepositOrWithdrawFromEvents from "./useLatestDepositOrWithdrawFromEvents";
 import useLatestSetRuleFromEvents from "./useLatestSetRuleFromEvents";
 import useLatestSwapFromEvents from "./useLatestSwapFromEvents";
@@ -19,6 +20,10 @@ const useLatestTransactionEvent = () => {
   );
   const latestCancelEvent = useLatestCancelFromEvents(chainId, account);
   const latestSetRuleEvent = useLatestSetRuleFromEvents(chainId, account);
+  const latestDelegateSwapEvent = useLatestDelegatedSwapFromEvents(
+    chainId,
+    account
+  );
 
   const [latestEvent, setLatestEvent] = useState<TransactionEvent>();
 
@@ -51,6 +56,12 @@ const useLatestTransactionEvent = () => {
       setLatestEvent(latestSetRuleEvent);
     }
   }, [latestSetRuleEvent]);
+
+  useEffect(() => {
+    if (latestDelegateSwapEvent) {
+      setLatestEvent(latestDelegateSwapEvent);
+    }
+  }, [latestDelegateSwapEvent]);
 
   return latestEvent;
 };

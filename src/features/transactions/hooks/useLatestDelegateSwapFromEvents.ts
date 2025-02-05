@@ -3,33 +3,35 @@ import { useEffect, useState } from "react";
 import { Delegate } from "@airswap/libraries";
 import { useWeb3React } from "@web3-react/core";
 
-import { BigNumber, Event } from "ethers";
+import BigNumber from "bignumber.js";
+import { Event } from "ethers";
 
-import { DelegateSetRuleEvent } from "../../../entities/DelegateRule/DelegateRule";
-import { transformToDelegateSetRuleEvent } from "../../../entities/DelegateRule/DelegateRuleTransformers";
+import { DelegatedSwapEvent } from "../../../entities/DelegateRule/DelegateRule";
+import { transformToDelegatedSwapEvent } from "../../../entities/DelegateRule/DelegateRuleTransformers";
 import { compareAddresses } from "../../../helpers/string";
 import useDebounce from "../../../hooks/useDebounce";
 import useNetworkSupported from "../../../hooks/useNetworkSupported";
 
-const useLatestSetRuleFromEvents = (
+const useLatestDelegatedSwapFromEvents = (
   chainId?: number,
   account?: string | null
-): DelegateSetRuleEvent | undefined => {
+): DelegatedSwapEvent | undefined => {
   const { provider } = useWeb3React();
   const isNetworkSupported = useNetworkSupported();
 
   const [accountState, setAccountState] = useState<string>();
   const [chainIdState, setChainIdState] = useState<number>();
-  const [latestSetRule, setLatestSetRule] = useState<DelegateSetRuleEvent>();
-  const [debouncedLatestSetRule, setDebouncedLatestSetRule] =
-    useState<DelegateSetRuleEvent>();
+  const [latestDelegatedSwap, setLatestDelegatedSwap] =
+    useState<DelegatedSwapEvent>();
+  const [debouncedLatestDelegatedSwap, setDebouncedLatestDelegatedSwap] =
+    useState<DelegatedSwapEvent>();
 
   useDebounce(
     () => {
-      setDebouncedLatestSetRule(latestSetRule);
+      setDebouncedLatestDelegatedSwap(latestDelegatedSwap);
     },
     1000,
-    [latestSetRule]
+    [latestDelegatedSwap]
   );
 
   useEffect(() => {
@@ -41,32 +43,26 @@ const useLatestSetRuleFromEvents = (
       provider.getSigner(),
       chainId
     );
-    const eventName: DelegateSetRuleEvent["name"] = "SetRule";
+    const eventName: DelegatedSwapEvent["name"] = "DelegatedSwapFor";
 
     const handleEvent = async (
       senderWallet: string,
-      senderToken: string,
-      senderAmount: BigNumber,
-      signerToken: string,
-      signerAmount: BigNumber,
-      expiry: BigNumber,
+      signerWallet: string,
+      nonce: BigNumber,
       event: Event
     ) => {
-      if (!compareAddresses(senderWallet, account)) {
+      if (!compareAddresses(signerWallet, account)) {
         return;
       }
 
       const receipt = await event.getTransactionReceipt();
 
-      setLatestSetRule(
-        transformToDelegateSetRuleEvent(
+      setLatestDelegatedSwap(
+        transformToDelegatedSwapEvent(
           senderWallet,
-          senderToken,
-          senderAmount.toString(),
-          signerToken,
-          signerAmount.toString(),
+          signerWallet,
+          nonce.toString(),
           chainId,
-          expiry.toNumber(),
           event.transactionHash,
           receipt.status
         )
@@ -83,7 +79,7 @@ const useLatestSetRuleFromEvents = (
     };
   }, [chainId, account, provider, isNetworkSupported]);
 
-  return debouncedLatestSetRule;
+  return debouncedLatestDelegatedSwap;
 };
 
-export default useLatestSetRuleFromEvents;
+export default useLatestDelegatedSwapFromEvents;

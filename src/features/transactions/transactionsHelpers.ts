@@ -11,7 +11,9 @@ import {
 } from "../../entities/CancelEvent/CancelEventHelpers";
 import {
   findMatchingDelegateSetRuleTransaction,
+  findMatchingDelegatedSwapTransaction,
   isDelegateSetRuleEvent,
+  isDelegatedSwapEvent,
 } from "../../entities/DelegateRule/DelegateRuleHelpers";
 import {
   findMatchingOrderTransaction,
@@ -29,6 +31,7 @@ import {
   doTransactionsMatch,
   isApprovalTransaction,
   isCancelTransaction,
+  isDelegateSwapTransaction,
   isDepositTransaction,
   isSetRuleTransaction,
   isSubmittedOrder,
@@ -123,6 +126,14 @@ const getMatchingTransaction = (
       .filter(isSetRuleTransaction)
       .find((transaction) =>
         findMatchingDelegateSetRuleTransaction(transaction, event)
+      );
+  }
+
+  if (isDelegatedSwapEvent(event)) {
+    return transactions
+      .filter(isDelegateSwapTransaction)
+      .find((transaction) =>
+        findMatchingDelegatedSwapTransaction(transaction, event)
       );
   }
 

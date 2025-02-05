@@ -12,7 +12,7 @@ import {
 import { DelegateRule } from "../DelegateRule/DelegateRule";
 import {
   SubmittedApprovalTransaction,
-  SubmittedDelegateSwapTransaction,
+  SubmittedDelegatedSwapTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
@@ -125,8 +125,8 @@ export const transformToSubmittedDelegateSwapTransaction = (
   signerToken: TokenInfo,
   status: TransactionStatusType = TransactionStatusType.processing,
   timestamp = Date.now()
-): SubmittedDelegateSwapTransaction => ({
-  type: TransactionTypes.delegateSwap,
+): SubmittedDelegatedSwapTransaction => ({
+  type: TransactionTypes.delegatedSwap,
   hash,
   order,
   delegateRule,

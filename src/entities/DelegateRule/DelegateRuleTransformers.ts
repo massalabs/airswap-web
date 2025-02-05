@@ -1,4 +1,8 @@
-import { DelegateRule, DelegateSetRuleEvent } from "./DelegateRule";
+import {
+  DelegatedSwapEvent,
+  DelegateRule,
+  DelegateSetRuleEvent,
+} from "./DelegateRule";
 
 const getDelegateRuleId = (
   senderWallet: string,
@@ -67,6 +71,25 @@ export const transformToDelegateSetRuleEvent = (
     signerAmount,
     chainId,
     expiry,
+    hash,
+    status,
+  };
+};
+
+export const transformToDelegatedSwapEvent = (
+  senderWallet: string,
+  signerWallet: string,
+  nonce: string,
+  chainId: number,
+  hash: string,
+  status?: number
+): DelegatedSwapEvent => {
+  return {
+    name: "DelegatedSwapFor",
+    chainId,
+    senderWallet,
+    signerWallet,
+    nonce,
     hash,
     status,
   };

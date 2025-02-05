@@ -1,6 +1,9 @@
 import { ApproveEvent } from "../entities/ApproveEvent/ApproveEvent";
 import { CancelEvent } from "../entities/CancelEvent/CancelEvent";
-import { DelegateSetRuleEvent } from "../entities/DelegateRule/DelegateRule";
+import {
+  DelegateSetRuleEvent,
+  DelegatedSwapEvent,
+} from "../entities/DelegateRule/DelegateRule";
 import { FullSwapERC20Event } from "../entities/FullSwapERC20Event/FullSwapERC20Event";
 import { WETHEvent } from "../entities/WETHEvent/WETHEvent";
 
@@ -9,12 +12,13 @@ export type TransactionEvent =
   | ApproveEvent
   | WETHEvent
   | CancelEvent
-  | DelegateSetRuleEvent;
+  | DelegateSetRuleEvent
+  | DelegatedSwapEvent;
 
 export enum TransactionTypes {
   approval = "approval",
   cancel = "cancel",
-  delegateSwap = "delegateSwap",
+  delegatedSwap = "delegatedSwap",
   deposit = "deposit",
   order = "order",
   setDelegateRule = "setDelegateRule",

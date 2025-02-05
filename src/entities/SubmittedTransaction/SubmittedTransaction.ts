@@ -83,9 +83,9 @@ export interface SubmittedSetRuleTransaction
   senderToken: TokenInfo;
 }
 
-export interface SubmittedDelegateSwapTransaction
+export interface SubmittedDelegatedSwapTransaction
   extends SubmittedTransactionWithHash {
-  type: TransactionTypes.delegateSwap;
+  type: TransactionTypes.delegatedSwap;
   delegateRule: DelegateRule;
   order: UnsignedOrderERC20;
   senderToken: TokenInfo;
