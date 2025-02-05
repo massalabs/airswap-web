@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "../../../../app/hooks";
 import { SubmittedTransaction } from "../../../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
-  isDelegateSwapTransaction,
+  isDelegatedSwapTransaction,
   isSubmittedOrder,
 } from "../../../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import { selectDelegateSwapTransactions } from "../../../../features/transactions/transactionsSlice";
@@ -23,7 +23,7 @@ const useSessionDelegateSwapTransaction = (
     }
 
     if (
-      isDelegateSwapTransaction(transactions[0]) &&
+      isDelegatedSwapTransaction(transactions[0]) &&
       transactions[0].delegateRule.id === id &&
       transactions[0].status === TransactionStatusType.processing
     ) {

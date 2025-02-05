@@ -1,4 +1,9 @@
-import { ADDRESS_ZERO, OrderERC20, TokenInfo } from "@airswap/utils";
+import {
+  ADDRESS_ZERO,
+  OrderERC20,
+  TokenInfo,
+  UnsignedOrderERC20,
+} from "@airswap/utils";
 import { FullSwapERC20 } from "@airswap/utils/build/src/swap-erc20";
 import { formatUnits } from "@ethersproject/units";
 
@@ -67,7 +72,7 @@ export const isSetRuleTransaction = (
 ): transaction is SubmittedSetRuleTransaction =>
   transaction.type === TransactionTypes.setDelegateRule;
 
-export const isDelegateSwapTransaction = (
+export const isDelegatedSwapTransaction = (
   transaction: SubmittedTransaction
 ): transaction is SubmittedDelegatedSwapTransaction =>
   transaction.type === TransactionTypes.delegatedSwap;
@@ -150,7 +155,7 @@ const isSenderWalletAccount = (
 };
 
 export const getAdjustedAmount = (
-  order: OrderERC20,
+  order: OrderERC20 | UnsignedOrderERC20,
   protocolFee: number,
   account: string
 ) => {
@@ -165,13 +170,14 @@ export const getAdjustedAmount = (
 };
 
 export const getOrderTransactionLabel = (
-  transaction: SubmittedOrder,
+  transaction: SubmittedOrder | SubmittedDelegatedSwapTransaction,
   signerToken: TokenInfo,
   senderToken: TokenInfo,
   account: string,
   protocolFee: number
 ) => {
-  const { order, swap } = transaction;
+  const { order } = transaction;
+  const swap = isSubmittedOrder(transaction) ? transaction.swap : undefined;
 
   // TODO: Fix signerToken and senderToken sometimes reversed?
   const adjustedSignerToken = signerToken;

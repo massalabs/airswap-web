@@ -31,7 +31,7 @@ import {
   doTransactionsMatch,
   isApprovalTransaction,
   isCancelTransaction,
-  isDelegateSwapTransaction,
+  isDelegatedSwapTransaction,
   isDepositTransaction,
   isSetRuleTransaction,
   isSubmittedOrder,
@@ -131,7 +131,7 @@ const getMatchingTransaction = (
 
   if (isDelegatedSwapEvent(event)) {
     return transactions
-      .filter(isDelegateSwapTransaction)
+      .filter(isDelegatedSwapTransaction)
       .find((transaction) =>
         findMatchingDelegatedSwapTransaction(transaction, event)
       );

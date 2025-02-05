@@ -1,6 +1,7 @@
 import { TokenInfo } from "@airswap/utils";
 
 import {
+  SubmittedDelegatedSwapTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedWithdrawTransaction,
@@ -16,7 +17,8 @@ const getWalletTransactionOrderText = (
   transaction:
     | SubmittedOrder
     | SubmittedWithdrawTransaction
-    | SubmittedDepositTransaction,
+    | SubmittedDepositTransaction
+    | SubmittedDelegatedSwapTransaction,
   signerToken: TokenInfo,
   senderToken: TokenInfo,
   account: string,

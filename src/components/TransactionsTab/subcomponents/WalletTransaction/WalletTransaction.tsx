@@ -8,6 +8,7 @@ import {
   getSetRuleTransactionLabel,
   isApprovalTransaction,
   isCancelTransaction,
+  isDelegatedSwapTransaction,
   isDepositTransaction,
   isSetRuleTransaction,
   isSubmittedOrder,
@@ -116,7 +117,8 @@ const WalletTransaction = ({
   if (
     isSubmittedOrder(transaction) ||
     isWithdrawTransaction(transaction) ||
-    isDepositTransaction(transaction)
+    isDepositTransaction(transaction) ||
+    isDelegatedSwapTransaction(transaction)
   ) {
     const { signerToken, senderToken } = transaction;
     const expiry = isSubmittedOrder(transaction)

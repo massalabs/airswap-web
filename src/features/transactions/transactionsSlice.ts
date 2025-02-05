@@ -9,7 +9,7 @@ import {
   SubmittedTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
-  isDelegateSwapTransaction,
+  isDelegatedSwapTransaction,
   isSetRuleTransaction,
   isSubmittedOrder,
 } from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
@@ -243,6 +243,6 @@ export const selectSetRuleTransactions = (state: RootState) =>
   state.transactions.transactions.filter(isSetRuleTransaction);
 
 export const selectDelegateSwapTransactions = (state: RootState) =>
-  state.transactions.transactions.filter(isDelegateSwapTransaction);
+  state.transactions.transactions.filter(isDelegatedSwapTransaction);
 
 export default transactionsSlice.reducer;
