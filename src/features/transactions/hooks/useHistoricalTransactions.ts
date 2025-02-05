@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 
+import { Delegate } from "@airswap/libraries";
+
 import { useAppSelector } from "../../../app/hooks";
 import { SubmittedTransaction } from "../../../entities/SubmittedTransaction/SubmittedTransaction";
 import { sortSubmittedTransactionsByExpiry } from "../../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
@@ -9,6 +11,7 @@ import { compareAddresses } from "../../../helpers/string";
 import useNativeToken from "../../../hooks/useNativeToken";
 import { TransactionStatusType } from "../../../types/transactionTypes";
 import { selectAllTokenInfo } from "../../metadata/metadataSlice";
+import { getOrdersFromDelegatedSwapLogs } from "../helpers/getOrdersFromDelegatedSwapLogs";
 import { getOrdersFromLogs } from "../helpers/getOrdersFromLogs";
 import { getOrdersFromWrappedEventLogs } from "../helpers/getOrdersFromWrappedEventLogs";
 import useSwapLogs from "./useSwapLogs";
@@ -64,7 +67,18 @@ const useHistoricalTransactions = (): [
         swapLogs.wrappedSwapLogs
       );
 
-      const submittedTransactions = [...logs, ...wrappedLogs]
+      const delegatedSwapLogs = getOrdersFromDelegatedSwapLogs(
+        account,
+        chainId,
+        logs,
+        swapLogs.delegatedSwapLogs
+      );
+
+      const submittedTransactions = [
+        ...logs,
+        ...wrappedLogs,
+        ...delegatedSwapLogs,
+      ]
         .filter(
           (order) =>
             compareAddresses(order.order.signerWallet, account) ||
