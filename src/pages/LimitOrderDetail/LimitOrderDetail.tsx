@@ -10,6 +10,8 @@ import { getDelegateOrder } from "../../features/takeLimit/takeLimitActions";
 import { reset } from "../../features/takeLimit/takeLimitSlice";
 import useDefaultLibrary from "../../hooks/useDefaultLibrary";
 import { InvalidOrder } from "../OtcOrderDetail/subcomponents";
+import { StyledLoadingSpinner } from "./LimitOrderDetail.styles";
+import NotFound from "./subcomponents/NotFound/NotFound";
 
 const LimitOrderDetail: FC = () => {
   const dispatch = useAppDispatch();
@@ -58,8 +60,7 @@ const LimitOrderDetail: FC = () => {
     }
   }, [delegateRule]);
 
-  // TODO: Add NotFound component
-  if (status === "invalid" || status === "not-found") {
+  if (status === "invalid") {
     return (
       <Page>
         <InvalidOrder />
@@ -67,16 +68,20 @@ const LimitOrderDetail: FC = () => {
     );
   }
 
-  // if (status === "not-found") {
-  //   return (
-  //     <Page>
-  //       <NotFound />
-  //     </Page>
-  //   );
-  // }
+  if (status === "not-found") {
+    return (
+      <Page>
+        <NotFound />
+      </Page>
+    );
+  }
 
   if (status === "idle" || !delegateRule) {
-    return <Page />;
+    return (
+      <Page>
+        <StyledLoadingSpinner />
+      </Page>
+    );
   }
 
   return (

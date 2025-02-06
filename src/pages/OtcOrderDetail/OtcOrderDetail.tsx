@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import OtcOrderDetailWidget from "../../components/@widgets/OtcOrderDetailWidget/OtcOrderDetailWidget";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import Page from "../../components/Page/Page";
 import { fetchAllTokens } from "../../features/metadata/metadataActions";
 import { selectMetaDataReducer } from "../../features/metadata/metadataSlice";
@@ -11,6 +12,7 @@ import {
   reset,
   selectTakeOtcReducer,
 } from "../../features/takeOtc/takeOtcSlice";
+import { StyledLoadingSpinner } from "./OtcOrderDetail.styles";
 import InvalidOrder from "./subcomponents/InvalidOrder/InvalidOrder";
 
 const OtcOrderDetail: FC = () => {
@@ -46,7 +48,11 @@ const OtcOrderDetail: FC = () => {
   }
 
   if (status === "idle" || !activeOrder) {
-    return <Page />;
+    return (
+      <Page>
+        <StyledLoadingSpinner />
+      </Page>
+    );
   }
 
   return (

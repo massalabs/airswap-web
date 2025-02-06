@@ -1,27 +1,24 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import Icon from "../../../../components/Icon/Icon";
-import {
-  InfoSubHeading,
-  Title,
-} from "../../../../components/Typography/Typography";
-import { AppRoutes, routes } from "../../../../routes";
+import { InfoSubHeading } from "../../../../components/Typography/Typography";
+import { routes } from "../../../../routes";
 import {
   Container,
   StyledInfoHeading,
-  Header,
   InfoContainer,
   BackButton,
-} from "./InvalidOrder.styles";
+  StyledInfoSubHeading,
+} from "./NotFound.styles";
 
-const InvalidOrder: FC = () => {
+const NotFound: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
   const handleBackButtonClick = () => {
-    history.push({ pathname: routes.makeOtcOrder() });
+    history.push({ pathname: routes.makeLimitOrder() });
   };
 
   return (
@@ -29,11 +26,11 @@ const InvalidOrder: FC = () => {
       <InfoContainer>
         <Icon name="close-circle-outline" iconSize={4.5} />
         <StyledInfoHeading>
-          {t("validatorErrors.invalidOrder")}
+          {t("validatorErrors.delegateRuleNotFound")}
         </StyledInfoHeading>
-        <InfoSubHeading>
-          {t("validatorErrors.invalidOrderDescription")}
-        </InfoSubHeading>
+        <StyledInfoSubHeading>
+          {t("validatorErrors.delegateRuleNotFoundDescription")}
+        </StyledInfoSubHeading>
       </InfoContainer>
       <BackButton onClick={handleBackButtonClick}>
         {t("common.back")}
@@ -42,4 +39,4 @@ const InvalidOrder: FC = () => {
   );
 };
 
-export default InvalidOrder;
+export default NotFound;

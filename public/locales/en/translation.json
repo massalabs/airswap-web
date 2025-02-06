@@ -227,6 +227,8 @@
   },
   "validatorErrors": {
     "arithmeticUnderflow": "Amount too small",
+    "delegateRuleNotFound": "Limit order not found",
+    "delegateRuleNotFoundDescription": "The wallet does not have a limit order set up for this token pair.",
     "expiryPassed": "Order has expired",
     "invalidAddress": "{{address}} is an invalid address",
     "invalidOrder": "Invalid order",
