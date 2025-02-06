@@ -96,6 +96,12 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const ordersErrors = useAppSelector(selectOrdersErrors);
   const takeLimitErrors = useAppSelector(selectTakeLimitErrors);
 
+  const isOrdersSigning = ordersStatus === "signing";
+  const isTakeLimitSigning =
+    takeLimitStatus === "signing-signature" ||
+    takeLimitStatus === "signing-transaction";
+  const isSigning = isOrdersSigning || isTakeLimitSigning;
+
   const errors = [...ordersErrors, ...takeLimitErrors];
 
   const [state, setState] = useState<LimitOrderDetailWidgetState>(
@@ -185,7 +191,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     (state === LimitOrderDetailWidgetState.review && !hasSufficientAllowance) ||
     !!approvalTransaction;
   const showOrderReview = state === LimitOrderDetailWidgetState.review;
-  // TODO: Add approve review
 
   const handleSignerAmountChange = (value: string): void => {
     if (!availableSignerAmount) {
@@ -478,19 +483,13 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
         <ErrorList errors={errors} onBackButtonClick={restart} />
       </ModalOverlay>
 
-      <TransactionOverlay
-        isHidden={ordersStatus !== "signing" && takeLimitStatus !== "signing"}
-      >
-        <WalletSignScreen type="swap" />
+      <TransactionOverlay isHidden={!isSigning}>
+        <WalletSignScreen
+          type={takeLimitStatus === "signing-signature" ? "signature" : "swap"}
+        />
       </TransactionOverlay>
 
-      <TransactionOverlay
-        isHidden={
-          ordersStatus === "signing" ||
-          takeLimitStatus === "signing" ||
-          !approvalTransaction
-        }
-      >
+      <TransactionOverlay isHidden={isSigning || !approvalTransaction}>
         {approvalTransaction && (
           <ApprovalSubmittedScreen
             chainId={chainId}

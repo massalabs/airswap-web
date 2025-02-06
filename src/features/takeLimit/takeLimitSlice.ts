@@ -11,7 +11,8 @@ export interface TakeLimitOrderState {
     | "not-found"
     | "open"
     | "taken"
-    | "signing"
+    | "signing-signature"
+    | "signing-transaction"
     | "failed";
   errors: AppError[];
   delegateRule?: DelegateRule;

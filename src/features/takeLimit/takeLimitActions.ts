@@ -13,6 +13,7 @@ import {
 import { transformToSubmittedDelegateSwapTransaction } from "../../entities/SubmittedTransaction/SubmittedTransactionTransformers";
 import { AppErrorType } from "../../errors/appError";
 import { isAppError } from "../../errors/appError";
+import transformUnknownErrorToAppError from "../../errors/transformUnknownErrorToAppError";
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import toAtomicString from "../../helpers/toAtomicString";
 import { submitTransaction } from "../transactions/transactionsActions";
@@ -96,7 +97,7 @@ export const takeLimitOrder =
         chainId: delegateRule.chainId,
       });
 
-      dispatch(setStatus("signing"));
+      dispatch(setStatus("signing-signature"));
 
       const signature = await createOrderERC20Signature(
         unsignedOrder,
@@ -115,6 +116,8 @@ export const takeLimitOrder =
         }
         return;
       }
+
+      dispatch(setStatus("signing-transaction"));
 
       const tx = await takeDelegateRuleCall({
         delegateRule,
@@ -146,6 +149,16 @@ export const takeLimitOrder =
     } catch (error) {
       console.error(error);
 
+      const appError = transformUnknownErrorToAppError(error);
+
+      if (appError.type === AppErrorType.rejectedByUser) {
+        dispatch(setStatus("open"));
+        notifyRejectedByUserError();
+
+        return;
+      }
+
       dispatch(setStatus("failed"));
+      dispatch(setError(appError));
     }
   };
