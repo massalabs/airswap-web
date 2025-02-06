@@ -60,7 +60,7 @@ const LimitOrderDetail: FC = () => {
     }
   }, [delegateRule]);
 
-  if (status === "invalid") {
+  if (status === "invalid" || status === "failed") {
     return (
       <Page>
         <InvalidOrder />

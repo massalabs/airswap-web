@@ -37,6 +37,7 @@ import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTo
 import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
+import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
 import ApprovalSubmittedScreen from "../../ApprovalSubmittedScreen/ApprovalSubmittedScreen";
@@ -143,19 +144,19 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     delegateRule.id
   );
 
-  const { hasSufficientAllowance } = useAllowance(
+  const { hasSufficientAllowance, readableAllowance } = useAllowance(
     senderToken,
-    customSenderAmount
+    customSignerAmountPlusFee
   );
 
   const hasInsufficientTokenBalance = useInsufficientBalance(
     senderToken,
-    customSenderAmount!
+    customSignerAmountPlusFee!
   );
 
   const shouldDepositNativeTokenAmount = useShouldDepositNativeToken(
     senderToken?.address,
-    customSenderAmount
+    customSignerAmountPlusFee
   );
   const isAllowancesOrBalancesFailed = useAllowancesOrBalancesFailed();
   const shouldDepositNativeToken = !!shouldDepositNativeTokenAmount;
@@ -180,6 +181,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     state === LimitOrderDetailWidgetState.review &&
     shouldDepositNativeToken &&
     !delegateSwapTransaction;
+  const showApproveReview =
+    (state === LimitOrderDetailWidgetState.review && !hasSufficientAllowance) ||
+    !!approvalTransaction;
   const showOrderReview = state === LimitOrderDetailWidgetState.review;
   // TODO: Add approve review
 
@@ -301,7 +305,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     }
 
     if (action === ButtonActions.approve) {
-      approveToken();
+      setState(LimitOrderDetailWidgetState.review);
     }
 
     if (action === ButtonActions.review) {
@@ -335,9 +339,29 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           errors={errors}
           shouldDepositNativeTokenAmount={shouldDepositNativeTokenAmount}
           wrappedNativeToken={wrappedNativeToken}
-          onRestartButtonClick={backToOverview}
+          onEditButtonClick={backToOverview}
+          onRestartButtonClick={restart}
           onSignButtonClick={depositNativeToken}
         />
+      );
+    }
+
+    if (showApproveReview) {
+      return (
+        <>
+          <ApproveReview
+            hasEditButton
+            isLoading={!!approvalTransaction}
+            amount={customSignerAmount || "0"}
+            amountPlusFee={customSignerAmountPlusFee}
+            readableAllowance={readableAllowance}
+            token={signerToken}
+            wrappedNativeToken={wrappedNativeToken}
+            onEditButtonClick={backToOverview}
+            onRestartButtonClick={restart}
+            onSignButtonClick={approveToken}
+          />
+        </>
       );
     }
 

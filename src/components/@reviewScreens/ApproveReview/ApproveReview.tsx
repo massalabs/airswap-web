@@ -82,6 +82,8 @@ const ApproveReview: FC<ApproveReviewProps> = ({
   const handleEditOrBackButtonClick = () => {
     if (!isLoading && hasEditButton && onEditButtonClick) {
       onEditButtonClick();
+
+      return;
     }
 
     if (onRestartButtonClick) {
