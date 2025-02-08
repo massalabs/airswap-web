@@ -11,7 +11,7 @@ const getDelegateRuleId = (
   chainId: number,
   expiry: number
 ) => {
-  return `${senderWallet}-${senderToken}-${signerToken}-${expiry}-${chainId}`;
+  return `${senderWallet.toLowerCase()}-${senderToken.toLowerCase()}-${signerToken.toLowerCase()}-${expiry}-${chainId}`;
 };
 
 export const transformToDelegateRule = (
@@ -33,10 +33,10 @@ export const transformToDelegateRule = (
       expiry
     ),
     senderFilledAmount,
-    senderWallet,
-    senderToken,
+    senderWallet: senderWallet.toLowerCase(),
+    senderToken: senderToken.toLowerCase(),
     senderAmount,
-    signerToken,
+    signerToken: signerToken.toLowerCase(),
     signerAmount,
     chainId,
     expiry,
@@ -64,10 +64,10 @@ export const transformToDelegateSetRuleEvent = (
       expiry
     ),
     senderFilledAmount: "0",
-    senderWallet,
-    senderToken,
+    senderWallet: senderWallet.toLowerCase(),
+    senderToken: senderToken.toLowerCase(),
     senderAmount,
-    signerToken,
+    signerToken: signerToken.toLowerCase(),
     signerAmount,
     chainId,
     expiry,
@@ -87,8 +87,8 @@ export const transformToDelegatedSwapEvent = (
   return {
     name: "DelegatedSwapFor",
     chainId,
-    senderWallet,
-    signerWallet,
+    senderWallet: senderWallet.toLowerCase(),
+    signerWallet: signerWallet.toLowerCase(),
     nonce,
     hash,
     status,

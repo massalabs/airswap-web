@@ -673,9 +673,6 @@ const SwapWidget: FC = () => {
             onMakeNewOrderButtonClick={() =>
               handleActionButtonClick(ButtonActions.restart)
             }
-            onTrackTransactionButtonClick={() =>
-              handleActionButtonClick(ButtonActions.trackTransaction)
-            }
           />
         </TransactionOverlay>
       </StyledSwapWidget>

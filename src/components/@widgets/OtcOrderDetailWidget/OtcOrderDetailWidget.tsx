@@ -427,10 +427,10 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
       <TransactionOverlay isHidden={!orderTransaction}>
         {orderTransaction && (
           <OrderSubmittedScreen
+            showTrackTransactionButton
             chainId={chainId}
             transaction={orderTransaction}
             onMakeNewOrderButtonClick={restart}
-            onTrackTransactionButtonClick={openTransactionsTab}
           />
         )}
       </TransactionOverlay>

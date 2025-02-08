@@ -17,7 +17,10 @@ import {
   selectOrdersErrors,
   selectOrdersStatus,
 } from "../../../features/orders/ordersSlice";
-import { takeLimitOrder } from "../../../features/takeLimit/takeLimitActions";
+import {
+  getDelegateOrder,
+  takeLimitOrder,
+} from "../../../features/takeLimit/takeLimitActions";
 import {
   selectTakeLimitErrors,
   selectTakeLimitStatus,
@@ -37,6 +40,7 @@ import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTo
 import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
+import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
@@ -146,9 +150,10 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     true
   );
   const wrappedNativeToken = useNativeWrappedToken(chainId);
-  const delegateSwapTransaction = useSessionDelegateSwapTransaction(
-    delegateRule.id
-  );
+  const {
+    transaction: delegateSwapTransaction,
+    reset: resetDelegateSwapTransaction,
+  } = useSessionDelegateSwapTransaction(delegateRule.id);
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     senderToken,
@@ -262,10 +267,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     );
   };
 
-  const openTransactionsTab = () => {
-    setTransactionsTabIsOpen(true);
-  };
-
   const approveToken = () => {
     if (!senderToken || !customSenderAmount || !library) {
       return;
@@ -286,10 +287,24 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     );
   };
 
-  const restart = () => {
+  const makeNewOrder = () => {
     history.push(routes.makeLimitOrder());
+  };
+
+  const restart = () => {
+    resetDelegateSwapTransaction();
+    setState(LimitOrderDetailWidgetState.overview);
     dispatch(clear());
     dispatch(reset());
+    dispatch(
+      getDelegateOrder({
+        senderWallet: delegateRule.senderWallet,
+        senderToken: delegateRule.senderToken,
+        signerToken: delegateRule.signerToken,
+        chainId: delegateRule.chainId,
+        library: library!,
+      })
+    );
   };
 
   const backToOverview = () => {
@@ -501,10 +516,12 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       <TransactionOverlay isHidden={!delegateSwapTransaction}>
         {delegateSwapTransaction && (
           <OrderSubmittedScreen
+            showReturnToOrderButton
+            showTrackTransactionButton
             chainId={chainId}
             transaction={delegateSwapTransaction}
-            onMakeNewOrderButtonClick={restart}
-            onTrackTransactionButtonClick={openTransactionsTab}
+            onMakeNewOrderButtonClick={makeNewOrder}
+            onReturnToOrderButtonClick={restart}
           />
         )}
       </TransactionOverlay>

@@ -172,6 +172,7 @@
     "receivedQuotes": "Received quotes",
     "removeFromActive": "Remove from active",
     "retryOrCancel": "Try increasing size or another token",
+    "returnToOrder": "Return to order",
     "revertPrice": "Revert price",
     "scanningPeers": "Scanning peers on the network",
     "searchByNameOrAddress": "Search name or paste address",

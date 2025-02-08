@@ -4,12 +4,12 @@ import { getUniqueDelegateRules } from "../../entities/DelegateRule/DelegateRule
 import { setDelegateRules } from "./delegateRulesSlice";
 
 export const submitDelegateRuleToStore =
-  (delegateRule: DelegateRule) =>
+  (newDelegateRule: DelegateRule) =>
   async (dispatch: AppDispatch, getState: () => RootState): Promise<void> => {
     const state = getState();
     const { delegateRules } = state.delegateRules;
 
-    if (delegateRules.some((rule) => rule.id === delegateRule.id)) {
+    if (delegateRules.some((rule) => rule.id === newDelegateRule.id)) {
       console.warn(
         "[submitDelegateRuleToStore]: delegateRule already exists in store"
       );
@@ -19,7 +19,7 @@ export const submitDelegateRuleToStore =
 
     const updatedDelegateRules = getUniqueDelegateRules([
       ...delegateRules,
-      delegateRule,
+      newDelegateRule,
     ]);
 
     dispatch(setDelegateRules(updatedDelegateRules));

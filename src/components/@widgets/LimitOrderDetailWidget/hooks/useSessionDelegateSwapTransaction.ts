@@ -2,16 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useAppSelector } from "../../../../app/hooks";
 import { SubmittedTransaction } from "../../../../entities/SubmittedTransaction/SubmittedTransaction";
-import {
-  isDelegatedSwapTransaction,
-  isSubmittedOrder,
-} from "../../../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
+import { isDelegatedSwapTransaction } from "../../../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import { selectDelegateSwapTransactions } from "../../../../features/transactions/transactionsSlice";
 import { TransactionStatusType } from "../../../../types/transactionTypes";
 
 const useSessionDelegateSwapTransaction = (
   id: string
-): SubmittedTransaction | undefined => {
+): { transaction: SubmittedTransaction | undefined; reset: () => void } => {
   const transactions = useAppSelector(selectDelegateSwapTransactions);
 
   const [processingTransactionHash, setProcessingTransactionHash] =
@@ -31,7 +28,7 @@ const useSessionDelegateSwapTransaction = (
     }
   }, [transactions]);
 
-  return useMemo(() => {
+  const transaction = useMemo(() => {
     if (!processingTransactionHash) {
       return undefined;
     }
@@ -40,6 +37,8 @@ const useSessionDelegateSwapTransaction = (
       (transaction) => transaction.hash === processingTransactionHash
     );
   }, [processingTransactionHash, transactions]);
+
+  return { transaction, reset: () => setProcessingTransactionHash(undefined) };
 };
 
 export default useSessionDelegateSwapTransaction;
