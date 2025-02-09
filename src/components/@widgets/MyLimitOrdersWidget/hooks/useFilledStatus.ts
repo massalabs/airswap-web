@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 
 import { DelegateRule } from "../../../../entities/DelegateRule/DelegateRule";
-import useFormattedTokenAmount from "../../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
+import useFormattedTokenAmount from "../../OrderDetailWidget/hooks/useFormattedTokenAmount";
 
 export const useFilledStatus = (
   delegateRule: DelegateRule,

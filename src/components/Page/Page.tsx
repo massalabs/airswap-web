@@ -102,7 +102,8 @@ const Page: FC<PageProps> = ({ children, className }): ReactElement => {
           isOverlayOpen={showModalOverlay}
         >
           {children}
-          {appRouteParams.route !== AppRoutes.otcOrder && <PageNavigation />}
+          {appRouteParams.route !== AppRoutes.otcOrder &&
+            appRouteParams.route !== AppRoutes.limitOrder && <PageNavigation />}
           <WalletConnector />
         </WidgetFrame>
 

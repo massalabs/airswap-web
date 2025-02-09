@@ -22,10 +22,10 @@ import {
   takeLimitOrder,
 } from "../../../features/takeLimit/takeLimitActions";
 import {
+  reset,
   selectTakeLimitErrors,
   selectTakeLimitStatus,
 } from "../../../features/takeLimit/takeLimitSlice";
-import { reset } from "../../../features/takeOtc/takeOtcSlice";
 import { compareAddresses } from "../../../helpers/string";
 import useAllowance from "../../../hooks/useAllowance";
 import useAllowancesOrBalancesFailed from "../../../hooks/useAllowancesOrBalancesFailed";
@@ -40,7 +40,6 @@ import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTo
 import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
-import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
@@ -60,10 +59,10 @@ import {
   StyledActionButtons,
   StyledFilledAndStatus,
   StyledInfoSection,
-} from "../OtcOrderDetailWidget/OtcOrderDetailWidget.styles";
-import useTakerTokenInfo from "../OtcOrderDetailWidget/hooks/useTakerTokenInfo";
-import { ButtonActions } from "../OtcOrderDetailWidget/subcomponents/ActionButtons/ActionButtons";
-import OrderDetailWidgetHeader from "../OtcOrderDetailWidget/subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
+} from "../OrderDetailWidget/OrderDetailWidget.styles";
+import useTakerTokenInfo from "../OrderDetailWidget/hooks/useTakerTokenInfo";
+import { ButtonActions } from "../OrderDetailWidget/subcomponents/ActionButtons/ActionButtons";
+import OrderDetailWidgetHeader from "../OrderDetailWidget/subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 import {
   getCustomSenderAmount,
   getCustomSignerAmount,
@@ -333,7 +332,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     }
 
     if (action === ButtonActions.cancel) {
-      history.push(routes.cancelOtcOrder(params.compressedOrder));
+      // TODO: Implement cancel limit order
     }
 
     if (action === ButtonActions.take) {
@@ -461,6 +460,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           hasInsufficientBalance={hasInsufficientTokenBalance}
           hasInsufficientAllowance={!hasSufficientAllowance}
           isExpired={orderStatus === OrderStatus.expired}
+          // TODO: Implement cancel limit order state
           isCanceled={false}
           isLimitOrder={true}
           isTaken={orderStatus === OrderStatus.taken}
@@ -478,7 +478,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   return (
-    <Container hidePageNavigation={showWrapReview || showOrderReview}>
+    <Container>
       {renderScreens()}
 
       <ModalOverlay

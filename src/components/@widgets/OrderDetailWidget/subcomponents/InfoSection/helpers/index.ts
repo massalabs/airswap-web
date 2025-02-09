@@ -7,7 +7,7 @@ interface FullOrderErc20WarningTranslation {
   subHeading?: string;
 }
 
-export const getFullOrderERC20WarningTranslation = (
+export const getOrderDetailWarningTranslation = (
   isAllowancesFailed: boolean,
   isDifferentChainId: boolean,
   isExpired: boolean,

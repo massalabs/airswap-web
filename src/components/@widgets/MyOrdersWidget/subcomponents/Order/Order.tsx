@@ -9,7 +9,7 @@ import {
   getOrderStatusTranslation,
   getTokenAmountWithDecimals,
 } from "../../../MyOrdersWidget/helpers";
-import useFormattedTokenAmount from "../../../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
+import useFormattedTokenAmount from "../../../OrderDetailWidget/hooks/useFormattedTokenAmount";
 import {
   ActionButton,
   ActionButtonContainer,

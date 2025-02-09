@@ -59,13 +59,13 @@ import {
   StyledActionButtons,
   StyledInfoSection,
   StyledRecipientAndStatus,
-} from "./OtcOrderDetailWidget.styles";
-import useFormattedTokenAmount from "./hooks/useFormattedTokenAmount";
+} from "../OrderDetailWidget/OrderDetailWidget.styles";
+import useFormattedTokenAmount from "../OrderDetailWidget/hooks/useFormattedTokenAmount";
+import useTakerTokenInfo from "../OrderDetailWidget/hooks/useTakerTokenInfo";
+import { ButtonActions } from "../OrderDetailWidget/subcomponents/ActionButtons/ActionButtons";
+import OrderDetailWidgetHeader from "../OrderDetailWidget/subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 import { useOtcOrderStatus } from "./hooks/useOtcOrderStatus";
 import useSessionOrderTransaction from "./hooks/useSessionOrderTransaction";
-import useTakerTokenInfo from "./hooks/useTakerTokenInfo";
-import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import OrderDetailWidgetHeader from "./subcomponents/OrderDetailWidgetHeader/OrderDetailWidgetHeader";
 
 interface OtcOrderDetailWidgetProps {
   order: FullOrderERC20;
