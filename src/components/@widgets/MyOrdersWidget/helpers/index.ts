@@ -1,10 +1,6 @@
-import { FullOrderERC20, TokenInfo } from "@airswap/utils";
-
 import { BigNumber } from "bignumber.js";
 import i18n from "i18next";
 
-import { OrdersSortType } from "../../../../features/myOrders/myOrdersSlice";
-import findEthOrTokenByAddress from "../../../../helpers/findEthOrTokenByAddress";
 import { OrderStatus } from "../../../../types/orderStatus";
 
 export const getTokenAmountWithDecimals = (
@@ -12,24 +8,6 @@ export const getTokenAmountWithDecimals = (
   decimals = 18
 ): BigNumber => {
   return new BigNumber(amount).div(10 ** decimals);
-};
-
-const sortTokensBySymbol = (
-  a: string,
-  b: string,
-  tokens: TokenInfo[],
-  chainId: number
-) => {
-  const token1 = findEthOrTokenByAddress(a, tokens, chainId);
-  const token2 = findEthOrTokenByAddress(b, tokens, chainId);
-
-  if (!token1! || !token2) {
-    return 0;
-  }
-
-  return token1.symbol.toLocaleLowerCase() < token2.symbol.toLocaleLowerCase()
-    ? -1
-    : 1;
 };
 
 export const getOrderStatusTranslation = (status: OrderStatus): string => {

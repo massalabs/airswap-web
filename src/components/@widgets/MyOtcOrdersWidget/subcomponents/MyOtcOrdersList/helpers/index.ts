@@ -5,8 +5,8 @@ import * as ethers from "ethers";
 import { getNonceUsed } from "../../../../../../features/orders/ordersHelpers";
 import { compareAddresses } from "../../../../../../helpers/string";
 import { OrderStatus } from "../../../../../../types/orderStatus";
-import { MyOrder } from "../../../entities/Order";
-import { transformErc20OrderToMyOrder } from "../../../entities/OrderTransformers";
+import { MyOrder } from "../../../../MyOrdersWidget/entities/MyOrder";
+import { transformErc20OrderToMyOrder } from "../../../../MyOrdersWidget/entities/MyOrderTransformers";
 
 export const findTokenInfo = async (
   token: string,

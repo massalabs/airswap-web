@@ -28,9 +28,9 @@ import {
   Container,
   InfoSectionContainer,
   StyledActionButtons,
-} from "./MyOtcOrdersWidget.styles";
-import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import InfoSection from "./subcomponents/InfoSection/InfoSection";
+} from "../MyOrdersWidget/MyOrdersWidget.styles";
+import { ButtonActions } from "../MyOrdersWidget/subcomponents/ActionButtons/ActionButtons";
+import InfoSection from "../MyOrdersWidget/subcomponents/InfoSection/InfoSection";
 import MyOtcOrdersList from "./subcomponents/MyOtcOrdersList/MyOtcOrdersList";
 
 const MyOtcOrdersWidget: FC = () => {

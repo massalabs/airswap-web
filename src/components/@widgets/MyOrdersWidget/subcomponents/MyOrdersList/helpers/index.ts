@@ -1,5 +1,5 @@
 import { OrdersSortType } from "../../../../../../features/myOrders/myOrdersSlice";
-import { MyOrder } from "../../../entities/Order";
+import { MyOrder } from "../../../../MyOrdersWidget/entities/MyOrder";
 
 export const getSortedOrders = (
   orders: MyOrder[],

@@ -7,7 +7,10 @@ import { fontMono } from "../../../../../style/themes";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import IconButton from "../../../../IconButton/IconButton";
 import TokenLogo from "../../../../TokenLogo/TokenLogo";
-import { MyLimitOrderGrid, MyOrdersGrid } from "../../MyOtcOrdersWidget.styles";
+import {
+  MyLimitOrderGrid,
+  MyOrdersGrid,
+} from "../../../MyOrdersWidget/MyOrdersWidget.styles";
 
 export const Circle = styled.div`
   border-radius: 50%;

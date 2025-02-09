@@ -6,7 +6,7 @@ import {
 
 import { routes } from "../../../../routes";
 import { OrderStatus } from "../../../../types/orderStatus";
-import { MyOrder } from "./Order";
+import { MyOrder } from "./MyOrder";
 
 export const transformErc20OrderToMyOrder = (
   order: FullOrderERC20,

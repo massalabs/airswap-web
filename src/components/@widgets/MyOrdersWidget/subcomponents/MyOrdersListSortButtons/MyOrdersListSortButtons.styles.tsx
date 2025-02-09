@@ -1,6 +1,9 @@
 import styled from "styled-components/macro";
 
-import { MyLimitOrderGrid, MyOrdersGrid } from "../../MyOtcOrdersWidget.styles";
+import {
+  MyLimitOrderGrid,
+  MyOrdersGrid,
+} from "../../../MyOrdersWidget/MyOrdersWidget.styles";
 
 export const Container = styled.div<{
   hasOverflow: boolean;

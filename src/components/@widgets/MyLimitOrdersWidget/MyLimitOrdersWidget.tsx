@@ -24,9 +24,9 @@ import {
   Container,
   InfoSectionContainer,
   StyledActionButtons,
-} from "../MyOtcOrdersWidget/MyOtcOrdersWidget.styles";
-import { ButtonActions } from "../MyOtcOrdersWidget/subcomponents/ActionButtons/ActionButtons";
-import InfoSection from "../MyOtcOrdersWidget/subcomponents/InfoSection/InfoSection";
+} from "../MyOrdersWidget/MyOrdersWidget.styles";
+import { ButtonActions } from "../MyOrdersWidget/subcomponents/ActionButtons/ActionButtons";
+import InfoSection from "../MyOrdersWidget/subcomponents/InfoSection/InfoSection";
 import MyLimitOrdersList from "./subcomponents/MyLimitOrdersList/MyLimitOrdersList";
 
 const MyLimitOrdersWidget: FC = () => {

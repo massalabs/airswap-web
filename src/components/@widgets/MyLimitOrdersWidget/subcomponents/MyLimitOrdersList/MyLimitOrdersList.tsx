@@ -8,8 +8,7 @@ import { useAppSelector } from "../../../../../app/hooks";
 import { DelegateRule } from "../../../../../entities/DelegateRule/DelegateRule";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
 import { OrdersSortType } from "../../../../../features/myOrders/myOrdersSlice";
-import { MyOrder } from "../../../MyOtcOrdersWidget/entities/Order";
-import MyOrdersList from "../../../MyOtcOrdersWidget/subcomponents/MyOrdersList/MyOrdersList";
+import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import { StyledMyLimitOrdersList } from "./MyLimitOrdersList.styles";
 import { getDelegateRuleDataAndTransformToOrder } from "./helpers";
 

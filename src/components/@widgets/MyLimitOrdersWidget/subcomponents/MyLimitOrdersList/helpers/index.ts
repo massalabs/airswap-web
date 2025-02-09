@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import { DelegateRule } from "../../../../../../entities/DelegateRule/DelegateRule";
 import { routes } from "../../../../../../routes";
 import { OrderStatus } from "../../../../../../types/orderStatus";
-import { MyOrder } from "../../../../MyOtcOrdersWidget/entities/Order";
+import { MyOrder } from "../../../../MyOrdersWidget/entities/MyOrder";
 import { findTokenInfo } from "../../../../MyOtcOrdersWidget/subcomponents/MyOtcOrdersList/helpers";
 
 const getOrderStatus = (delegateRule: DelegateRule): OrderStatus => {

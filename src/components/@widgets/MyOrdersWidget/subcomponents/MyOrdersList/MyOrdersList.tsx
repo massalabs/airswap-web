@@ -5,8 +5,8 @@ import { OrdersSortType } from "../../../../../features/myOrders/myOrdersSlice";
 import useIsOverflowing from "../../../../../hooks/useIsOverflowing";
 import useWindowSize from "../../../../../hooks/useWindowSize";
 import { OrderStatus } from "../../../../../types/orderStatus";
-import { MyOrder } from "../../entities/Order";
-import { getOrderStatusTranslation } from "../../helpers";
+import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
+import { getOrderStatusTranslation } from "../../../MyOrdersWidget/helpers";
 import Order from "../Order/Order";
 import {
   Container,

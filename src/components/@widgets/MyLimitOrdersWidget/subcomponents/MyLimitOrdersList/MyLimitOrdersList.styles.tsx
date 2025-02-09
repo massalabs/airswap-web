@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import MyOrdersList from "../../../MyOtcOrdersWidget/subcomponents/MyOrdersList/MyOrdersList";
+import MyOrdersList from "../../../MyOrdersWidget/subcomponents/MyOrdersList/MyOrdersList";
 import {
   ActionButtonContainer,
   FilledAmount,
@@ -10,7 +10,7 @@ import {
   StatusIndicator,
   StyledNavLink,
   Tokens,
-} from "../../../MyOtcOrdersWidget/subcomponents/Order/Order.styles";
+} from "../../../MyOrdersWidget/subcomponents/Order/Order.styles";
 
 export const StyledMyLimitOrdersList = styled(MyOrdersList)`
   ${StatusIndicator} {

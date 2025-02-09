@@ -4,12 +4,12 @@ import { getExpiryTranslation } from "../../../../../helpers/getExpiryTranslatio
 import { getHumanReadableNumber } from "../../../../../helpers/getHumanReadableNumber";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import LoadingSpinner from "../../../../LoadingSpinner/LoadingSpinner";
-import useFormattedTokenAmount from "../../../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
-import { MyOrder as MyOrderInterface } from "../../entities/Order";
+import { MyOrder as MyOrderInterface } from "../../../MyOrdersWidget/entities/MyOrder";
 import {
   getOrderStatusTranslation,
   getTokenAmountWithDecimals,
-} from "../../helpers";
+} from "../../../MyOrdersWidget/helpers";
+import useFormattedTokenAmount from "../../../OtcOrderDetailWidget/hooks/useFormattedTokenAmount";
 import {
   ActionButton,
   ActionButtonContainer,
