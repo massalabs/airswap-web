@@ -73,6 +73,23 @@ export const takeDelegateRuleCall = async (
   );
 };
 
+type CancelDelegateRuleParams = {
+  senderWallet: string;
+  senderToken: string;
+  signerToken: string;
+  chainId: number;
+  library: Web3Provider;
+};
+
+export const cancelDelegateRuleCall = async (
+  params: CancelDelegateRuleParams
+): Promise<Transaction> => {
+  const { senderWallet, senderToken, signerToken, chainId, library } = params;
+  const delegateContract = Delegate.getContract(library.getSigner(), chainId);
+
+  return delegateContract.cancel(senderWallet, senderToken, signerToken);
+};
+
 export const getSwapErc20ContractAddress = (
   library: Web3Provider,
   chainId: number

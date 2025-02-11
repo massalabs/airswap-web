@@ -10,6 +10,7 @@ import {
   balancesReducer,
   allowancesReducer,
 } from "../features/balances/balancesSlice";
+import cancelLimitReducer from "../features/cancelLimit/cancelLimitSlice";
 import delegateRulesReducer from "../features/delegateRules/delegateRulesSlice";
 import gasCostReducer from "../features/gasCost/gasCostSlice";
 import indexerReducer from "../features/indexer/indexerSlice";
@@ -30,6 +31,7 @@ const reducers = {
   allowances: allowancesReducer,
   transactions: transactionsReducer,
   balances: balancesReducer,
+  cancelLimit: cancelLimitReducer,
   delegateRules: delegateRulesReducer,
   metadata: metadataReducer,
   tradeTerms: tradeTermsReducer,

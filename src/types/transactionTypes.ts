@@ -22,6 +22,7 @@ export enum TransactionTypes {
   deposit = "deposit",
   order = "order",
   setDelegateRule = "setDelegateRule",
+  unsetRule = "unsetRule",
   withdraw = "withdraw",
 }
 

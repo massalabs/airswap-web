@@ -16,6 +16,7 @@ import {
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
+  SubmittedUnsetRuleTransaction,
   SubmittedWithdrawTransaction,
 } from "./SubmittedTransaction";
 
@@ -132,6 +133,23 @@ export const transformToSubmittedDelegateSwapTransaction = (
   delegateRule,
   senderToken,
   signerToken,
+  status,
+  timestamp,
+});
+
+export const transformToSubmittedUnsetRuleTransaction = (
+  hash: string,
+  senderToken: TokenInfo,
+  signerToken: TokenInfo,
+  senderWallet: string,
+  status: TransactionStatusType = TransactionStatusType.processing,
+  timestamp = Date.now()
+): SubmittedUnsetRuleTransaction => ({
+  type: TransactionTypes.unsetRule,
+  hash,
+  senderToken,
+  signerToken,
+  senderWallet,
   status,
   timestamp,
 });
