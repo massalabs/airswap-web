@@ -6,15 +6,11 @@ import { walletDisconnected } from "../web3/web3Actions";
 import { walletChanged } from "../web3/web3Actions";
 import { fetchDelegateRules } from "./delegateRulesApi";
 
-// Record<string, number> is a map of delegate rule ids to their filled state. 0 is empty, 1 is filled.
-export type DelegateRulesFilledState = Record<string, number>;
-
 export interface DelegateRulesState {
   isError: boolean;
   isLoading: boolean;
   isInitialized: boolean;
   delegateRules: DelegateRule[];
-  filledState: DelegateRulesFilledState;
 }
 
 const initialState: DelegateRulesState = {
@@ -22,7 +18,6 @@ const initialState: DelegateRulesState = {
   isLoading: false,
   isInitialized: false,
   delegateRules: [],
-  filledState: {},
 };
 
 export const delegateRulesSlice = createSlice({
@@ -33,15 +28,6 @@ export const delegateRulesSlice = createSlice({
       return {
         ...state,
         delegateRules: action.payload,
-      };
-    },
-    setFilledState: (
-      state,
-      action: PayloadAction<DelegateRulesFilledState>
-    ) => {
-      return {
-        ...state,
-        filledState: action.payload,
       };
     },
   },
@@ -73,7 +59,7 @@ export const delegateRulesSlice = createSlice({
   },
 });
 
-export const { setDelegateRules, setFilledState } = delegateRulesSlice.actions;
+export const { setDelegateRules } = delegateRulesSlice.actions;
 
 export const selectDelegateRulesReducer = (state: RootState) =>
   state.delegateRules;
