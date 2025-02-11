@@ -36,6 +36,7 @@ import {
   isSetRuleTransaction,
   isSubmittedOrder,
   isSubmittedOrderUnderConsideration,
+  isUnsetRuleTransaction,
   isWithdrawTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import {
@@ -53,6 +54,7 @@ import {
   handleSubmittedDepositOrder,
   handleSubmittedOrder,
   handleSubmittedSetRuleOrder,
+  handleSubmittedUnsetRuleOrder,
   handleSubmittedWithdrawOrder,
 } from "../orders/ordersActions";
 import { setTransactions } from "./transactionsSlice";
@@ -199,6 +201,10 @@ export const handleTransactionResolved = (
 
   if (isSetRuleTransaction(transaction)) {
     handleSubmittedSetRuleOrder(transaction, dispatch);
+  }
+
+  if (isUnsetRuleTransaction(transaction)) {
+    handleSubmittedUnsetRuleOrder(transaction, dispatch);
   }
 };
 

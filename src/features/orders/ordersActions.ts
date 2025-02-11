@@ -24,6 +24,7 @@ import {
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
   SubmittedSetRuleTransaction,
+  SubmittedUnsetRuleTransaction,
   SubmittedWithdrawTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
@@ -41,7 +42,10 @@ import { getSwapErc20Address } from "../../helpers/swapErc20";
 import toRoundedAtomicString from "../../helpers/toRoundedAtomicString";
 import i18n from "../../i18n/i18n";
 import { TransactionStatusType } from "../../types/transactionTypes";
-import { submitDelegateRuleToStore } from "../delegateRules/delegateRulesActions";
+import {
+  submitDelegateRuleToStore,
+  unsetDelegateRuleFromStore,
+} from "../delegateRules/delegateRulesActions";
 import {
   declineTransaction,
   revertTransaction,
@@ -132,6 +136,27 @@ export const handleSubmittedSetRuleOrder = (
   }
 
   dispatch(submitDelegateRuleToStore(transaction.rule));
+};
+
+export const handleSubmittedUnsetRuleOrder = (
+  transaction: SubmittedUnsetRuleTransaction,
+  dispatch: AppDispatch
+): void => {
+  if (status === TransactionStatusType.failed) {
+    notifyError({
+      heading: i18n.t("toast.orderFail"),
+      cta: i18n.t("validatorErrors.unknownError"),
+    });
+  }
+
+  dispatch(
+    unsetDelegateRuleFromStore({
+      chainId: transaction.chainId,
+      senderWallet: transaction.senderWallet,
+      senderToken: transaction.senderToken.address,
+      signerToken: transaction.signerToken.address,
+    })
+  );
 };
 
 // replaces WETH to ETH on Wrapper orders

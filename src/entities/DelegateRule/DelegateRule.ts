@@ -15,6 +15,16 @@ export interface DelegateSetRuleEvent extends DelegateRule {
   hash: string;
   status?: number;
 }
+export interface DelegateUnsetRuleEvent {
+  name: "UnsetRule";
+  id: string;
+  senderWallet: string;
+  senderToken: string;
+  signerToken: string;
+  chainId: number;
+  hash: string;
+  status?: number;
+}
 
 export interface DelegatedSwapEvent {
   name: "DelegatedSwapFor";

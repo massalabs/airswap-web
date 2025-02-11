@@ -87,7 +87,7 @@ export const cancelDelegateRuleCall = async (
   const { senderWallet, senderToken, signerToken, chainId, library } = params;
   const delegateContract = Delegate.getContract(library.getSigner(), chainId);
 
-  return delegateContract.cancel(senderWallet, senderToken, signerToken);
+  return delegateContract.unsetRule(senderWallet, senderToken, signerToken);
 };
 
 export const getSwapErc20ContractAddress = (

@@ -11,6 +11,7 @@ import { BigNumber } from "bignumber.js";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
+import { cancelLimitOrder } from "../../../features/cancelLimit/cancelLimitActions";
 import { approve, deposit } from "../../../features/orders/ordersActions";
 import {
   clear,
@@ -332,7 +333,15 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     }
 
     if (action === ButtonActions.cancel) {
-      // TODO: Implement cancel limit order
+      dispatch(
+        cancelLimitOrder({
+          chainId: delegateRule.chainId,
+          senderWallet: delegateRule.senderWallet,
+          senderTokenInfo: senderToken!,
+          signerTokenInfo: signerToken!,
+          library: library!,
+        })
+      );
     }
 
     if (action === ButtonActions.take) {

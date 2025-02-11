@@ -84,6 +84,16 @@ export interface SubmittedSetRuleTransaction
   senderToken: TokenInfo;
 }
 
+export interface SubmittedUnsetRuleTransaction
+  extends SubmittedTransactionWithHash {
+  type: TransactionTypes.unsetRule;
+  id: string;
+  chainId: number;
+  senderWallet: string;
+  senderToken: TokenInfo;
+  signerToken: TokenInfo;
+}
+
 export interface SubmittedDelegatedSwapTransaction
   extends SubmittedTransactionWithHash {
   type: TransactionTypes.delegatedSwap;
@@ -91,12 +101,4 @@ export interface SubmittedDelegatedSwapTransaction
   order: UnsignedOrderERC20;
   senderToken: TokenInfo;
   signerToken: TokenInfo;
-}
-
-export interface SubmittedUnsetRuleTransaction
-  extends SubmittedTransactionWithHash {
-  type: TransactionTypes.unsetRule;
-  senderToken: TokenInfo;
-  signerToken: TokenInfo;
-  senderWallet: string;
 }

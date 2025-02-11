@@ -152,4 +152,6 @@ export const transformToSubmittedUnsetRuleTransaction = (
   senderWallet,
   status,
   timestamp,
+  id: `${senderToken.chainId}-${senderWallet}-${senderToken.address}-${signerToken.address}`,
+  chainId: senderToken.chainId,
 });

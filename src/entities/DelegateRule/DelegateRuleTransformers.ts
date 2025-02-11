@@ -2,6 +2,7 @@ import {
   DelegatedSwapEvent,
   DelegateRule,
   DelegateSetRuleEvent,
+  DelegateUnsetRuleEvent,
 } from "./DelegateRule";
 
 const getDelegateRuleId = (
@@ -73,6 +74,26 @@ export const transformToDelegateSetRuleEvent = (
     expiry,
     hash,
     status,
+  };
+};
+
+export const transformToDelegateUnsetRuleEvent = (
+  senderWallet: string,
+  senderToken: string,
+  signerToken: string,
+  chainId: number,
+  hash: string,
+  status?: number
+): DelegateUnsetRuleEvent => {
+  return {
+    name: "UnsetRule",
+    id: getDelegateRuleId(senderWallet, senderToken, signerToken, chainId, 0),
+    hash,
+    status,
+    senderWallet: senderWallet.toLowerCase(),
+    senderToken: senderToken.toLowerCase(),
+    signerToken: signerToken.toLowerCase(),
+    chainId,
   };
 };
 

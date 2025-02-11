@@ -23,6 +23,7 @@ import {
   SubmittedOrderUnderConsideration,
   SubmittedSetRuleTransaction,
   SubmittedDelegatedSwapTransaction,
+  SubmittedUnsetRuleTransaction,
 } from "./SubmittedTransaction";
 
 export const isApprovalTransaction = (
@@ -71,6 +72,11 @@ export const isSetRuleTransaction = (
   transaction: SubmittedTransaction
 ): transaction is SubmittedSetRuleTransaction =>
   transaction.type === TransactionTypes.setDelegateRule;
+
+export const isUnsetRuleTransaction = (
+  transaction: SubmittedTransaction
+): transaction is SubmittedUnsetRuleTransaction =>
+  transaction.type === TransactionTypes.unsetRule;
 
 export const isDelegatedSwapTransaction = (
   transaction: SubmittedTransaction
