@@ -5,10 +5,12 @@ import { TransactionEvent } from "../../types/transactionTypes";
 import {
   SubmittedDelegatedSwapTransaction,
   SubmittedSetRuleTransaction,
+  SubmittedUnsetRuleTransaction,
 } from "../SubmittedTransaction/SubmittedTransaction";
 import {
   DelegateRule,
   DelegateSetRuleEvent,
+  DelegateUnsetRuleEvent,
   DelegatedSwapEvent,
 } from "./DelegateRule";
 
@@ -16,6 +18,11 @@ export const isDelegateSetRuleEvent = (
   event: TransactionEvent
 ): event is DelegateSetRuleEvent =>
   typeof event === "object" && "name" in event && event.name === "SetRule";
+
+export const isUnsetRuleEvent = (
+  event: TransactionEvent
+): event is DelegateUnsetRuleEvent =>
+  typeof event === "object" && "name" in event && event.name === "UnsetRule";
 
 export const isDelegatedSwapEvent = (
   event: TransactionEvent
@@ -36,6 +43,18 @@ export const findMatchingDelegateSetRuleTransaction = (
     transaction.rule.signerAmount === event.signerAmount &&
     transaction.rule.expiry === event.expiry &&
     transaction.rule.chainId === event.chainId
+  );
+};
+
+export const findMatchingUnsetRuleTransaction = (
+  transaction: SubmittedUnsetRuleTransaction,
+  event: DelegateUnsetRuleEvent
+): boolean => {
+  return (
+    compareAddresses(transaction.senderWallet, event.senderWallet) &&
+    compareAddresses(transaction.senderToken.address, event.senderToken) &&
+    compareAddresses(transaction.signerToken.address, event.signerToken) &&
+    transaction.chainId === event.chainId
   );
 };
 

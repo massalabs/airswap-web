@@ -41,6 +41,7 @@ import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTo
 import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
+import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
@@ -71,6 +72,7 @@ import {
 } from "./helpers";
 import { useAvailableSenderAndSignerAmount } from "./hooks/useAvailableSenderAndSignerAmount";
 import useSessionDelegateSwapTransaction from "./hooks/useSessionDelegateSwapTransaction";
+import useSessionUnsetRuleTransaction from "./hooks/useSessionUnsetRuleTransaction";
 
 interface LimitOrderDetailWidgetProps {
   delegateRule: DelegateRule;
@@ -91,9 +93,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const history = useHistory();
   const dispatch = useAppDispatch();
-  const params = useParams<{ compressedOrder: string }>();
-  const { setShowWalletList, setTransactionsTabIsOpen } =
-    useContext(InterfaceContext);
+  const { setShowWalletList } = useContext(InterfaceContext);
 
   const ordersStatus = useAppSelector(selectOrdersStatus);
   const takeLimitStatus = useAppSelector(selectTakeLimitStatus);
@@ -154,6 +154,9 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     transaction: delegateSwapTransaction,
     reset: resetDelegateSwapTransaction,
   } = useSessionDelegateSwapTransaction(delegateRule.id);
+  const { transaction: cancelTransaction } =
+    useSessionUnsetRuleTransaction(delegateRule);
+  console.log(cancelTransaction);
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     senderToken,
@@ -469,8 +472,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           hasInsufficientBalance={hasInsufficientTokenBalance}
           hasInsufficientAllowance={!hasSufficientAllowance}
           isExpired={orderStatus === OrderStatus.expired}
-          // TODO: Implement cancel limit order state
-          isCanceled={false}
+          isCanceled={orderStatus === OrderStatus.canceled}
           isLimitOrder={true}
           isTaken={orderStatus === OrderStatus.taken}
           isDifferentChainId={walletChainIdIsDifferentThanOrderChainId}

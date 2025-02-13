@@ -12,8 +12,10 @@ import {
 import {
   findMatchingDelegateSetRuleTransaction,
   findMatchingDelegatedSwapTransaction,
+  findMatchingUnsetRuleTransaction,
   isDelegateSetRuleEvent,
   isDelegatedSwapEvent,
+  isUnsetRuleEvent,
 } from "../../entities/DelegateRule/DelegateRuleHelpers";
 import {
   findMatchingOrderTransaction,
@@ -128,6 +130,14 @@ const getMatchingTransaction = (
       .filter(isSetRuleTransaction)
       .find((transaction) =>
         findMatchingDelegateSetRuleTransaction(transaction, event)
+      );
+  }
+
+  if (isUnsetRuleEvent(event)) {
+    return transactions
+      .filter(isUnsetRuleTransaction)
+      .find((transaction) =>
+        findMatchingUnsetRuleTransaction(transaction, event)
       );
   }
 

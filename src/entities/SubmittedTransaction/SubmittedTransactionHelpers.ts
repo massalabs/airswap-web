@@ -245,5 +245,15 @@ export const getSetRuleTransactionLabel = (
     senderToken: senderToken.symbol,
   });
 
-  return `Set rule: ${transactionLabel}`;
+  return `${i18n.t("wallet.setRule")}: ${transactionLabel}`;
+};
+
+export const getUnsetRuleTransactionLabel = (
+  transaction: SubmittedUnsetRuleTransaction
+) => {
+  const { senderToken, signerToken } = transaction;
+
+  return `${i18n.t("wallet.unsetRule")}: ${senderToken.symbol} → ${
+    signerToken.symbol
+  }`;
 };

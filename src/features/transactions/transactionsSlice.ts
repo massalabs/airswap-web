@@ -12,6 +12,7 @@ import {
   isDelegatedSwapTransaction,
   isSetRuleTransaction,
   isSubmittedOrder,
+  isUnsetRuleTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import { compareAddresses } from "../../helpers/string";
 import { ClearOrderType } from "../../types/clearOrderType";
@@ -241,6 +242,9 @@ export const selectTransactionsFilter = (state: RootState) => {
 
 export const selectSetRuleTransactions = (state: RootState) =>
   state.transactions.transactions.filter(isSetRuleTransaction);
+
+export const selectUnsetRuleTransactions = (state: RootState) =>
+  state.transactions.transactions.filter(isUnsetRuleTransaction);
 
 export const selectDelegateSwapTransactions = (state: RootState) =>
   state.transactions.transactions.filter(isDelegatedSwapTransaction);

@@ -1,3 +1,4 @@
+import { ADDRESS_ZERO } from "@airswap/utils";
 import { BaseProvider } from "@ethersproject/providers";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -10,7 +11,7 @@ export const fetchDelegateRules = createAsyncThunk<
   { delegateRules: DelegateRule[]; library: BaseProvider },
   { dispatch: AppDispatch; state: RootState }
 >("delegateRules/fetchDelegateRules", async ({ delegateRules, library }) => {
-  return Promise.all(
+  const response = await Promise.all(
     delegateRules.map((rule) =>
       getDelegateRuleCall({
         senderWallet: rule.senderWallet,
@@ -21,4 +22,6 @@ export const fetchDelegateRules = createAsyncThunk<
       })
     )
   );
+
+  return response.filter((rule) => rule.senderWallet !== ADDRESS_ZERO);
 });
