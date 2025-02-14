@@ -10,7 +10,7 @@ import { cancelOrder } from "../../../features/takeOtc/takeOtcActions";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import useCancellationSuccess from "../../../hooks/useCancellationSuccess";
-import { AppRoutes, routes } from "../../../routes";
+import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import Icon from "../../Icon/Icon";
 import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";

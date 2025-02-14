@@ -1,6 +1,6 @@
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import { Web3Provider } from "@ethersproject/providers";
 import { useToggle } from "@react-hookz/web";
@@ -41,8 +41,8 @@ import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTo
 import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrderType } from "../../../types/orderTypes";
-import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
+import CancelReview from "../../@reviewScreens/CancelReview/CancelReview";
 import TakeOrderReview from "../../@reviewScreens/TakeOrderReview/TakeOrderReview";
 import WrapReview from "../../@reviewScreens/WrapReview/WrapReview";
 import ApprovalSubmittedScreen from "../../ApprovalSubmittedScreen/ApprovalSubmittedScreen";
@@ -111,6 +111,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const [state, setState] = useState<LimitOrderDetailWidgetState>(
     LimitOrderDetailWidgetState.overview
   );
+  const [showCancelReview, toggleShowCancelReview] = useToggle(false);
 
   const orderStatus = useLimitOrderStatus(delegateRule);
   const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
@@ -156,7 +157,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   } = useSessionDelegateSwapTransaction(delegateRule.id);
   const { transaction: cancelTransaction } =
     useSessionUnsetRuleTransaction(delegateRule);
-  console.log(cancelTransaction);
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     senderToken,
@@ -294,6 +294,18 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     history.push(routes.makeLimitOrder());
   };
 
+  const cancelOrder = () => {
+    dispatch(
+      cancelLimitOrder({
+        chainId: delegateRule.chainId,
+        senderWallet: delegateRule.senderWallet,
+        senderTokenInfo: senderToken!,
+        signerTokenInfo: signerToken!,
+        library: library!,
+      })
+    );
+  };
+
   const restart = () => {
     resetDelegateSwapTransaction();
     setState(LimitOrderDetailWidgetState.overview);
@@ -315,6 +327,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   const handleActionButtonClick = async (action: ButtonActions) => {
+    console.log(action);
     if (action === ButtonActions.connectWallet) {
       setShowWalletList(true);
     }
@@ -327,6 +340,10 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       restart();
     }
 
+    if (action === ButtonActions.makeNewOrder) {
+      makeNewOrder();
+    }
+
     if (action === ButtonActions.approve) {
       setState(LimitOrderDetailWidgetState.review);
     }
@@ -336,15 +353,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     }
 
     if (action === ButtonActions.cancel) {
-      dispatch(
-        cancelLimitOrder({
-          chainId: delegateRule.chainId,
-          senderWallet: delegateRule.senderWallet,
-          senderTokenInfo: senderToken!,
-          signerTokenInfo: signerToken!,
-          library: library!,
-        })
-      );
+      toggleShowCancelReview();
     }
 
     if (action === ButtonActions.take) {
@@ -411,6 +420,16 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           onEditButtonClick={backToOverview}
           onRestartButtonClick={restart}
           onSignButtonClick={takeOrder}
+        />
+      );
+    }
+
+    if (showCancelReview) {
+      return (
+        <CancelReview
+          isLoading={!!cancelTransaction}
+          onBackButtonClick={() => toggleShowCancelReview()}
+          onSignButtonClick={cancelOrder}
         />
       );
     }

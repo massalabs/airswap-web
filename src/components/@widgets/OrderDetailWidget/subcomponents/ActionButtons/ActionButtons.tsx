@@ -13,6 +13,7 @@ export enum ButtonActions {
   back = "back",
   cancel = "cancel",
   connectWallet = "connectWallet",
+  makeNewOrder = "makeNewOrder",
   reloadPage = "reloadPage",
   restart = "restart",
   review = "review",
@@ -112,7 +113,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
       <Container center className={className}>
         <SignButton
           intent="primary"
-          onClick={() => onActionButtonClick(ButtonActions.restart)}
+          onClick={() => onActionButtonClick(ButtonActions.makeNewOrder)}
         >
           {t("orders.makeNewOrder")}
         </SignButton>
