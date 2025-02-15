@@ -4,11 +4,22 @@ import { DelegateRule } from "../../../../entities/DelegateRule/DelegateRule";
 import toMaxAllowedDecimalsNumberString from "../../../../helpers/toMaxAllowedDecimalsNumberString";
 
 export const getDelegateRuleTokensExchangeRate = (
-  delegateRule: DelegateRule
-) => {
-  return new BigNumber(delegateRule.signerAmount).dividedBy(
-    delegateRule.senderAmount
+  delegateRule: DelegateRule,
+  senderTokenDecimals?: number,
+  signerTokenDecimals?: number
+): BigNumber => {
+  if (!senderTokenDecimals || !signerTokenDecimals) {
+    return new BigNumber(1);
+  }
+
+  const signerAmount = new BigNumber(delegateRule.signerAmount).dividedBy(
+    10 ** signerTokenDecimals
   );
+  const senderAmount = new BigNumber(delegateRule.senderAmount).dividedBy(
+    10 ** senderTokenDecimals
+  );
+
+  return signerAmount.dividedBy(senderAmount);
 };
 
 /**
@@ -30,7 +41,7 @@ export const getCustomSenderAmount = (
     ? availableSignerAmount
     : signerAmount;
   const senderAmount = new BigNumber(justifiedSignerAmount)
-    .dividedBy(exchangeRate)
+    .multipliedBy(exchangeRate)
     .toString();
 
   return {

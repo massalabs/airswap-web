@@ -211,6 +211,8 @@
     "orderSubmitted": "Order submitted...",
     "orderSubmittedByMaker": "Maker has submitted order",
     "unableTake": "Unable to take",
+    "unsetLimitOrderComplete": "Unset limit order complete",
+    "unsetLimitOrderProcessing": "Unsetting limit order...",
     "viewAllQuotes": "View all quotes",
     "wrapMessage": "No protocol fee for ETH/WETH swaps",
     "youHaveNoOpenOTCOrders": "You have no orders."

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { RootState } from "../../app/store";
 import { AppError } from "../../errors/appError";
 
 export interface CancelLimitOrderState {
@@ -14,7 +15,7 @@ const initialState: CancelLimitOrderState = {
 
 export const cancelLimitSlice = createSlice({
   name: "cancel-limit",
-  initialState: {},
+  initialState,
   reducers: {
     reset: () => {
       return initialState;
@@ -32,5 +33,9 @@ export const cancelLimitSlice = createSlice({
 });
 
 export const { setStatus } = cancelLimitSlice.actions;
+
+export const selectCancelLimitReducer = (state: RootState) => state.cancelLimit;
+export const selectCancelLimitStatus = (state: RootState) =>
+  state.cancelLimit.status;
 
 export default cancelLimitSlice.reducer;

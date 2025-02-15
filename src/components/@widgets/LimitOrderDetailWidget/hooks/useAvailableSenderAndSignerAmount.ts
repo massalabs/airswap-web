@@ -2,7 +2,6 @@ import { BigNumber } from "bignumber.js";
 import { ethers } from "ethers";
 
 import { DelegateRule } from "../../../../entities/DelegateRule/DelegateRule";
-import { getDelegateRuleTokensExchangeRate } from "../helpers";
 
 /**
  * This hook is used to get the available sender and signer amount for a limit order.
@@ -14,26 +13,33 @@ export const useAvailableSenderAndSignerAmount = (
   senderTokenDecimals?: number,
   signerTokenDecimals?: number
 ): { availableSenderAmount?: string; availableSignerAmount?: string } => {
-  const tokenExchangeRate = getDelegateRuleTokensExchangeRate(delegateRule);
+  if (!senderTokenDecimals || !signerTokenDecimals) {
+    return {
+      availableSenderAmount: undefined,
+      availableSignerAmount: undefined,
+    };
+  }
 
   const availableSenderAmount = new BigNumber(delegateRule.senderAmount).minus(
     delegateRule.senderFilledAmount
   );
-
-  const formattedAvailableSenderAmount = ethers.utils.formatUnits(
-    availableSenderAmount.toString(),
-    senderTokenDecimals
+  const availableRatio = new BigNumber(delegateRule.senderAmount).dividedBy(
+    availableSenderAmount
   );
 
-  const formattedAvailableSignerAmount = ethers.utils.formatUnits(
-    tokenExchangeRate
-      .multipliedBy(availableSenderAmount)
-      .integerValue(BigNumber.ROUND_CEIL)
-      .toString(),
-    signerTokenDecimals
-  );
+  const formattedAvailableSenderAmount = availableSenderAmount
+    .dividedBy(10 ** senderTokenDecimals)
+    .toString();
 
-  if (!availableSenderAmount || !formattedAvailableSignerAmount) {
+  const formattedAvailableSignerAmount = new BigNumber(
+    delegateRule.signerAmount
+  )
+    .multipliedBy(availableRatio)
+    .integerValue(BigNumber.ROUND_CEIL)
+    .dividedBy(10 ** signerTokenDecimals)
+    .toString();
+
+  if (!formattedAvailableSenderAmount || !formattedAvailableSignerAmount) {
     return {
       availableSenderAmount: undefined,
       availableSignerAmount: undefined,

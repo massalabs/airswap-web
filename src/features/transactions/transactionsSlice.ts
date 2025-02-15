@@ -7,6 +7,7 @@ import {
   SubmittedDepositTransaction,
   SubmittedSetRuleTransaction,
   SubmittedTransaction,
+  SubmittedUnsetRuleTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
   isDelegatedSwapTransaction,
@@ -248,5 +249,12 @@ export const selectUnsetRuleTransactions = (state: RootState) =>
 
 export const selectDelegateSwapTransactions = (state: RootState) =>
   state.transactions.transactions.filter(isDelegatedSwapTransaction);
+
+export const selectPendingUnsetRuleTransactions = (state: RootState) =>
+  state.transactions.transactions.filter(
+    (tx) =>
+      tx.status === TransactionStatusType.processing &&
+      tx.type === TransactionTypes.unsetRule
+  ) as SubmittedUnsetRuleTransaction[];
 
 export default transactionsSlice.reducer;

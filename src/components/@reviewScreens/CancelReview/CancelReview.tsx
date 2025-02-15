@@ -12,14 +12,12 @@ import {
 } from "./CancelReview.styles";
 
 interface CancelReviewProps {
-  isLoading: boolean;
   onBackButtonClick: () => void;
   onSignButtonClick: () => void;
   className?: string;
 }
 
 const CancelReview: FC<CancelReviewProps> = ({
-  isLoading,
   onBackButtonClick,
   onSignButtonClick,
   className = "",
@@ -45,7 +43,6 @@ const CancelReview: FC<CancelReviewProps> = ({
       </InfoContainer>
 
       <StyledActionButtons
-        isLoading={isLoading}
         backButtonText={t("common.back")}
         onEditButtonClick={onBackButtonClick}
         onSignButtonClick={onSignButtonClick}

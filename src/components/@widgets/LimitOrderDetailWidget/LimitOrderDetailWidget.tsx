@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
 import { cancelLimitOrder } from "../../../features/cancelLimit/cancelLimitActions";
+import { selectCancelLimitStatus } from "../../../features/cancelLimit/cancelLimitSlice";
 import { approve, deposit } from "../../../features/orders/ordersActions";
 import {
   clear,
@@ -53,6 +54,7 @@ import ModalOverlay from "../../ModalOverlay/ModalOverlay";
 import OrderSubmittedScreen from "../../OrderSubmittedScreen/OrderSubmittedScreen";
 import SwapInputs from "../../SwapInputs/SwapInputs";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
+import UnsetRuleSubmittedScreen from "../../UnsetRuleScreen/UnsetRuleScreen";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import { useFilledStatus } from "../MyLimitOrdersWidget/hooks/useFilledStatus";
 import { useLimitOrderStatus } from "../MyLimitOrdersWidget/hooks/useLimitOrderStatus";
@@ -99,12 +101,15 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const takeLimitStatus = useAppSelector(selectTakeLimitStatus);
   const ordersErrors = useAppSelector(selectOrdersErrors);
   const takeLimitErrors = useAppSelector(selectTakeLimitErrors);
+  const unsetRuleStatus = useAppSelector(selectCancelLimitStatus);
 
   const isOrdersSigning = ordersStatus === "signing";
   const isTakeLimitSigning =
     takeLimitStatus === "signing-signature" ||
     takeLimitStatus === "signing-transaction";
-  const isSigning = isOrdersSigning || isTakeLimitSigning;
+  const isCancelLimitSigning = unsetRuleStatus === "signing";
+  const isSigning =
+    isOrdersSigning || isTakeLimitSigning || isCancelLimitSigning;
 
   const errors = [...ordersErrors, ...takeLimitErrors];
 
@@ -118,6 +123,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     delegateRule.senderToken,
     delegateRule.chainId
   );
+
   const [signerToken, isSignerTokenLoading] = useTakerTokenInfo(
     delegateRule.signerToken,
     delegateRule.chainId
@@ -145,18 +151,25 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const senderTokenSymbol = senderToken?.symbol;
   const signerTokenSymbol = signerToken?.symbol;
-  const tokenExchangeRate = getDelegateRuleTokensExchangeRate(delegateRule);
+  const tokenExchangeRate = getDelegateRuleTokensExchangeRate(
+    delegateRule,
+    senderToken?.decimals,
+    signerToken?.decimals
+  );
   const approvalTransaction = useApprovalPending(
     delegateRule.senderToken,
     true
   );
+  const {
+    transaction: unsetRuleTransaction,
+    reset: resetUnsetRuleTransaction,
+  } = useSessionUnsetRuleTransaction(delegateRule);
+
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const {
     transaction: delegateSwapTransaction,
     reset: resetDelegateSwapTransaction,
   } = useSessionDelegateSwapTransaction(delegateRule.id);
-  const { transaction: cancelTransaction } =
-    useSessionUnsetRuleTransaction(delegateRule);
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     senderToken,
@@ -308,6 +321,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const restart = () => {
     resetDelegateSwapTransaction();
+    resetUnsetRuleTransaction();
     setState(LimitOrderDetailWidgetState.overview);
     dispatch(clear());
     dispatch(reset());
@@ -327,7 +341,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   const handleActionButtonClick = async (action: ButtonActions) => {
-    console.log(action);
     if (action === ButtonActions.connectWallet) {
       setShowWalletList(true);
     }
@@ -427,7 +440,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     if (showCancelReview) {
       return (
         <CancelReview
-          isLoading={!!cancelTransaction}
           onBackButtonClick={() => toggleShowCancelReview()}
           onSignButtonClick={cancelOrder}
         />
@@ -445,7 +457,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           readOnly={userIsMakerOfSwap}
           disabled={orderStatus !== OrderStatus.open}
           canSetQuoteAmount
-          // disabled={false}
           isSelectTokenDisabled
           isRequestingBaseAmount={isSignerTokenLoading}
           isRequestingBaseToken={isSignerTokenLoading}
@@ -539,6 +550,17 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           <ApprovalSubmittedScreen
             chainId={chainId}
             transaction={approvalTransaction}
+          />
+        )}
+      </TransactionOverlay>
+
+      <TransactionOverlay isHidden={isSigning || !unsetRuleTransaction}>
+        {unsetRuleTransaction && (
+          <UnsetRuleSubmittedScreen
+            chainId={chainId}
+            transaction={unsetRuleTransaction}
+            onMakeNewLimitOrderButtonClick={makeNewOrder}
+            onShowLimitOrderButtonClick={restart}
           />
         )}
       </TransactionOverlay>
