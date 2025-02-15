@@ -462,6 +462,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
           isRequestingBaseToken={isSignerTokenLoading}
           isRequestingQuoteAmount={isSenderTokenLoading}
           isRequestingQuoteToken={isSenderTokenLoading}
+          showTokenContractLink
           baseAmount={customSignerAmount || "0.00"}
           baseTokenInfo={signerToken}
           maxAmount={null}
@@ -476,6 +477,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
         <StyledFilledAndStatus
           expiry={parsedExpiry}
+          isOwner={userIsMakerOfSwap}
           filledAmount={filledAmount}
           filledPercentage={filledPercentage}
           orderType={orderType}

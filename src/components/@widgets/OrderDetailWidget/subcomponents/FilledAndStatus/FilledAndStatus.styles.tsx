@@ -27,4 +27,8 @@ export const Title = styled.span`
   color: ${({ theme }) => theme.colors.lightGrey};
 `;
 
+export const Recipient = styled.div`
+  color: ${({ theme }) => theme.colors.lightGrey};
+`;
+
 export const StyledOrderStatusInfo = styled(OrderStatusInfo)``;
