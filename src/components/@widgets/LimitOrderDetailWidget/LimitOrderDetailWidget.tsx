@@ -157,7 +157,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     signerToken?.decimals
   );
   const approvalTransaction = useApprovalPending(
-    delegateRule.senderToken,
+    delegateRule.signerToken,
     true
   );
   const {
@@ -172,17 +172,17 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   } = useSessionDelegateSwapTransaction(delegateRule.id);
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
-    senderToken,
+    signerToken,
     customSignerAmountPlusFee
   );
 
   const hasInsufficientTokenBalance = useInsufficientBalance(
-    senderToken,
+    signerToken,
     customSignerAmountPlusFee!
   );
 
   const shouldDepositNativeTokenAmount = useShouldDepositNativeToken(
-    senderToken?.address,
+    signerToken?.address,
     customSignerAmountPlusFee
   );
   const isAllowancesOrBalancesFailed = useAllowancesOrBalancesFailed();
@@ -284,11 +284,11 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   };
 
   const approveToken = () => {
-    if (!senderToken || !customSenderAmount || !library) {
+    if (!signerToken || !customSignerAmountPlusFee || !library) {
       return;
     }
 
-    dispatch(approve(customSenderAmount, senderToken, library, "Swap"));
+    dispatch(approve(customSignerAmountPlusFee, signerToken, library, "Swap"));
   };
 
   const depositNativeToken = async () => {

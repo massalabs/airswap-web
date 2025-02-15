@@ -34,7 +34,7 @@ export const useAvailableSenderAndSignerAmount = (
   const formattedAvailableSignerAmount = new BigNumber(
     delegateRule.signerAmount
   )
-    .multipliedBy(availableRatio)
+    .dividedBy(availableRatio)
     .integerValue(BigNumber.ROUND_CEIL)
     .dividedBy(10 ** signerTokenDecimals)
     .toString();
