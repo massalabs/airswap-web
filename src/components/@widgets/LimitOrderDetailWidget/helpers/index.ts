@@ -41,7 +41,7 @@ export const getCustomSenderAmount = (
     ? availableSignerAmount
     : signerAmount;
   const senderAmount = new BigNumber(justifiedSignerAmount)
-    .multipliedBy(exchangeRate)
+    .dividedBy(exchangeRate)
     .toString();
 
   return {
