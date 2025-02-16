@@ -2,16 +2,10 @@ import { FullOrderERC20 } from "@airswap/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
+import { OrdersSortType } from "../../types/ordersSortType";
 import { setOtcOrder } from "../makeOrder/makeOrderSlice";
 import { walletChanged, walletDisconnected } from "../web3/web3Actions";
 import { writeOtcUserOrdersToLocalStorage } from "./myOtcOrdersHelpers";
-
-export type OrdersSortType =
-  | "active"
-  | "expiry"
-  | "filled"
-  | "senderToken"
-  | "signerToken";
 
 export interface MyOtcOrdersState {
   userOrders: FullOrderERC20[];
