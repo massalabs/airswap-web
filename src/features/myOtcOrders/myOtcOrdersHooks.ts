@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { getUserOrdersFromLocalStorage } from "./myOrdersHelpers";
-import { setUserOrders } from "./myOrdersSlice";
+import { getUserOrdersFromLocalStorage } from "./myOtcOrdersHelpers";
+import { setOtcUserOrders } from "./myOtcOrdersSlice";
 
 const useMyOrders = () => {
   const dispatch = useAppDispatch();
@@ -26,7 +26,7 @@ const useMyOrders = () => {
 
     const userOrders = getUserOrdersFromLocalStorage(account, chainId);
 
-    dispatch(setUserOrders(userOrders));
+    dispatch(setOtcUserOrders(userOrders));
   }, [account, chainId]);
 
   useEffect(() => {

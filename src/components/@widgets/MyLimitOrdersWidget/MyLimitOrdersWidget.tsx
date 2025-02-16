@@ -9,13 +9,14 @@ import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
 import {
   OrdersSortType,
-  selectMyOrdersReducer,
+  selectMyOtcOrdersReducer,
   setActiveSortType,
-} from "../../../features/myOrders/myOrdersSlice";
+} from "../../../features/myOtcOrders/myOtcOrdersSlice";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import { AppRoutes } from "../../../routes";
+import { OrderStatus } from "../../../types/orderStatus";
 import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
@@ -40,7 +41,7 @@ const MyLimitOrdersWidget: FC = () => {
     useAppSelector((state) => state.delegateRules);
 
   const { sortTypeDirection, activeSortType } = useAppSelector(
-    selectMyOrdersReducer
+    selectMyOtcOrdersReducer
   );
 
   const status = useAppSelector(selectTakeOtcStatus);
@@ -67,7 +68,11 @@ const MyLimitOrdersWidget: FC = () => {
     }
   };
 
-  const handleDeleteOrderButtonClick = async (order: DelegateRule) => {
+  const handleDeleteOrderButtonClick = async (
+    order: DelegateRule,
+    status: OrderStatus
+  ) => {
+    console.log(order);
     // TODO: Implement
   };
 

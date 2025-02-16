@@ -1,4 +1,4 @@
-import { OrdersSortType } from "../../../../../../features/myOrders/myOrdersSlice";
+import { OrdersSortType } from "../../../../../../features/myOtcOrders/myOtcOrdersSlice";
 import { MyOrder } from "../../../../MyOrdersWidget/entities/MyOrder";
 
 export const getSortedOrders = (

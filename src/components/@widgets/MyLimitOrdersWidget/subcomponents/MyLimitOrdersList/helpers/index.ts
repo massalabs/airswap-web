@@ -20,7 +20,7 @@ const getOrderStatus = (delegateRule: DelegateRule): OrderStatus => {
   return OrderStatus.open;
 };
 
-export const getDelegateRuleDataAndTransformToOrder = async (
+export const getDelegateRuleDataAndTransformToMyOrder = async (
   delegateRule: DelegateRule,
   activeTokens: TokenInfo[],
   provider: ethers.providers.BaseProvider

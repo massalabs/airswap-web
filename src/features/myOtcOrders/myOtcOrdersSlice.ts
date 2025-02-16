@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import { setOtcOrder } from "../makeOrder/makeOrderSlice";
 import { walletChanged, walletDisconnected } from "../web3/web3Actions";
-import { writeUserOrdersToLocalStorage } from "./myOrdersHelpers";
+import { writeOtcUserOrdersToLocalStorage } from "./myOtcOrdersHelpers";
 
 export type OrdersSortType =
   | "active"
@@ -13,13 +13,13 @@ export type OrdersSortType =
   | "senderToken"
   | "signerToken";
 
-export interface MyOrdersState {
+export interface MyOtcOrdersState {
   userOrders: FullOrderERC20[];
   activeSortType: OrdersSortType;
   sortTypeDirection: Record<OrdersSortType, boolean>;
 }
 
-const initialState: MyOrdersState = {
+const initialState: MyOtcOrdersState = {
   userOrders: [],
   activeSortType: "active",
   sortTypeDirection: {
@@ -31,18 +31,18 @@ const initialState: MyOrdersState = {
   },
 };
 
-export const myOrdersSlice = createSlice({
-  name: "make-otc",
+export const myOtcOrdersSlice = createSlice({
+  name: "my-otc-orders",
   initialState,
   reducers: {
-    removeUserOrder: (
+    removeOtcUserOrder: (
       state,
       action: PayloadAction<FullOrderERC20>
-    ): MyOrdersState => {
+    ): MyOtcOrdersState => {
       const userOrders = [...state.userOrders].filter(
         (order) => order.nonce !== action.payload.nonce
       );
-      writeUserOrdersToLocalStorage(
+      writeOtcUserOrdersToLocalStorage(
         userOrders,
         action.payload.signerWallet,
         action.payload.chainId
@@ -56,7 +56,7 @@ export const myOrdersSlice = createSlice({
     setActiveSortType: (
       state,
       action: PayloadAction<OrdersSortType>
-    ): MyOrdersState => {
+    ): MyOtcOrdersState => {
       const sortTypeDirection = { ...state.sortTypeDirection };
       const currentSorting = sortTypeDirection[action.payload];
       sortTypeDirection[action.payload] =
@@ -70,16 +70,16 @@ export const myOrdersSlice = createSlice({
         sortTypeDirection: sortTypeDirection,
       };
     },
-    setUserOrders: (
+    setOtcUserOrders: (
       state,
       action: PayloadAction<FullOrderERC20[]>
-    ): MyOrdersState => {
+    ): MyOtcOrdersState => {
       return {
         ...state,
         userOrders: action.payload,
       };
     },
-    reset: (state): MyOrdersState => {
+    reset: (state): MyOtcOrdersState => {
       return {
         ...initialState,
         userOrders: state.userOrders,
@@ -87,13 +87,13 @@ export const myOrdersSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(walletDisconnected, (): MyOrdersState => initialState);
-    builder.addCase(walletChanged, (): MyOrdersState => initialState);
+    builder.addCase(walletDisconnected, (): MyOtcOrdersState => initialState);
+    builder.addCase(walletChanged, (): MyOtcOrdersState => initialState);
 
     builder.addCase(setOtcOrder, (state, action) => {
       const userOrders = [action.payload, ...state.userOrders];
       const { signerWallet, chainId } = action.payload;
-      writeUserOrdersToLocalStorage(userOrders, signerWallet, chainId);
+      writeOtcUserOrdersToLocalStorage(userOrders, signerWallet, chainId);
 
       return {
         ...state,
@@ -103,9 +103,13 @@ export const myOrdersSlice = createSlice({
   },
 });
 
-export const { removeUserOrder, reset, setActiveSortType, setUserOrders } =
-  myOrdersSlice.actions;
+export const {
+  removeOtcUserOrder,
+  reset,
+  setActiveSortType,
+  setOtcUserOrders,
+} = myOtcOrdersSlice.actions;
 
-export const selectMyOrdersReducer = (state: RootState) => state.myOrders;
+export const selectMyOtcOrdersReducer = (state: RootState) => state.myOtcOrders;
 
-export default myOrdersSlice.reducer;
+export default myOtcOrdersSlice.reducer;

@@ -7,10 +7,11 @@ import * as ethers from "ethers";
 import { useAppSelector } from "../../../../../app/hooks";
 import { DelegateRule } from "../../../../../entities/DelegateRule/DelegateRule";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
-import { OrdersSortType } from "../../../../../features/myOrders/myOrdersSlice";
+import { OrdersSortType } from "../../../../../features/myOtcOrders/myOtcOrdersSlice";
+import { OrderStatus } from "../../../../../types/orderStatus";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import { StyledMyLimitOrdersList } from "./MyLimitOrdersList.styles";
-import { getDelegateRuleDataAndTransformToOrder } from "./helpers";
+import { getDelegateRuleDataAndTransformToMyOrder } from "./helpers";
 
 interface MyLimitOrdersListProps {
   activeCancellationId?: string;
@@ -19,7 +20,7 @@ interface MyLimitOrdersListProps {
   delegateRules: DelegateRule[];
   sortTypeDirection: Record<OrdersSortType, boolean>;
   library: ethers.providers.BaseProvider;
-  onDeleteOrderButtonClick: (order: DelegateRule) => void;
+  onDeleteOrderButtonClick: (order: DelegateRule, status: OrderStatus) => void;
   onSortButtonClick: (type: OrdersSortType) => void;
   className?: string;
 }
@@ -42,7 +43,7 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
   const callGetOrders = useCallback(async () => {
     const newOrders = await Promise.all(
       delegateRules.map((order) =>
-        getDelegateRuleDataAndTransformToOrder(order, activeTokens, library)
+        getDelegateRuleDataAndTransformToMyOrder(order, activeTokens, library)
       )
     );
 
@@ -54,7 +55,7 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
     const orderToDelete = delegateRules.find((o) => o.id === order.id);
 
     if (orderToDelete) {
-      onDeleteOrderButtonClick(orderToDelete);
+      onDeleteOrderButtonClick(orderToDelete, order.status);
     }
   };
 

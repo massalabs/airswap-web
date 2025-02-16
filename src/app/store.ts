@@ -16,7 +16,7 @@ import gasCostReducer from "../features/gasCost/gasCostSlice";
 import indexerReducer from "../features/indexer/indexerSlice";
 import makeOrderReducer from "../features/makeOrder/makeOrderSlice";
 import metadataReducer from "../features/metadata/metadataSlice";
-import myOrdersReducer from "../features/myOrders/myOrdersSlice";
+import myOtcOrdersReducer from "../features/myOtcOrders/myOtcOrdersSlice";
 import ordersReducer from "../features/orders/ordersSlice";
 import quotesReducer from "../features/quotes/quotesSlice";
 import registryReducer from "../features/registry/registrySlice";
@@ -41,7 +41,7 @@ const reducers = {
   registry: registryReducer,
   userSettings: userSettingsReducer,
   makeOrder: makeOrderReducer,
-  myOrders: myOrdersReducer,
+  myOtcOrders: myOtcOrdersReducer,
   takeOtc: takeOtcReducer,
   takeLimit: takeLimitReducer,
   web3: web3Reducer,

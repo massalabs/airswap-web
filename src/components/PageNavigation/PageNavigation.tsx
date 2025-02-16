@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import { selectDelegateRulesReducer } from "../../features/delegateRules/delegateRulesSlice";
-import { selectMyOrdersReducer } from "../../features/myOrders/myOrdersSlice";
+import { selectMyOtcOrdersReducer } from "../../features/myOtcOrders/myOtcOrdersSlice";
 import { AppRoutes, routes } from "../../routes";
 import { Container, StyledNavLink } from "./PageNavigation.styles";
 
@@ -14,7 +14,7 @@ interface PageNavigationProps {
 const PageNavigation: FC<PageNavigationProps> = ({ className }) => {
   const { t } = useTranslation();
   const userHasOrders =
-    useSelector(selectMyOrdersReducer).userOrders.length > 0;
+    useSelector(selectMyOtcOrdersReducer).userOrders.length > 0;
   const userHasLimitOrders =
     useSelector(selectDelegateRulesReducer).delegateRules.length > 0;
 

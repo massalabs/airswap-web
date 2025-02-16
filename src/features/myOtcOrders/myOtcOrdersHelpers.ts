@@ -10,7 +10,7 @@ export const getUserOtcOrdersLocalStorageKey: (
 ) => string = (account, chainId) =>
   `airswap/userOtcOrders/${account}/${chainId}`;
 
-export const writeUserOrdersToLocalStorage = (
+export const writeOtcUserOrdersToLocalStorage = (
   orders: FullOrderERC20[],
   address: string,
   chainId: string | number

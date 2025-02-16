@@ -11,10 +11,10 @@ import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { selectAllTokenInfo } from "../../../features/metadata/metadataSlice";
 import {
   OrdersSortType,
-  removeUserOrder,
-  selectMyOrdersReducer,
+  removeOtcUserOrder,
+  selectMyOtcOrdersReducer,
   setActiveSortType,
-} from "../../../features/myOrders/myOrdersSlice";
+} from "../../../features/myOtcOrders/myOtcOrdersSlice";
 import { getNonceUsed } from "../../../features/orders/ordersHelpers";
 import { cancelOrder } from "../../../features/takeOtc/takeOtcActions";
 import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
@@ -44,7 +44,7 @@ const MyOtcOrdersWidget: FC = () => {
   const history = useHistory();
   const allTokens = useAppSelector(selectAllTokenInfo);
   const { userOrders, sortTypeDirection, activeSortType } = useAppSelector(
-    selectMyOrdersReducer
+    selectMyOtcOrdersReducer
   );
 
   const status = useAppSelector(selectTakeOtcStatus);
@@ -69,7 +69,7 @@ const MyOtcOrdersWidget: FC = () => {
         cancelOrder({ order: order, chainId: chainId!, library: library! })
       );
     } else {
-      dispatch(removeUserOrder(order));
+      dispatch(removeOtcUserOrder(order));
     }
   };
 
