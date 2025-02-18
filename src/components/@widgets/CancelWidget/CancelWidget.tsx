@@ -13,7 +13,7 @@ import useCancellationSuccess from "../../../hooks/useCancellationSuccess";
 import { routes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import Icon from "../../Icon/Icon";
-import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";
+import SubmittedCancellationScreen from "../../SubmittedCancellationScreen/SubmittedCancellationScreen";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import { Title } from "../../Typography/Typography";
 import { InfoSubHeading } from "../../Typography/Typography";

@@ -1,10 +1,10 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { OrdersSortType } from "../../../../../features/myOtcOrders/myOtcOrdersSlice";
 import useIsOverflowing from "../../../../../hooks/useIsOverflowing";
 import useWindowSize from "../../../../../hooks/useWindowSize";
 import { OrderStatus } from "../../../../../types/orderStatus";
+import { OrdersSortType } from "../../../../../types/ordersSortType";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import { getOrderStatusTranslation } from "../../../MyOrdersWidget/helpers";
 import Order from "../Order/Order";

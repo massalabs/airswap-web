@@ -12,7 +12,7 @@ import useDebounce from "../../../../hooks/useDebounce";
 
 //* Will return the pending unset rule transaction if it exists, and optionally the resolved unset rule transaction for 3 seconds (for the transaction overlay).
 const useRuleUnsetPending = (
-  delegateRule: DelegateRule,
+  delegateRule?: DelegateRule,
   showResolvedUnsetRuleTransaction = false
 ): SubmittedUnsetRuleTransaction | undefined => {
   const { chainId } = useAppSelector((state) => state.web3);

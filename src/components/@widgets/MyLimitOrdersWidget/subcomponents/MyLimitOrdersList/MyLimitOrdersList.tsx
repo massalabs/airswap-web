@@ -7,8 +7,8 @@ import * as ethers from "ethers";
 import { useAppSelector } from "../../../../../app/hooks";
 import { DelegateRule } from "../../../../../entities/DelegateRule/DelegateRule";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
-import { OrdersSortType } from "../../../../../features/myOtcOrders/myOtcOrdersSlice";
 import { OrderStatus } from "../../../../../types/orderStatus";
+import { OrdersSortType } from "../../../../../types/ordersSortType";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import { StyledMyLimitOrdersList } from "./MyLimitOrdersList.styles";
 import { getDelegateRuleDataAndTransformToMyOrder } from "./helpers";
@@ -20,7 +20,7 @@ interface MyLimitOrdersListProps {
   delegateRules: DelegateRule[];
   sortTypeDirection: Record<OrdersSortType, boolean>;
   library: ethers.providers.BaseProvider;
-  onDeleteOrderButtonClick: (order: DelegateRule, status: OrderStatus) => void;
+  onDeleteOrderButtonClick: (order: DelegateRule, myOrder: MyOrder) => void;
   onSortButtonClick: (type: OrdersSortType) => void;
   className?: string;
 }
@@ -55,7 +55,7 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
     const orderToDelete = delegateRules.find((o) => o.id === order.id);
 
     if (orderToDelete) {
-      onDeleteOrderButtonClick(orderToDelete, order.status);
+      onDeleteOrderButtonClick(orderToDelete, order);
     }
   };
 

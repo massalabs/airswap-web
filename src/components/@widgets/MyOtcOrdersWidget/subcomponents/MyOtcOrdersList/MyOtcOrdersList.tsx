@@ -6,7 +6,7 @@ import * as ethers from "ethers";
 
 import { useAppSelector } from "../../../../../app/hooks";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
-import { OrdersSortType } from "../../../../../features/myOtcOrders/myOtcOrdersSlice";
+import { OrdersSortType } from "../../../../../types/ordersSortType";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import MyOrdersList from "../../../MyOrdersWidget/subcomponents/MyOrdersList/MyOrdersList";
 import { getFullOrderERC20DataAndTransformToOrder } from "./helpers";

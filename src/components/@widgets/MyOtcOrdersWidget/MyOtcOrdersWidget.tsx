@@ -10,7 +10,6 @@ import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { selectAllTokenInfo } from "../../../features/metadata/metadataSlice";
 import {
-  OrdersSortType,
   removeOtcUserOrder,
   selectMyOtcOrdersReducer,
   setActiveSortType,
@@ -21,7 +20,8 @@ import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
 import useCancellationPending from "../../../hooks/useCancellationPending";
 import { AppRoutes } from "../../../routes";
-import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";
+import { OrdersSortType } from "../../../types/ordersSortType";
+import SubmittedCancellationScreen from "../../SubmittedCancellationScreen/SubmittedCancellationScreen";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import {

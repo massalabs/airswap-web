@@ -23,5 +23,9 @@ export const getOrderStatusTranslation = (status: OrderStatus): string => {
     return i18n.t("common.expired");
   }
 
+  if (status === OrderStatus.filled) {
+    return i18n.t("common.filled");
+  }
+
   return i18n.t("common.active");
 };

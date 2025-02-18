@@ -9,12 +9,12 @@ import { MyOrder } from "../../../../MyOrdersWidget/entities/MyOrder";
 import { findTokenInfo } from "../../../../MyOtcOrdersWidget/subcomponents/MyOtcOrdersList/helpers";
 
 const getOrderStatus = (delegateRule: DelegateRule): OrderStatus => {
-  if (new Date().getTime() > delegateRule.expiry * 1000) {
-    return OrderStatus.expired;
+  if (delegateRule.senderFilledAmount === delegateRule.senderAmount) {
+    return OrderStatus.filled;
   }
 
-  if (delegateRule.senderFilledAmount === delegateRule.senderAmount) {
-    return OrderStatus.taken;
+  if (new Date().getTime() > delegateRule.expiry * 1000) {
+    return OrderStatus.expired;
   }
 
   return OrderStatus.open;

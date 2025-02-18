@@ -22,7 +22,7 @@ export const useLimitOrderStatus = (order: DelegateRule): OrderStatus => {
   }
 
   if (isFilled) {
-    return OrderStatus.taken;
+    return OrderStatus.filled;
   }
 
   return isExpired ? OrderStatus.expired : OrderStatus.open;

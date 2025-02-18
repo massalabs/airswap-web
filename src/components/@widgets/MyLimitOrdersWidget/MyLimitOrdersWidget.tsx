@@ -7,17 +7,16 @@ import { useWeb3React } from "@web3-react/core";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
+import { cancelLimitOrder } from "../../../features/cancelLimit/cancelLimitActions";
+import { selectCancelLimitStatus } from "../../../features/cancelLimit/cancelLimitSlice";
 import {
-  OrdersSortType,
   selectMyOtcOrdersReducer,
   setActiveSortType,
 } from "../../../features/myOtcOrders/myOtcOrdersSlice";
-import { selectTakeOtcStatus } from "../../../features/takeOtc/takeOtcSlice";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
-import useCancellationPending from "../../../hooks/useCancellationPending";
 import { AppRoutes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
-import SubmittedCancellationScreen from "../../SubmittedCancellationScreen";
+import { OrdersSortType } from "../../../types/ordersSortType";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import {
@@ -25,17 +24,17 @@ import {
   InfoSectionContainer,
   StyledActionButtons,
 } from "../MyOrdersWidget/MyOrdersWidget.styles";
+import { MyOrder } from "../MyOrdersWidget/entities/MyOrder";
 import { ButtonActions } from "../MyOrdersWidget/subcomponents/ActionButtons/ActionButtons";
 import InfoSection from "../MyOrdersWidget/subcomponents/InfoSection/InfoSection";
+import useRuleUnsetPending from "./hooks/useRuleUnsetPending";
 import MyLimitOrdersList from "./subcomponents/MyLimitOrdersList/MyLimitOrdersList";
 
 const MyLimitOrdersWidget: FC = () => {
   const dispatch = useAppDispatch();
 
   const { provider: library } = useWeb3React<Web3Provider>();
-  const { isActive, isInitialized, chainId } = useAppSelector(
-    (state) => state.web3
-  );
+  const { isActive, isInitialized } = useAppSelector((state) => state.web3);
   const history = useHistory();
   const { delegateRules, isInitialized: isDelegateRulesInitialized } =
     useAppSelector((state) => state.delegateRules);
@@ -44,13 +43,16 @@ const MyLimitOrdersWidget: FC = () => {
     selectMyOtcOrdersReducer
   );
 
-  const status = useAppSelector(selectTakeOtcStatus);
-  const [activeCancellationNonce, setActiveCancellationNonce] =
-    useState<string>();
-  const pendingCancelTranssaction = useCancellationPending(
-    activeCancellationNonce || null,
+  const cancelLimitStatus = useAppSelector(selectCancelLimitStatus);
+  const isSigning = cancelLimitStatus === "signing";
+  const [activeUnsetDelegateRule, setActiveUnsetDelegateRule] =
+    useState<DelegateRule>();
+  const pendingUnsetRuleTransaction = useRuleUnsetPending(
+    activeUnsetDelegateRule,
     true
   );
+
+  console.log("pendingUnsetRuleTransaction", pendingUnsetRuleTransaction);
 
   // Modal states
   const { setShowWalletList } = useContext(InterfaceContext);
@@ -64,16 +66,42 @@ const MyLimitOrdersWidget: FC = () => {
       switchToDefaultChain();
     }
     if (action === ButtonActions.newOrder) {
-      history.push({ pathname: AppRoutes.makeOtcOrder });
+      history.push({ pathname: AppRoutes.makeLimitOrder });
     }
   };
 
   const handleDeleteOrderButtonClick = async (
-    order: DelegateRule,
-    status: OrderStatus
+    delegateRule: DelegateRule,
+    order: MyOrder
   ) => {
-    console.log(order);
-    // TODO: Implement
+    if (
+      order.status === OrderStatus.filled ||
+      order.status === OrderStatus.expired
+    ) {
+      // TODO: dismiss here
+
+      return;
+    }
+
+    if (!order.senderToken || !order.signerToken) {
+      console.error(
+        "[handleDeleteOrderButtonClick]: Sender token or signer token is missing."
+      );
+
+      return;
+    }
+
+    dispatch(
+      cancelLimitOrder({
+        chainId: delegateRule.chainId,
+        senderWallet: delegateRule.senderWallet,
+        senderTokenInfo: order.senderToken,
+        signerTokenInfo: order.signerToken,
+        library: library!,
+      })
+    );
+
+    setActiveUnsetDelegateRule(delegateRule);
   };
 
   const handleSortButtonClick = (type: OrdersSortType) => {
@@ -81,10 +109,10 @@ const MyLimitOrdersWidget: FC = () => {
   };
 
   useEffect(() => {
-    if (!pendingCancelTranssaction) {
-      setActiveCancellationNonce(undefined);
+    if (!pendingUnsetRuleTransaction) {
+      setActiveUnsetDelegateRule(undefined);
     }
-  }, [pendingCancelTranssaction]);
+  }, [pendingUnsetRuleTransaction]);
 
   if (!isInitialized || !isDelegateRulesInitialized) {
     return <Container />;
@@ -92,24 +120,22 @@ const MyLimitOrdersWidget: FC = () => {
 
   return (
     <Container>
-      <TransactionOverlay isHidden={status !== "signing"}>
+      <TransactionOverlay isHidden={!isSigning}>
         <WalletSignScreen type="signature" />
       </TransactionOverlay>
 
-      <TransactionOverlay
-        isHidden={status === "signing" || !pendingCancelTranssaction}
-      >
-        {pendingCancelTranssaction && (
+      <TransactionOverlay isHidden={isSigning || !pendingUnsetRuleTransaction}>
+        {/* {pendingUnsetRuleTranssaction && (
           <SubmittedCancellationScreen
             chainId={chainId}
-            transaction={pendingCancelTranssaction}
+            transaction={pendingUnsetRuleTranssaction}
           />
-        )}
+        )} */}
       </TransactionOverlay>
 
       {!!delegateRules.length && (
         <MyLimitOrdersList
-          activeCancellationId={activeCancellationNonce}
+          activeCancellationId={activeUnsetDelegateRule?.id}
           activeSortType={activeSortType}
           activeTokens={[]}
           delegateRules={delegateRules}
