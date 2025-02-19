@@ -1,7 +1,10 @@
 import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SubmittedCancellation } from "../../entities/SubmittedTransaction/SubmittedTransaction";
+import {
+  SubmittedCancellation,
+  SubmittedUnsetRuleTransaction,
+} from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import useDebounce from "../../hooks/useDebounce";
 import {
   OverlayContainer,
@@ -14,7 +17,7 @@ import OverlayLoader from "../OverlayLoader/OverlayLoader";
 
 interface SubmittedCancellationScreenProps {
   chainId?: number;
-  transaction?: SubmittedCancellation;
+  transaction?: SubmittedCancellation | SubmittedUnsetRuleTransaction;
   className?: string;
 }
 

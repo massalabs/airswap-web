@@ -8,6 +8,7 @@ import {
   selectPendingUnsetRuleTransactions,
   selectUnsetRuleTransactions,
 } from "../../../../features/transactions/transactionsSlice";
+import { compareAddresses } from "../../../../helpers/string";
 import useDebounce from "../../../../hooks/useDebounce";
 
 //* Will return the pending unset rule transaction if it exists, and optionally the resolved unset rule transaction for 3 seconds (for the transaction overlay).
@@ -32,9 +33,9 @@ const useRuleUnsetPending = (
     return pendingUnsetRuleTransactions.find((tx) => {
       return (
         isUnsetRuleTransaction(tx) &&
-        tx.senderToken.address === delegateRule.senderToken &&
-        tx.signerToken.address === delegateRule.senderToken &&
-        tx.senderWallet === delegateRule.senderWallet
+        compareAddresses(tx.senderToken.address, delegateRule.senderToken) &&
+        compareAddresses(tx.signerToken.address, delegateRule.signerToken) &&
+        compareAddresses(tx.senderWallet, delegateRule.senderWallet)
       );
     });
   }, [delegateRule, pendingUnsetRuleTransactions, chainId]);

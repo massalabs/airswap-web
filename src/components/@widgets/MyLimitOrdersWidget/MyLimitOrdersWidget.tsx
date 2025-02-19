@@ -17,6 +17,7 @@ import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
 import { AppRoutes } from "../../../routes";
 import { OrderStatus } from "../../../types/orderStatus";
 import { OrdersSortType } from "../../../types/ordersSortType";
+import SubmittedCancellationScreen from "../../SubmittedCancellationScreen/SubmittedCancellationScreen";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
 import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import {
@@ -51,8 +52,6 @@ const MyLimitOrdersWidget: FC = () => {
     activeUnsetDelegateRule,
     true
   );
-
-  console.log("pendingUnsetRuleTransaction", pendingUnsetRuleTransaction);
 
   // Modal states
   const { setShowWalletList } = useContext(InterfaceContext);
@@ -125,12 +124,12 @@ const MyLimitOrdersWidget: FC = () => {
       </TransactionOverlay>
 
       <TransactionOverlay isHidden={isSigning || !pendingUnsetRuleTransaction}>
-        {/* {pendingUnsetRuleTranssaction && (
+        {pendingUnsetRuleTransaction && (
           <SubmittedCancellationScreen
-            chainId={chainId}
-            transaction={pendingUnsetRuleTranssaction}
+            chainId={pendingUnsetRuleTransaction.chainId}
+            transaction={pendingUnsetRuleTransaction}
           />
-        )} */}
+        )}
       </TransactionOverlay>
 
       {!!delegateRules.length && (

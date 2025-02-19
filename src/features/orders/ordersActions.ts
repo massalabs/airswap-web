@@ -16,10 +16,8 @@ import {
   notifyRejectedByUserError,
 } from "../../components/Toasts/ToastController";
 import nativeCurrency from "../../constants/nativeCurrency";
-import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { transformUnsignedOrderERC20ToOrderERC20 } from "../../entities/OrderERC20/OrderERC20Transformers";
 import {
-  SubmittedApprovalTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,

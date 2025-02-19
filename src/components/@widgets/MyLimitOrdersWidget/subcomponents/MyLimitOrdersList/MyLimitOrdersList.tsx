@@ -74,7 +74,7 @@ const MyLimitOrdersList: FC<MyLimitOrdersListProps> = ({
 
   useEffect(() => {
     callGetOrders();
-  }, []);
+  }, [delegateRules]);
 
   return (
     <StyledMyLimitOrdersList
