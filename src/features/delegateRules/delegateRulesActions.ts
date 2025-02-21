@@ -29,8 +29,14 @@ export const submitDelegateRuleToStore =
     const updatedTransactions = transactions.map((transaction) => {
       if (
         isUnsetRuleTransaction(transaction) &&
-        compareAddresses(transaction.senderToken.address, newDelegateRule.senderToken) &&
-        compareAddresses(transaction.signerToken.address, newDelegateRule.signerToken) &&
+        compareAddresses(
+          transaction.senderToken.address,
+          newDelegateRule.senderToken
+        ) &&
+        compareAddresses(
+          transaction.signerToken.address,
+          newDelegateRule.signerToken
+        ) &&
         compareAddresses(transaction.senderWallet, newDelegateRule.senderWallet)
       ) {
         return { ...transaction, isOverridden: true };
