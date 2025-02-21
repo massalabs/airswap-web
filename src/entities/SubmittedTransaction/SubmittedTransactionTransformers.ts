@@ -146,12 +146,13 @@ export const transformToSubmittedUnsetRuleTransaction = (
   timestamp = Date.now()
 ): SubmittedUnsetRuleTransaction => ({
   type: TransactionTypes.unsetRule,
+  id: `${senderToken.chainId}-${senderWallet}-${senderToken.address}-${signerToken.address}`,
+  isOverridden: false,
   hash,
   senderToken,
   signerToken,
   senderWallet,
   status,
   timestamp,
-  id: `${senderToken.chainId}-${senderWallet}-${senderToken.address}-${signerToken.address}`,
   chainId: senderToken.chainId,
 });

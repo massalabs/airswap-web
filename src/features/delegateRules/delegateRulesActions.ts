@@ -1,7 +1,9 @@
 import { AppDispatch, RootState } from "../../app/store";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { getUniqueDelegateRules } from "../../entities/DelegateRule/DelegateRuleHelpers";
+import { isUnsetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import { compareAddresses } from "../../helpers/string";
+import { setTransactions } from "../transactions/transactionsSlice";
 import { setDelegateRules } from "./delegateRulesSlice";
 
 export const submitDelegateRuleToStore =
@@ -9,6 +11,7 @@ export const submitDelegateRuleToStore =
   async (dispatch: AppDispatch, getState: () => RootState): Promise<void> => {
     const state = getState();
     const { delegateRules } = state.delegateRules;
+    const { transactions } = state.transactions;
 
     if (delegateRules.some((rule) => rule.id === newDelegateRule.id)) {
       console.warn(
@@ -23,7 +26,21 @@ export const submitDelegateRuleToStore =
       newDelegateRule,
     ]);
 
+    const updatedTransactions = transactions.map((transaction) => {
+      if (
+        isUnsetRuleTransaction(transaction) &&
+        compareAddresses(transaction.senderToken.address, newDelegateRule.senderToken) &&
+        compareAddresses(transaction.signerToken.address, newDelegateRule.signerToken) &&
+        compareAddresses(transaction.senderWallet, newDelegateRule.senderWallet)
+      ) {
+        return { ...transaction, isOverridden: true };
+      }
+
+      return transaction;
+    });
+
     dispatch(setDelegateRules(updatedDelegateRules));
+    dispatch(setTransactions(updatedTransactions));
   };
 
 type UnsetDelegateRuleFromStoreProps = {

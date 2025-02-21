@@ -88,6 +88,7 @@ export interface SubmittedUnsetRuleTransaction
   extends SubmittedTransactionWithHash {
   type: TransactionTypes.unsetRule;
   id: string;
+  isOverridden: boolean;
   chainId: number;
   senderWallet: string;
   senderToken: TokenInfo;

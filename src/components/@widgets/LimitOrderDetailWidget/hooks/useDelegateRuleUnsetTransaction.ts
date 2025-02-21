@@ -20,7 +20,8 @@ const useDelegateRuleUnsetTransaction = (delegateRule: DelegateRule) => {
           delegateRule.signerToken
         ) &&
         compareAddresses(transaction.senderWallet, delegateRule.senderWallet) &&
-        transaction.chainId === delegateRule.chainId
+        transaction.chainId === delegateRule.chainId &&
+        !transaction.isOverridden
     );
   }, [transactions, delegateRule]);
 
