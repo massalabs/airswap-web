@@ -2,6 +2,8 @@ import { Delegate } from "@airswap/libraries";
 import { ADDRESS_ZERO, createOrderERC20, TokenInfo } from "@airswap/utils";
 import { BaseProvider, Web3Provider } from "@ethersproject/providers";
 
+import BigNumber from "bignumber.js";
+
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
@@ -59,6 +61,7 @@ type TakeLimitOrderParams = {
   signerWallet: string;
   signerAmount: string;
   senderAmount: string;
+  tokenExchangeRate: BigNumber;
   signerTokenInfo: TokenInfo;
   senderTokenInfo: TokenInfo;
   library: Web3Provider;
@@ -67,15 +70,28 @@ type TakeLimitOrderParams = {
 export const takeLimitOrder =
   (params: TakeLimitOrderParams) => async (dispatch: AppDispatch) => {
     try {
-      const { delegateRule, protocolFee, signerWallet, library } = params;
+      const {
+        delegateRule,
+        protocolFee,
+        signerWallet,
+        tokenExchangeRate,
+        library,
+      } = params;
 
       const senderAmount = toAtomicString(
         params.senderAmount,
         params.senderTokenInfo.decimals
       );
 
+      const rawSignerAmount = new BigNumber(params.senderAmount).multipliedBy(
+        tokenExchangeRate
+      );
+      const roundedSignerAmount = rawSignerAmount
+        .decimalPlaces(params.signerTokenInfo.decimals, BigNumber.ROUND_HALF_UP)
+        .toString();
+
       const signerAmount = toAtomicString(
-        params.signerAmount,
+        roundedSignerAmount,
         params.signerTokenInfo.decimals
       );
 

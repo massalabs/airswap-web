@@ -7,7 +7,6 @@ import * as ethers from "ethers";
 import { useAppSelector } from "../../../../../app/hooks";
 import { DelegateRule } from "../../../../../entities/DelegateRule/DelegateRule";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
-import { OrderStatus } from "../../../../../types/orderStatus";
 import { OrdersSortType } from "../../../../../types/ordersSortType";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import { StyledMyLimitOrdersList } from "./MyLimitOrdersList.styles";

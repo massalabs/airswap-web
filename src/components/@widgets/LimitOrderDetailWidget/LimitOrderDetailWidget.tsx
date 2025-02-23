@@ -73,6 +73,7 @@ import {
   getDelegateRuleTokensExchangeRate,
 } from "./helpers";
 import { useAvailableSenderAndSignerAmount } from "./hooks/useAvailableSenderAndSignerAmount";
+import useCustomSignerAmountPlusFee from "./hooks/useCustomSignerAmountPlusFee";
 import useSessionDelegateSwapTransaction from "./hooks/useSessionDelegateSwapTransaction";
 import useSessionUnsetRuleTransaction from "./hooks/useSessionUnsetRuleTransaction";
 
@@ -139,10 +140,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
 
   const [customSignerAmount, setCustomSignerAmount] = useState<string>();
   const [customSenderAmount, setCustomSenderAmount] = useState<string>();
-  const customSignerAmountPlusFee = useAmountPlusFee(
-    customSignerAmount,
-    signerToken?.decimals
-  );
 
   const [filledAmount, filledPercentage] = useFilledStatus(
     delegateRule,
@@ -156,6 +153,13 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
     senderToken?.decimals,
     signerToken?.decimals
   );
+
+  const customSignerAmountPlusFee = useCustomSignerAmountPlusFee(
+    tokenExchangeRate,
+    customSenderAmount,
+    signerToken?.decimals
+  );
+
   const approvalTransaction = useApprovalPending(
     delegateRule.signerToken,
     true
@@ -265,7 +269,8 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       !customSignerAmount ||
       !customSenderAmount ||
       !signerToken ||
-      !senderToken
+      !senderToken ||
+      !tokenExchangeRate
     )
       return;
 
@@ -273,6 +278,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       takeLimitOrder({
         delegateRule,
         protocolFee,
+        tokenExchangeRate,
         signerWallet: account,
         signerAmount: customSignerAmount,
         senderAmount: customSenderAmount,
