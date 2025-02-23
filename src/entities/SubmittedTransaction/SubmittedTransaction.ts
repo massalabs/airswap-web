@@ -88,6 +88,7 @@ export interface SubmittedUnsetRuleTransaction
   extends SubmittedTransactionWithHash {
   type: TransactionTypes.unsetRule;
   id: string;
+  // True when a delegate rule is set after the timestamp of the transaction
   isOverridden: boolean;
   chainId: number;
   senderWallet: string;

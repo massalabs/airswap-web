@@ -2,9 +2,14 @@ import { AppDispatch, RootState } from "../../app/store";
 import { DelegateRule } from "../../entities/DelegateRule/DelegateRule";
 import { getUniqueDelegateRules } from "../../entities/DelegateRule/DelegateRuleHelpers";
 import { isUnsetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
+import { getUniqueSingleDimensionArray } from "../../helpers/array";
 import { compareAddresses } from "../../helpers/string";
 import { setTransactions } from "../transactions/transactionsSlice";
-import { setDelegateRules } from "./delegateRulesSlice";
+import { writeDismissedDelegateRulesToLocalStorage } from "./delegateRulesHelpers";
+import {
+  setDelegateRules,
+  setDismissedDelegateRuleIds,
+} from "./delegateRulesSlice";
 
 export const submitDelegateRuleToStore =
   (newDelegateRule: DelegateRule) =>
@@ -83,4 +88,33 @@ export const unsetDelegateRuleFromStore =
     }
 
     dispatch(setDelegateRules(filteredDelegateRules));
+  };
+
+export const dismissDelegateRule =
+  (delegateRule: DelegateRule) =>
+  async (dispatch: AppDispatch, getState: () => RootState): Promise<void> => {
+    const { delegateRules, web3 } = getState();
+
+    if (!web3.account || !web3.chainId) {
+      console.warn(
+        "[dismissDelegateRule]: account or chainId not found in web3"
+      );
+
+      return;
+    }
+
+    const { dismissedDelegateRuleIds } = delegateRules;
+
+    const updatedDismissedDelegateRuleIds = [
+      ...dismissedDelegateRuleIds,
+      delegateRule.id,
+    ].filter(getUniqueSingleDimensionArray);
+
+    writeDismissedDelegateRulesToLocalStorage(
+      updatedDismissedDelegateRuleIds,
+      web3.account,
+      web3.chainId
+    );
+
+    dispatch(setDismissedDelegateRuleIds(updatedDismissedDelegateRuleIds));
   };

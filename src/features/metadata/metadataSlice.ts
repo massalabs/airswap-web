@@ -2,7 +2,6 @@ import { TokenInfo } from "@airswap/utils";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
-import { getUniqueSingleDimensionArray } from "../../helpers/array";
 import {
   chainIdChanged,
   walletChanged,

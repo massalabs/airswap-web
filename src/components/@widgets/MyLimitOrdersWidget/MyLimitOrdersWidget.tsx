@@ -9,6 +9,7 @@ import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { DelegateRule } from "../../../entities/DelegateRule/DelegateRule";
 import { cancelLimitOrder } from "../../../features/cancelLimit/cancelLimitActions";
 import { selectCancelLimitStatus } from "../../../features/cancelLimit/cancelLimitSlice";
+import { dismissDelegateRule } from "../../../features/delegateRules/delegateRulesActions";
 import {
   selectMyOtcOrdersReducer,
   setActiveSortType,
@@ -37,8 +38,14 @@ const MyLimitOrdersWidget: FC = () => {
   const { provider: library } = useWeb3React<Web3Provider>();
   const { isActive, isInitialized } = useAppSelector((state) => state.web3);
   const history = useHistory();
-  const { delegateRules, isInitialized: isDelegateRulesInitialized } =
-    useAppSelector((state) => state.delegateRules);
+  const {
+    delegateRules,
+    isInitialized: isDelegateRulesInitialized,
+    dismissedDelegateRuleIds,
+  } = useAppSelector((state) => state.delegateRules);
+  const filteredDelegateRules = delegateRules.filter(
+    (rule) => !dismissedDelegateRuleIds.includes(rule.id)
+  );
 
   const { sortTypeDirection, activeSortType } = useAppSelector(
     selectMyOtcOrdersReducer
@@ -77,7 +84,7 @@ const MyLimitOrdersWidget: FC = () => {
       order.status === OrderStatus.filled ||
       order.status === OrderStatus.expired
     ) {
-      // TODO: dismiss here
+      dispatch(dismissDelegateRule(delegateRule));
 
       return;
     }
@@ -132,12 +139,12 @@ const MyLimitOrdersWidget: FC = () => {
         )}
       </TransactionOverlay>
 
-      {!!delegateRules.length && (
+      {!!filteredDelegateRules.length && (
         <MyLimitOrdersList
           activeCancellationId={activeUnsetDelegateRule?.id}
           activeSortType={activeSortType}
           activeTokens={[]}
-          delegateRules={delegateRules}
+          delegateRules={filteredDelegateRules}
           sortTypeDirection={sortTypeDirection}
           library={library!}
           onDeleteOrderButtonClick={handleDeleteOrderButtonClick}
@@ -145,10 +152,10 @@ const MyLimitOrdersWidget: FC = () => {
         />
       )}
 
-      {!delegateRules.length && (
+      {!filteredDelegateRules.length && (
         <InfoSectionContainer>
           <InfoSection
-            userHasNoOrders={!delegateRules.length}
+            userHasNoOrders={!filteredDelegateRules.length}
             walletIsNotConnected={!isActive}
           />
         </InfoSectionContainer>

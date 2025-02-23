@@ -11,6 +11,7 @@ export interface DelegateRulesState {
   isLoading: boolean;
   isInitialized: boolean;
   delegateRules: DelegateRule[];
+  dismissedDelegateRuleIds: string[];
 }
 
 const initialState: DelegateRulesState = {
@@ -18,6 +19,7 @@ const initialState: DelegateRulesState = {
   isLoading: false,
   isInitialized: false,
   delegateRules: [],
+  dismissedDelegateRuleIds: [],
 };
 
 export const delegateRulesSlice = createSlice({
@@ -28,6 +30,12 @@ export const delegateRulesSlice = createSlice({
       return {
         ...state,
         delegateRules: action.payload,
+      };
+    },
+    setDismissedDelegateRuleIds: (state, action: PayloadAction<string[]>) => {
+      return {
+        ...state,
+        dismissedDelegateRuleIds: action.payload,
       };
     },
   },
@@ -59,7 +67,8 @@ export const delegateRulesSlice = createSlice({
   },
 });
 
-export const { setDelegateRules } = delegateRulesSlice.actions;
+export const { setDelegateRules, setDismissedDelegateRuleIds } =
+  delegateRulesSlice.actions;
 
 export const selectDelegateRulesReducer = (state: RootState) =>
   state.delegateRules;

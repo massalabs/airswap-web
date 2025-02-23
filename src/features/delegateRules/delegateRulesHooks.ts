@@ -4,6 +4,8 @@ import { useWeb3React } from "@web3-react/core";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { fetchDelegateRules } from "./delegateRulesApi";
+import { getDismissedDelegateRulesFromLocalStorage } from "./delegateRulesHelpers";
+import { setDismissedDelegateRuleIds } from "./delegateRulesSlice";
 import useSetRuleLogs from "./hooks/useSetRuleLogs";
 
 export const useDelegateRules = () => {
@@ -34,9 +36,18 @@ export const useDelegateRules = () => {
       return;
     }
 
+    const dismissedDelegateRuleIds = getDismissedDelegateRulesFromLocalStorage(
+      account,
+      chainId
+    );
+
     dispatch(
       fetchDelegateRules({ delegateRules: setRuleLogs.delegateRules, library })
     );
+
+    if (dismissedDelegateRuleIds.length) {
+      dispatch(setDismissedDelegateRuleIds(dismissedDelegateRuleIds));
+    }
   }, [
     isTransactionsInitialized,
     status,
