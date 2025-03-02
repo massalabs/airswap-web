@@ -61,7 +61,6 @@ type TakeLimitOrderParams = {
   signerWallet: string;
   signerAmount: string;
   senderAmount: string;
-  tokenExchangeRate: BigNumber;
   signerTokenInfo: TokenInfo;
   senderTokenInfo: TokenInfo;
   library: Web3Provider;
@@ -70,24 +69,20 @@ type TakeLimitOrderParams = {
 export const takeLimitOrder =
   (params: TakeLimitOrderParams) => async (dispatch: AppDispatch) => {
     try {
-      const {
-        delegateRule,
-        protocolFee,
-        signerWallet,
-        tokenExchangeRate,
-        library,
-      } = params;
+      const { delegateRule, protocolFee, signerWallet, library } = params;
 
       const senderAmount = toAtomicString(
         params.senderAmount,
         params.senderTokenInfo.decimals
       );
 
-      const rawSignerAmount = new BigNumber(params.senderAmount).multipliedBy(
-        tokenExchangeRate
-      );
-      const roundedSignerAmount = rawSignerAmount
-        .decimalPlaces(params.signerTokenInfo.decimals, BigNumber.ROUND_HALF_UP)
+      const fillSignerAmount = new BigNumber(delegateRule.signerAmount)
+        .multipliedBy(params.senderAmount)
+        .dividedBy(delegateRule.senderAmount);
+
+      const roundedSignerAmount = fillSignerAmount
+        // Delegate rule amount is always rounded down
+        .decimalPlaces(params.signerTokenInfo.decimals, BigNumber.ROUND_DOWN)
         .toString();
 
       const signerAmount = toAtomicString(

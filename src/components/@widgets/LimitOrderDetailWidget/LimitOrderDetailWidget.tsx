@@ -269,8 +269,7 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       !customSignerAmount ||
       !customSenderAmount ||
       !signerToken ||
-      !senderToken ||
-      !tokenExchangeRate
+      !senderToken
     )
       return;
 
@@ -278,7 +277,6 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       takeLimitOrder({
         delegateRule,
         protocolFee,
-        tokenExchangeRate,
         signerWallet: account,
         signerAmount: customSignerAmount,
         senderAmount: customSenderAmount,
