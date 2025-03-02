@@ -120,7 +120,7 @@ const MyLimitOrdersWidget: FC = () => {
     }
   }, [pendingUnsetRuleTransaction]);
 
-  if (!isInitialized || !isDelegateRulesInitialized) {
+  if (!isInitialized || (isActive && !isDelegateRulesInitialized)) {
     return <Container />;
   }
 
