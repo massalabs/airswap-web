@@ -5,12 +5,13 @@
   "homepage": ".",
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && yarn sentry:sourcemaps",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "prettier": "prettier --write \"./src/**/*.{ts,tsx}\"  --plugin @trivago/prettier-plugin-sort-imports",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org airswap-2n --project javascript-react ./build && sentry-cli sourcemaps upload --org airswap-2n --project javascript-react ./build"
   },
   "dependencies": {
     "@airswap/libraries": "5.0.10-beta.0",

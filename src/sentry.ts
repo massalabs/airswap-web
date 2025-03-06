@@ -10,4 +10,7 @@ Sentry.init({
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
   tracesSampleRate: 1.0,
+  environment: process.env.NODE_ENV,
+  enabled: process.env.NODE_ENV === "production",
+  debug: false,
 });
