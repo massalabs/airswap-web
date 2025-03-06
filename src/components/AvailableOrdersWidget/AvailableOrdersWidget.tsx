@@ -108,7 +108,7 @@ const AvailableOrdersWidget = ({
 
   const handleCreateSwapClick = () => {
     history.push({
-      pathname: `/${AppRoutes.make}`,
+      pathname: `/${AppRoutes.makeOtcOrder}`,
     });
   };
 

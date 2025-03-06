@@ -13,7 +13,6 @@ import {
 } from "../../../../features/metadata/metadataSlice";
 import { selectTakeOtcReducer } from "../../../../features/takeOtc/takeOtcSlice";
 import findEthOrTokenByAddress from "../../../../helpers/findEthOrTokenByAddress";
-import useDefaultLibrary from "../../../../hooks/useDefaultLibrary";
 import useJsonRpcProvider from "../../../../hooks/useJsonRpcProvider";
 
 // OTC Taker version of useTokenInfo. Look at chainId of the active FullOrderERC20 instead

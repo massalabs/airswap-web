@@ -5,11 +5,16 @@ import { HTMLMotionProps } from "framer-motion";
 
 import { SubmittedTransaction } from "../../../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
+  getSetRuleTransactionLabel,
+  getUnsetRuleTransactionLabel,
   isApprovalTransaction,
   isCancelTransaction,
+  isDelegatedSwapTransaction,
   isDepositTransaction,
+  isSetRuleTransaction,
   isSubmittedOrder,
   isSubmittedOrderUnderConsideration,
+  isUnsetRuleTransaction,
   isWithdrawTransaction,
 } from "../../../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
 import { TransactionStatusType } from "../../../../types/transactionTypes";
@@ -114,7 +119,8 @@ const WalletTransaction = ({
   if (
     isSubmittedOrder(transaction) ||
     isWithdrawTransaction(transaction) ||
-    isDepositTransaction(transaction)
+    isDepositTransaction(transaction) ||
+    isDelegatedSwapTransaction(transaction)
   ) {
     const { signerToken, senderToken } = transaction;
     const expiry = isSubmittedOrder(transaction)
@@ -175,6 +181,40 @@ const WalletTransaction = ({
             hash={transaction.hash}
           />
         )}
+      </Container>
+    );
+  }
+
+  if (isSetRuleTransaction(transaction)) {
+    const label = getSetRuleTransactionLabel(transaction);
+
+    return (
+      <Container>
+        <TextContainer>
+          <SpanTitle>{label}</SpanTitle>
+          <SpanSubtitle>{statusText}</SpanSubtitle>
+        </TextContainer>
+
+        {transaction.hash && (
+          <StyledTransactionLink
+            hideLabel
+            chainId={chainId}
+            hash={transaction.hash}
+          />
+        )}
+      </Container>
+    );
+  }
+
+  if (isUnsetRuleTransaction(transaction)) {
+    const label = getUnsetRuleTransactionLabel(transaction);
+
+    return (
+      <Container>
+        <TextContainer>
+          <SpanTitle>{label}</SpanTitle>
+          <SpanSubtitle>{statusText}</SpanSubtitle>
+        </TextContainer>
       </Container>
     );
   }

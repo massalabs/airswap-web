@@ -18,7 +18,7 @@ import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
-import { removeUserOrder } from "../myOrders/myOrdersSlice";
+import { removeOtcUserOrder } from "../myOtcOrders/myOtcOrdersSlice";
 import { getNonceUsed } from "../orders/ordersHelpers";
 import {
   revertTransaction,
@@ -66,7 +66,7 @@ export const cancelOrder = createAsyncThunk(
         heading: i18n.t("toast.cancelFailed"),
         cta: i18n.t("validatorErrors.nonce_already_used"),
       });
-      dispatch(removeUserOrder(params.order));
+      dispatch(removeOtcUserOrder(params.order));
       return;
     }
 

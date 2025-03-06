@@ -1,14 +1,22 @@
-import { FullSwapERC20, OrderERC20, TokenInfo } from "@airswap/utils";
+import {
+  FullSwapERC20,
+  OrderERC20,
+  TokenInfo,
+  UnsignedOrderERC20,
+} from "@airswap/utils";
 
 import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
+import { DelegateRule } from "../DelegateRule/DelegateRule";
 import {
   SubmittedApprovalTransaction,
+  SubmittedDelegatedSwapTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
+  SubmittedUnsetRuleTransaction,
   SubmittedWithdrawTransaction,
 } from "./SubmittedTransaction";
 
@@ -108,4 +116,43 @@ export const transformToSubmittedTransactionWithOrderUnderConsideration = (
   signerToken,
   status,
   timestamp,
+});
+
+export const transformToSubmittedDelegateSwapTransaction = (
+  hash: string,
+  order: UnsignedOrderERC20,
+  delegateRule: DelegateRule,
+  senderToken: TokenInfo,
+  signerToken: TokenInfo,
+  status: TransactionStatusType = TransactionStatusType.processing,
+  timestamp = Date.now()
+): SubmittedDelegatedSwapTransaction => ({
+  type: TransactionTypes.delegatedSwap,
+  hash,
+  order,
+  delegateRule,
+  senderToken,
+  signerToken,
+  status,
+  timestamp,
+});
+
+export const transformToSubmittedUnsetRuleTransaction = (
+  hash: string,
+  senderToken: TokenInfo,
+  signerToken: TokenInfo,
+  senderWallet: string,
+  status: TransactionStatusType = TransactionStatusType.processing,
+  timestamp = Date.now()
+): SubmittedUnsetRuleTransaction => ({
+  type: TransactionTypes.unsetRule,
+  id: `${senderToken.chainId}-${senderWallet}-${senderToken.address}-${signerToken.address}`,
+  isOverridden: false,
+  hash,
+  senderToken,
+  signerToken,
+  senderWallet,
+  status,
+  timestamp,
+  chainId: senderToken.chainId,
 });

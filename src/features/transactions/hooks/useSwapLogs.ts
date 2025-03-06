@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { SwapERC20, Wrapper } from "@airswap/libraries";
+import { Delegate, SwapERC20, Wrapper } from "@airswap/libraries";
 import { Contract } from "@ethersproject/contracts";
 import { useAsync } from "@react-hookz/web/esm";
 import { IAsyncState } from "@react-hookz/web/esm/useAsync/useAsync";
@@ -15,6 +15,7 @@ import useNetworkSupported from "../../../hooks/useNetworkSupported";
 interface SwapLogs {
   swapLogs: Event[];
   wrappedSwapLogs: Event[];
+  delegatedSwapLogs: Event[];
   chainId: number;
   account: string;
 }
@@ -33,20 +34,26 @@ const useSwapLogs = (
     async (
       swapContract: Contract,
       wrapperContract: Contract,
+      delegatedSwapContract: Contract,
       account: string
     ) => {
       const signerSwapFilter = swapContract.filters.SwapERC20(null);
       const wrapperSwapFilter = wrapperContract.filters.WrappedSwapFor(null);
+      const delegatedSwapFilter =
+        delegatedSwapContract.filters.DelegatedSwapFor(null);
 
       const firstTxBlockSwapContract =
         chainId && SwapERC20.deployedBlocks[chainId];
       const firstTxBlockWrapperContract =
         chainId && Wrapper.deployedBlocks[chainId];
+      const firstTxBlockDelegatedSwapContract =
+        chainId && SwapERC20.deployedBlocks[chainId];
       const currentBlock = await provider?.getBlockNumber();
 
       if (
         !firstTxBlockSwapContract ||
         !firstTxBlockWrapperContract ||
+        !firstTxBlockDelegatedSwapContract ||
         !currentBlock
       ) {
         throw new Error("Could not get block numbers");
@@ -65,9 +72,17 @@ const useSwapLogs = (
         currentBlock
       );
 
+      const delegatedSwapLogs = await getContractEvents(
+        delegatedSwapContract,
+        delegatedSwapFilter,
+        firstTxBlockDelegatedSwapContract,
+        currentBlock
+      );
+
       return {
         swapLogs,
         wrappedSwapLogs,
+        delegatedSwapLogs,
         chainId,
         account,
       };
@@ -80,9 +95,15 @@ const useSwapLogs = (
 
     if (account === accountState && chainId === chainIdState) return;
 
-    const swapContract = getSwapErc20Contract(provider, chainId);
+    const swapContract = SwapERC20.getContract(provider, chainId);
     const wrapperContract = Wrapper.getContract(provider, chainId);
-    actions.execute(swapContract, wrapperContract, account);
+    const delegatedSwapContract = Delegate.getContract(provider, chainId);
+    actions.execute(
+      swapContract,
+      wrapperContract,
+      delegatedSwapContract,
+      account
+    );
 
     setAccountState(account);
     setChainIdState(chainId);

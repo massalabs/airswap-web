@@ -7,7 +7,10 @@ import { fontMono } from "../../../../../style/themes";
 import { OrderStatus } from "../../../../../types/orderStatus";
 import IconButton from "../../../../IconButton/IconButton";
 import TokenLogo from "../../../../TokenLogo/TokenLogo";
-import { MyOrdersGrid } from "../../MyOrdersWidget.styles";
+import {
+  MyLimitOrderGrid,
+  MyOrdersGrid,
+} from "../../../MyOrdersWidget/MyOrdersWidget.styles";
 
 export const Circle = styled.div`
   border-radius: 50%;
@@ -31,8 +34,12 @@ const getIndicatorColor = (
   return theme.colors.borderGrey;
 };
 
-export const Container = styled.div<{ orderStatus: OrderStatus }>`
-  ${MyOrdersGrid};
+export const Container = styled.div<{
+  orderStatus: OrderStatus;
+  hasFilledColumn?: boolean;
+}>`
+  ${({ hasFilledColumn }) =>
+    hasFilledColumn ? MyLimitOrderGrid : MyOrdersGrid};
 
   position: relative;
   align-items: center;
@@ -74,6 +81,11 @@ export const Text = styled.div`
     font-size: 1rem;
   }
 `;
+
+export const SignerAmount = styled(Text)``;
+export const SenderAmount = styled(Text)``;
+export const FilledAmount = styled(Text)``;
+export const OrderStatusLabel = styled(Text)``;
 
 export const ActionButtonContainer = styled.div`
   position: relative;
@@ -125,15 +137,13 @@ export const Tokens = styled.div`
   display: flex;
   align-items: center;
   overflow: hidden;
+  gap: 0.25rem;
 `;
 
 export const TokenIcon = styled(TokenLogo)`
-  min-width: 1.875rem;
+  min-width: 1.125rem;
   aspect-ratio: 1;
   background: ${({ theme }) => theme.colors.darkGrey};
   z-index: 3;
-  &:not(:first-child) {
-    margin-left: -1rem;
-    z-index: 2;
-  }
+  pointer-events: none;
 `;

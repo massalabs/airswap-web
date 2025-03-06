@@ -1,4 +1,4 @@
-import { Wrapper, BatchCall } from "@airswap/libraries";
+import { Wrapper, BatchCall, Delegate } from "@airswap/libraries";
 
 import { BigNumber, ethers } from "ethers";
 
@@ -11,27 +11,44 @@ interface WalletParams {
   tokenAddresses: string[];
 }
 
+const getFetchBalancesOrAllowancesArgs = (
+  method: "walletBalances" | "walletAllowances",
+  spenderAddressType: "Wrapper" | "Swap" | "Delegate" | "None",
+  params: WalletParams
+) => {
+  const { chainId, tokenAddresses, walletAddress } = params;
+
+  if (method === "walletBalances") {
+    return [walletAddress, tokenAddresses];
+  }
+
+  if (spenderAddressType === "Delegate") {
+    return [walletAddress, Delegate.getAddress(chainId), tokenAddresses];
+  }
+
+  if (spenderAddressType === "Wrapper") {
+    return [walletAddress, Wrapper.getAddress(chainId), tokenAddresses];
+  }
+
+  return [walletAddress, getSwapErc20Address(chainId), tokenAddresses];
+};
+
 /**
  * Fetches balances or allowances for a wallet using the airswap utility
  * contract `BalanceChecker.sol`. Balances are returned in base units.
  */
 const fetchBalancesOrAllowances: (
   method: "walletBalances" | "walletAllowances",
-  spenderAddressType: "Wrapper" | "Swap" | "None",
+  spenderAddressType: "Wrapper" | "Swap" | "Delegate" | "None",
   params: WalletParams
-) => Promise<string[]> = async (
-  method,
-  spenderAddressType,
-  { chainId, provider, tokenAddresses, walletAddress }
-) => {
+) => Promise<string[]> = async (method, spenderAddressType, params) => {
+  const { chainId, provider } = params;
   const contract = BatchCall.getContract(provider, chainId);
-  const args =
-    method === "walletBalances"
-      ? [walletAddress, tokenAddresses]
-      : spenderAddressType === "Swap"
-      ? // sender, spender, tokens.
-        [walletAddress, getSwapErc20Address(chainId), tokenAddresses]
-      : [walletAddress, Wrapper.getAddress(chainId), tokenAddresses];
+  const args = getFetchBalancesOrAllowancesArgs(
+    method,
+    spenderAddressType,
+    params
+  );
   const amounts: BigNumber[] = await contract[method].apply(null, args);
   return amounts.map((amount) => amount.toString());
 };
@@ -51,5 +68,15 @@ const fetchAllowancesWrapper = fetchBalancesOrAllowances.bind(
   "walletAllowances",
   "Wrapper"
 );
+const fetchAllowancesDelegate = fetchBalancesOrAllowances.bind(
+  null,
+  "walletAllowances",
+  "Delegate"
+);
 
-export { fetchBalances, fetchAllowancesSwap, fetchAllowancesWrapper };
+export {
+  fetchBalances,
+  fetchAllowancesSwap,
+  fetchAllowancesWrapper,
+  fetchAllowancesDelegate,
+};

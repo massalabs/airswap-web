@@ -14,10 +14,10 @@
   dependencies:
     ethers "^5.7.2"
 
-"@airswap/delegate@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@airswap/delegate/-/delegate-5.0.2.tgz#c5957bf906f6c933d76c3f8c7bbb3d50be0d8f36"
-  integrity sha512-chRZE4akeaeV23mT9sPlwxVKkEyARsDxyQ8sOC4bHb2RM3oUUk+5wcGZgs1MTuUC8bnWKdJQyVvjrrMr0OBTYw==
+"@airswap/delegate@5.0.3-beta.0":
+  version "5.0.3-beta.0"
+  resolved "https://registry.yarnpkg.com/@airswap/delegate/-/delegate-5.0.3-beta.0.tgz#0072b1d5df7c133756e7c17496e6faf05dec97b0"
+  integrity sha512-A+wHFwfTjxrUbEnfqm/ZHNmO27AJQhoMGSL9gdPV7IXpfy3gc3xymSXWWh3/nLXd2/2dHFzLaNQS43+HbQEk1g==
   dependencies:
     ethers "^5.7.2"
 
@@ -28,13 +28,13 @@
   dependencies:
     get-parameter-names "^0.3.0"
 
-"@airswap/libraries@5.0.9":
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/@airswap/libraries/-/libraries-5.0.9.tgz#a886a9c39723b1b4a8353a378ff4d532c41a0800"
-  integrity sha512-scf8xWyQsGXVWvm8AAuqyCsehpDBr+v9pPDTuKhdW5uDs8HXDLBgghIrVFFwk91bw2vYrr182QjV2+5BmT4aow==
+"@airswap/libraries@5.0.10-beta.0":
+  version "5.0.10-beta.0"
+  resolved "https://registry.yarnpkg.com/@airswap/libraries/-/libraries-5.0.10-beta.0.tgz#ff4b522a74900d785c120ceea35b8820bd171113"
+  integrity sha512-whDAVyXkSj+Q9DFXI2nGxf0aUnur3YJOOPMzbiPPcGSWoUrgLZh9oQi53U7XydTHJRoIgwXsuvi29DDsTf1tcA==
   dependencies:
     "@airswap/batch-call" "5.0.1"
-    "@airswap/delegate" "5.0.2"
+    "@airswap/delegate" "5.0.3-beta.0"
     "@airswap/jsonrpc-client-websocket" "0.0.1"
     "@airswap/pool" "5.0.1"
     "@airswap/registry" "5.0.1"

@@ -1,4 +1,4 @@
-import { Server, Wrapper, WETH } from "@airswap/libraries";
+import { Server, Wrapper, WETH, Delegate } from "@airswap/libraries";
 import {
   toAtomicString,
   parseCheckResult,
@@ -94,17 +94,29 @@ export async function requestOrders(
     .filter((o) => BigNumber.from(o.signerAmount).gt("0"));
 }
 
+const getSpenderAddress = (
+  contractType: "Swap" | "Wrapper" | "Delegate",
+  provider: ethers.providers.Web3Provider
+) => {
+  if (contractType === "Swap") {
+    return getSwapErc20Address(provider.network.chainId);
+  }
+
+  if (contractType === "Delegate") {
+    return Delegate.getAddress(provider.network.chainId);
+  }
+
+  return Wrapper.getAddress(provider.network.chainId);
+};
+
 export async function approveToken(
   baseToken: string,
   provider: ethers.providers.Web3Provider,
-  contractType: "Swap" | "Wrapper",
+  contractType: "Swap" | "Wrapper" | "Delegate",
   amount: string | number
 ): Promise<Transaction | AppError> {
   return new Promise<Transaction | AppError>((resolve) => {
-    const spender =
-      contractType === "Swap"
-        ? getSwapErc20Address(provider.network.chainId)
-        : Wrapper.getAddress(provider.network.chainId);
+    const spender = getSpenderAddress(contractType, provider);
     const erc20Contract = new ethers.Contract(
       baseToken,
       erc20Interface,

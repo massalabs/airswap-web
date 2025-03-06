@@ -56,7 +56,7 @@ export type TokenSelectProps = {
   /**
    * Called when the user has clicked on the token dropdown to change token
    */
-  onChangeTokenClicked: MouseEventHandler<HTMLButtonElement>;
+  onChangeTokenClicked?: MouseEventHandler<HTMLButtonElement>;
   /**
    * Called when user clicks the 'use max' button. Presence of this prop is used
    * to imply presence of use max button in DOM.
@@ -86,6 +86,10 @@ export type TokenSelectProps = {
    * Used for showing requesting token state
    */
   isRequestingToken?: boolean;
+  /**
+   * Whether or not the token select is disabled
+   */
+  isSelectTokenDisabled?: boolean;
   /**
    * Show max button
    */
@@ -117,6 +121,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
   onAmountChange,
   isRequestingAmount = false,
   isRequestingToken = false,
+  isSelectTokenDisabled = false,
   isQuote = false,
   hasError = false,
   showMaxButton = false,
@@ -164,7 +169,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
         )}
         {!isRequestingToken ? (
           <ContainingButton
-            disabled={readOnly}
+            disabled={isSelectTokenDisabled || readOnly}
             onClick={onChangeTokenClicked}
             onBlur={handleTokenBlur}
             onFocus={handleTokenFocus}
@@ -178,7 +183,9 @@ const TokenSelect: FC<TokenSelectProps> = ({
                 <StyledSelectButtonContent>
                   {tokenText}
                 </StyledSelectButtonContent>
-                <StyledDownArrow $invisible={readOnly} />
+                <StyledDownArrow
+                  $invisible={isSelectTokenDisabled || readOnly}
+                />
               </StyledSelectItem>
             </StyledSelector>
           </ContainingButton>

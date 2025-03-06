@@ -1,4 +1,4 @@
-import { FC, useContext, useState } from "react";
+import { FC, useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
@@ -17,6 +17,7 @@ import {
   TopBar,
 } from "../../styled-components/TopBar/Topbar";
 import { ClearOrderType } from "../../types/clearOrderType";
+import { TransactionTypes } from "../../types/transactionTypes";
 import { getConnection } from "../../web3-connectors/connections";
 import { tryDeactivateConnector } from "../../web3-connectors/helpers";
 import { selectBalances } from "../balances/balancesSlice";
@@ -44,7 +45,6 @@ export const Wallet: FC<WalletProps> = ({
 
   // Redux
   const dispatch = useAppDispatch();
-  const balances = useAppSelector(selectBalances);
   const transactions = useAppSelector(selectFilteredTransactions);
   const pendingTransactions = useAppSelector(selectPendingTransactions);
   const protocolFee = useAppSelector(selectProtocolFee);
@@ -56,8 +56,6 @@ export const Wallet: FC<WalletProps> = ({
   // Local component state
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [chainsOpen, setChainsOpen] = useState<boolean>(false);
-
-  const isSupportedNetwork = useNetworkSupported();
 
   const handleClearTransactionsChange = (type: ClearOrderType) => {
     dispatch(setFilter(type));

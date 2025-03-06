@@ -1,30 +1,24 @@
 import { TokenInfo } from "@airswap/utils";
-import { formatUnits } from "@ethersproject/units";
-
-import { BigNumber } from "bignumber.js";
 
 import {
+  SubmittedDelegatedSwapTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
-  SubmittedTransaction,
   SubmittedWithdrawTransaction,
 } from "../../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
   getDepositOrWithdrawalTransactionLabel,
   getOrderTransactionLabel,
   isDepositTransaction,
-  isLastLookOrderTransaction,
-  isSubmittedOrder,
   isWithdrawTransaction,
 } from "../../../entities/SubmittedTransaction/SubmittedTransactionHelpers";
-import { compareAddresses } from "../../../helpers/string";
-import i18n from "../../../i18n/i18n";
 
 const getWalletTransactionOrderText = (
   transaction:
     | SubmittedOrder
     | SubmittedWithdrawTransaction
-    | SubmittedDepositTransaction,
+    | SubmittedDepositTransaction
+    | SubmittedDelegatedSwapTransaction,
   signerToken: TokenInfo,
   senderToken: TokenInfo,
   account: string,

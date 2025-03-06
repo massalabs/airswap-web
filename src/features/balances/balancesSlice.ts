@@ -13,10 +13,10 @@ import { BigNumber, ethers } from "ethers";
 import { AppDispatch, RootState } from "../../app/store";
 import getWethAddress from "../../helpers/getWethAddress";
 import { walletChanged, walletDisconnected } from "../web3/web3Actions";
-import { setWeb3Data } from "../web3/web3Slice";
 import {
   fetchAllowancesSwap,
   fetchAllowancesWrapper,
+  fetchAllowancesDelegate,
   fetchBalances,
 } from "./balancesApi";
 
@@ -44,24 +44,39 @@ export const initialState: BalancesState = {
 };
 
 const getSetInFlightRequestTokensAction = (
-  type: "balances" | "allowances.swap" | "allowances.wrapper"
+  type:
+    | "balances"
+    | "allowances.swap"
+    | "allowances.wrapper"
+    | "allowances.delegate"
 ) => {
   return createAction<string[]>(`${type}/setInFlightRequestTokens`);
 };
 
 const getThunk: (
-  type: "balances" | "allowances.swap" | "allowances.wrapper"
+  type:
+    | "balances"
+    | "allowances.swap"
+    | "allowances.wrapper"
+    | "allowances.delegate"
 ) => AsyncThunk<
   { address: string; amount: string }[],
   {
     provider: ethers.providers.Web3Provider;
   },
   object
-> = (type: "balances" | "allowances.swap" | "allowances.wrapper") => {
+> = (
+  type:
+    | "balances"
+    | "allowances.swap"
+    | "allowances.wrapper"
+    | "allowances.delegate"
+) => {
   const methods = {
     balances: fetchBalances,
     "allowances.swap": fetchAllowancesSwap,
     "allowances.wrapper": fetchAllowancesWrapper,
+    "allowances.delegate": fetchAllowancesDelegate,
   };
   return createAsyncThunk<
     { address: string; amount: string }[],
@@ -132,7 +147,11 @@ const getThunk: (
 };
 
 const getSlice = (
-  type: "balances" | "allowances.swap" | "allowances.wrapper",
+  type:
+    | "balances"
+    | "allowances.swap"
+    | "allowances.wrapper"
+    | "allowances.delegate",
   asyncThunk: ReturnType<typeof getThunk>
 ) => {
   return createSlice({
@@ -230,6 +249,9 @@ export const requestActiveTokenBalances = getThunk("balances");
 export const requestActiveTokenAllowancesSwap = getThunk("allowances.swap");
 export const requestActiveTokenAllowancesWrapper =
   getThunk("allowances.wrapper");
+export const requestActiveTokenAllowancesDelegate = getThunk(
+  "allowances.delegate"
+);
 
 export const balancesSlice = getSlice("balances", requestActiveTokenBalances);
 export const allowancesSwapSlice = getSlice(
@@ -240,15 +262,21 @@ export const allowancesWrapperSlice = getSlice(
   "allowances.wrapper",
   requestActiveTokenAllowancesWrapper
 );
+export const allowancesDelegateSlice = getSlice(
+  "allowances.delegate",
+  requestActiveTokenAllowancesDelegate
+);
 
 export const balancesActions = balancesSlice.actions;
 export const allowancesSwapActions = allowancesSwapSlice.actions;
 export const allowancesWrapperActions = allowancesWrapperSlice.actions;
-
+export const allowancesDelegateActions = allowancesDelegateSlice.actions;
 export const balancesReducer = balancesSlice.reducer;
 export const allowancesSwapReducer = allowancesSwapSlice.reducer;
 export const allowancesWrapperReducer = allowancesWrapperSlice.reducer;
+export const allowancesDelegateReducer = allowancesDelegateSlice.reducer;
 export const allowancesReducer = combineReducers({
   swap: allowancesSwapReducer,
   wrapper: allowancesWrapperReducer,
+  delegate: allowancesDelegateReducer,
 });

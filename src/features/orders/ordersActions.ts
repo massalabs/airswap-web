@@ -18,10 +18,11 @@ import {
 import nativeCurrency from "../../constants/nativeCurrency";
 import { transformUnsignedOrderERC20ToOrderERC20 } from "../../entities/OrderERC20/OrderERC20Transformers";
 import {
-  SubmittedApprovalTransaction,
   SubmittedDepositTransaction,
   SubmittedOrder,
   SubmittedOrderUnderConsideration,
+  SubmittedSetRuleTransaction,
+  SubmittedUnsetRuleTransaction,
   SubmittedWithdrawTransaction,
 } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import {
@@ -39,6 +40,10 @@ import { getSwapErc20Address } from "../../helpers/swapErc20";
 import toRoundedAtomicString from "../../helpers/toRoundedAtomicString";
 import i18n from "../../i18n/i18n";
 import { TransactionStatusType } from "../../types/transactionTypes";
+import {
+  submitDelegateRuleToStore,
+  unsetDelegateRuleFromStore,
+} from "../delegateRules/delegateRulesActions";
 import {
   declineTransaction,
   revertTransaction,
@@ -113,6 +118,43 @@ export const handleSubmittedCancelOrder = (
 
     return;
   }
+};
+
+export const handleSubmittedSetRuleOrder = (
+  transaction: SubmittedSetRuleTransaction,
+  dispatch: AppDispatch
+): void => {
+  if (status === TransactionStatusType.failed) {
+    notifyError({
+      heading: i18n.t("toast.orderFail"),
+      cta: i18n.t("validatorErrors.unknownError"),
+    });
+
+    return;
+  }
+
+  dispatch(submitDelegateRuleToStore(transaction.rule));
+};
+
+export const handleSubmittedUnsetRuleOrder = (
+  transaction: SubmittedUnsetRuleTransaction,
+  dispatch: AppDispatch
+): void => {
+  if (status === TransactionStatusType.failed) {
+    notifyError({
+      heading: i18n.t("toast.orderFail"),
+      cta: i18n.t("validatorErrors.unknownError"),
+    });
+  }
+
+  dispatch(
+    unsetDelegateRuleFromStore({
+      chainId: transaction.chainId,
+      senderWallet: transaction.senderWallet,
+      senderToken: transaction.senderToken.address,
+      signerToken: transaction.signerToken.address,
+    })
+  );
 };
 
 // replaces WETH to ETH on Wrapper orders
@@ -241,7 +283,7 @@ export const approve =
     amount: string,
     token: TokenInfo,
     library: Web3Provider,
-    contractType: "Wrapper" | "Swap"
+    contractType: "Wrapper" | "Swap" | "Delegate"
   ) =>
   async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setStatus("signing"));
@@ -257,8 +299,16 @@ export const approve =
       );
 
       if (isAppError(tx)) {
-        dispatch(setStatus("failed"));
-        handleOrderError(dispatch, tx);
+        const appError = tx;
+
+        if (appError.type === AppErrorType.rejectedByUser) {
+          dispatch(setStatus("idle"));
+          notifyRejectedByUserError();
+        } else {
+          dispatch(setStatus("failed"));
+          handleOrderError(dispatch, tx);
+        }
+
         return;
       }
 

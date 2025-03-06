@@ -25,6 +25,7 @@ const SwapInputs: FC<{
   isRequestingBaseToken?: boolean;
   isRequestingQuoteAmount?: boolean;
   isRequestingQuoteToken?: boolean;
+  isSelectTokenDisabled?: boolean;
   readOnly?: boolean;
   showMaxButton?: boolean;
   showMaxInfoButton?: boolean;
@@ -42,7 +43,7 @@ const SwapInputs: FC<{
   quoteAmountError?: AppError;
 
   onBaseAmountChange: (newValue: string) => void;
-  onChangeTokenClick: (baseOrQuote: "base" | "quote") => void;
+  onChangeTokenClick?: (baseOrQuote: "base" | "quote") => void;
   onMaxButtonClick: () => void;
   onQuoteAmountChange?: (newValue: string) => void;
   onSwitchTokensButtonClick?: () => void;
@@ -54,6 +55,7 @@ const SwapInputs: FC<{
   isRequestingBaseToken = false,
   isRequestingQuoteAmount = false,
   isRequestingQuoteToken = false,
+  isSelectTokenDisabled = false,
   readOnly = false,
   showMaxButton = false,
   showMaxInfoButton = false,
@@ -128,6 +130,7 @@ const SwapInputs: FC<{
         isRequestingToken={
           !isSell ? isRequestingQuoteToken : isRequestingBaseToken
         }
+        isSelectTokenDisabled={isSelectTokenDisabled || readOnly}
         showMaxButton={showMaxButton}
         showMaxInfoButton={showMaxInfoButton}
         readOnly={readOnly}
@@ -141,14 +144,14 @@ const SwapInputs: FC<{
         subText={baseAmountSubText}
         onAmountChange={(e) => handleTokenAmountChange(e, onBaseAmountChange)}
         onChangeTokenClicked={() => {
-          onChangeTokenClick(isSell ? "base" : "quote");
+          onChangeTokenClick?.(isSell ? "base" : "quote");
         }}
         onMaxClicked={handleMaxButtonClick}
         onInfoLabelMouseEnter={handleInfoLabelMouseEnter}
         onInfoLabelMouseLeave={handleInfoLabelMouseLeave}
       />
       <SwitchTokensButton
-        disabled={tradeNotAllowed || readOnly}
+        disabled={tradeNotAllowed || readOnly || isSelectTokenDisabled}
         onClick={onSwitchTokensButtonClick}
       >
         {getSwitchTokensButtonIcon(tradeNotAllowed, isQuote)}
@@ -162,6 +165,7 @@ const SwapInputs: FC<{
         isRequestingToken={
           isSell ? isRequestingQuoteToken : isRequestingBaseToken
         }
+        isSelectTokenDisabled={isSelectTokenDisabled}
         showTokenContractLink={showTokenContractLink}
         amount={isSell ? quoteAmount : baseAmount}
         includeAmountInput={
@@ -176,7 +180,7 @@ const SwapInputs: FC<{
           handleTokenAmountChange(e, onQuoteAmountChange || onBaseAmountChange)
         }
         onChangeTokenClicked={() => {
-          onChangeTokenClick(!isSell ? "base" : "quote");
+          onChangeTokenClick?.(!isSell ? "base" : "quote");
         }}
       />
       {!showMaxButton &&

@@ -2,14 +2,15 @@ import styled from "styled-components/macro";
 
 import { ScrollBarStyle } from "../../../../../style/mixins";
 import Tooltip from "../../../../ExpiryIndicator/subcomponents/Tooltip";
+import LoadingSpinner from "../../../../LoadingSpinner/LoadingSpinner";
 import MyOrdersListSortButtons from "../MyOrdersListSortButtons/MyOrdersListSortButtons";
 
-export const Container = styled.div<{ hasOverflow: boolean }>`
+export const Container = styled.div<{ hasOverflow?: boolean }>`
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
   position: relative;
-  margin-block-start: 2rem;
-  padding-block-end: ${({ hasOverflow }) => (hasOverflow ? "2rem" : "0")};
 
   -webkit-mask-image: ${({ hasOverflow }) =>
     hasOverflow
@@ -63,4 +64,18 @@ export const OrderIndicatorTooltip = styled(StyledTooltip)`
   justify-content: flex-end;
   margin-left: 0.5rem;
   width: 0;
+`;
+
+export const LoadingSpinnerContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+`;
+
+export const StyledLoadingSpinner = styled(LoadingSpinner)`
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
 `;

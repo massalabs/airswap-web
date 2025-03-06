@@ -82,6 +82,8 @@ const ApproveReview: FC<ApproveReviewProps> = ({
   const handleEditOrBackButtonClick = () => {
     if (!isLoading && hasEditButton && onEditButtonClick) {
       onEditButtonClick();
+
+      return;
     }
 
     if (onRestartButtonClick) {
@@ -103,7 +105,7 @@ const ApproveReview: FC<ApproveReviewProps> = ({
         tokenUri={justifiedToken?.logoURI}
       />
       <ReviewList>
-        {roundedFeeAmount && (
+        {!!amountPlusFee && (
           <>
             <ReviewListItem>
               <ReviewListItemLabel>

@@ -1,6 +1,7 @@
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
+import { useLocalStorage } from "react-use";
 
 import { compressFullOrderERC20, ADDRESS_ZERO } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
@@ -18,13 +19,13 @@ import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
 import { fetchIndexerUrls } from "../../../features/indexer/indexerActions";
 import { selectIndexerReducer } from "../../../features/indexer/indexerSlice";
-import { createOtcOrder } from "../../../features/makeOtc/makeOtcActions";
+import { createOrder as createOrderAction } from "../../../features/makeOrder/makeOrderActions";
 import {
   clearLastUserOrder,
   reset,
-  selectMakeOtcReducer,
+  selectMakeOrderReducer,
   setError,
-} from "../../../features/makeOtc/makeOtcSlice";
+} from "../../../features/makeOrder/makeOrderSlice";
 import {
   selectActiveTokens,
   selectAllTokenInfo,
@@ -42,6 +43,7 @@ import toMaxAllowedDecimalsNumberString from "../../../helpers/toMaxAllowedDecim
 import toRoundedNumberString from "../../../helpers/toRoundedNumberString";
 import useAllowance from "../../../hooks/useAllowance";
 import useAllowancesOrBalancesFailed from "../../../hooks/useAllowancesOrBalancesFailed";
+import { useAmountPlusFee } from "../../../hooks/useAmountPlusFee";
 import useApprovalPending from "../../../hooks/useApprovalPending";
 import { useBalanceLoading } from "../../../hooks/useBalanceLoading";
 import useDepositPending from "../../../hooks/useDepositPending";
@@ -49,10 +51,11 @@ import useInsufficientBalance from "../../../hooks/useInsufficientBalance";
 import useMaxAmount from "../../../hooks/useMaxAmount";
 import useNativeWrappedToken from "../../../hooks/useNativeWrappedToken";
 import useNetworkSupported from "../../../hooks/useNetworkSupported";
+import useSetRuleTransaction from "../../../hooks/useSetRuleTransaction";
 import useShouldDepositNativeToken from "../../../hooks/useShouldDepositNativeTokenAmount";
 import useTokenInfo from "../../../hooks/useTokenInfo";
 import useValidAddress from "../../../hooks/useValidAddress";
-import { AppRoutes } from "../../../routes";
+import { routes } from "../../../routes";
 import { OrderScopeType, OrderType } from "../../../types/orderTypes";
 import { TokenSelectModalTypes } from "../../../types/tokenSelectModalTypes";
 import ApproveReview from "../../@reviewScreens/ApproveReview/ApproveReview";
@@ -64,6 +67,7 @@ import { SelectOption } from "../../Dropdown/Dropdown";
 import OrderTypesModal from "../../InformationModals/subcomponents/OrderTypesModal/OrderTypesModal";
 import ModalOverlay from "../../ModalOverlay/ModalOverlay";
 import ProtocolFeeOverlay from "../../ProtocolFeeOverlay/ProtocolFeeOverlay";
+import SetRuleSubmittedScreen from "../../SetRuleSubmittedScreen/SetRuleSubmittedScreen";
 import { notifyOrderCreated } from "../../Toasts/ToastController";
 import TokenList from "../../TokenList/TokenList";
 import TransactionOverlay from "../../TransactionOverlay/TransactionOverlay";
@@ -75,6 +79,7 @@ import {
   StyledAddressInput,
   StyledExpirySelector,
   StyledInfoSection,
+  StyledNotice,
   StyledOrderTypeSelector,
   StyledSwapInputs,
   StyledTooltip,
@@ -83,14 +88,17 @@ import {
 import { getNewTokenPair } from "./helpers";
 import useOrderTypeSelectOptions from "./hooks/useOrderTypeSelectOptions";
 import { ButtonActions } from "./subcomponents/ActionButtons/ActionButtons";
-import MakeWidgetHeader from "./subcomponents/MakeWidgetHeader/MakeWidgetHeader";
 
 export enum MakeWidgetState {
   list = "list",
   review = "review",
 }
 
-const MakeWidget: FC = () => {
+interface MakeWidgetProps {
+  isLimitOrder?: boolean;
+}
+
+const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const dispatch = useAppDispatch();
@@ -104,11 +112,16 @@ const MakeWidget: FC = () => {
   const {
     status: makeOtcStatus,
     error,
-    lastUserOrder,
-  } = useAppSelector(selectMakeOtcReducer);
+    lastDelegateRule,
+    lastOtcOrder: lastUserOrder,
+  } = useAppSelector(selectMakeOrderReducer);
   const ordersStatus = useAppSelector(selectOrdersStatus);
   const { provider: library } = useWeb3React<Web3Provider>();
   const { isActive, chainId, account } = useAppSelector((state) => state.web3);
+  const [showLimitNotice, setShowLimitNotice] = useLocalStorage(
+    "showLimitNotice",
+    true
+  );
 
   // Input options
   const orderTypeSelectOptions = useOrderTypeSelectOptions();
@@ -129,20 +142,19 @@ const MakeWidget: FC = () => {
   const takerTokenInfo = useTokenInfo(
     userTokens.tokenTo || defaultTokenToAddress || null
   );
-  const makerAmountPlusFee = useMemo(() => {
-    return new BigNumber(makerAmount)
-      .multipliedBy(1 + protocolFee / 10000)
-      .toString();
-  }, [makerAmount, protocolFee]);
+  const makerAmountPlusFee = useAmountPlusFee(
+    makerAmount,
+    makerTokenInfo?.decimals
+  );
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     makerTokenInfo,
-    makerAmountPlusFee,
-    true
+    isLimitOrder ? makerAmount : makerAmountPlusFee,
+    { spenderAddressType: isLimitOrder ? "Delegate" : "Swap" }
   );
   const hasInsufficientBalance = useInsufficientBalance(
     makerTokenInfo,
-    makerAmount,
+    isLimitOrder ? makerAmount : makerAmountPlusFee,
     true
   );
   const isBalanceLoading = useBalanceLoading();
@@ -156,8 +168,10 @@ const MakeWidget: FC = () => {
     !!maxAmount &&
     makerTokenInfo?.address === ADDRESS_ZERO &&
     !!nativeCurrencySafeTransactionFee[makerTokenInfo.chainId];
+  const [activeSetRuleHash, setActiveSetRuleHash] = useState<string>();
   const approvalTransaction = useApprovalPending(makerTokenInfo?.address, true);
   const depositTransaction = useDepositPending(true);
+  const setRuleTransaction = useSetRuleTransaction(activeSetRuleHash);
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const shouldDepositNativeTokenAmount = useShouldDepositNativeToken(
     makerTokenInfo?.address,
@@ -175,6 +189,14 @@ const MakeWidget: FC = () => {
   const [showFeeInfo, toggleShowFeeInfo] = useToggle(false);
   const [showTokenSelectModal, setShowTokenSelectModal] =
     useState<TokenSelectModalTypes>(null);
+
+  // Review states
+  const showWrapReview =
+    state === MakeWidgetState.review && shouldDepositNativeToken;
+  const showApproveReview =
+    (state === MakeWidgetState.review && !hasSufficientAllowance) ||
+    !!approvalTransaction;
+  const showOrderReview = state === MakeWidgetState.review;
 
   // useEffects
   useEffect(() => {
@@ -205,22 +227,33 @@ const MakeWidget: FC = () => {
     if (lastUserOrder) {
       const compressedOrder = compressFullOrderERC20(lastUserOrder);
       dispatch(clearLastUserOrder());
-      history.push({ pathname: `/${AppRoutes.order}/${compressedOrder}` });
+      history.push(routes.otcOrder(compressedOrder));
 
-      notifyOrderCreated(lastUserOrder);
+      notifyOrderCreated();
     }
   }, [lastUserOrder, history, dispatch]);
+
+  useEffect(() => {
+    if (lastDelegateRule) {
+      dispatch(clearLastUserOrder());
+      history.push(
+        routes.limitOrder(
+          lastDelegateRule.senderWallet,
+          lastDelegateRule.senderToken,
+          lastDelegateRule.signerToken,
+          lastDelegateRule.chainId
+        )
+      );
+
+      notifyOrderCreated();
+    }
+  }, [lastDelegateRule, history, dispatch]);
 
   useEffect(() => {
     if (!isActive) {
       setShowTokenSelectModal(null);
     }
   }, [isActive]);
-
-  // Event handlers
-  const handleOrderTypeCheckboxChange = (isChecked: boolean) => {
-    setOrderType(isChecked ? OrderType.publicListed : OrderType.publicUnlisted);
-  };
 
   const handleSetToken = (type: TokenSelectModalTypes, value: string) => {
     const { tokenFrom, tokenTo } = getNewTokenPair(
@@ -278,7 +311,7 @@ const MakeWidget: FC = () => {
     setState(MakeWidgetState.review);
   };
 
-  const createOrder = () => {
+  const createOrder = async () => {
     const expiryDate = Date.now() + expiry;
     const makerTokenAddress = makerTokenInfo?.address || "";
     const takerTokenAddress = takerTokenInfo?.address || "";
@@ -292,8 +325,9 @@ const MakeWidget: FC = () => {
         ? getWethAddress(chainId!)
         : takerTokenAddress;
 
-    dispatch(
-      createOtcOrder({
+    const transaction = await dispatch(
+      createOrderAction({
+        isLimitOrder,
         nonce: expiryDate.toString(),
         expiry: Math.floor(expiryDate / 1000).toString(),
         signerWallet: account!,
@@ -312,6 +346,10 @@ const MakeWidget: FC = () => {
         shouldSendToIndexers: orderType === OrderType.publicListed,
       })
     );
+
+    if (transaction !== undefined) {
+      setActiveSetRuleHash(transaction.hash);
+    }
   };
 
   const approveToken = () => {
@@ -320,7 +358,14 @@ const MakeWidget: FC = () => {
         ? wrappedNativeToken
         : makerTokenInfo;
 
-    dispatch(approve(makerAmountPlusFee, justifiedToken!, library!, "Swap"));
+    dispatch(
+      approve(
+        makerAmountPlusFee,
+        justifiedToken!,
+        library!,
+        isLimitOrder ? "Delegate" : "Swap"
+      )
+    );
   };
 
   const depositNativeToken = async () => {
@@ -379,8 +424,21 @@ const MakeWidget: FC = () => {
     }
   };
 
+  const handleShowLimitOrderButtonClick = () => {
+    if (setRuleTransaction) {
+      history.push(
+        routes.limitOrder(
+          setRuleTransaction.rule.senderWallet,
+          setRuleTransaction.rule.senderToken,
+          setRuleTransaction.rule.signerToken,
+          setRuleTransaction.rule.chainId
+        )
+      );
+    }
+  };
+
   const renderScreens = () => {
-    if (state === MakeWidgetState.review && shouldDepositNativeToken) {
+    if (showWrapReview) {
       return (
         <>
           <WrapReview
@@ -398,17 +456,14 @@ const MakeWidget: FC = () => {
       );
     }
 
-    if (
-      (state === MakeWidgetState.review && !hasSufficientAllowance) ||
-      !!approvalTransaction
-    ) {
+    if (showApproveReview) {
       return (
         <>
           <ApproveReview
             hasEditButton
             isLoading={!!approvalTransaction}
             amount={makerAmount}
-            amountPlusFee={makerAmountPlusFee}
+            amountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
             readableAllowance={readableAllowance}
             token={makerTokenInfo}
             wrappedNativeToken={wrappedNativeToken}
@@ -420,7 +475,7 @@ const MakeWidget: FC = () => {
       );
     }
 
-    if (state === MakeWidgetState.review) {
+    if (showOrderReview) {
       return (
         <>
           <MakeOrderReview
@@ -431,7 +486,7 @@ const MakeWidget: FC = () => {
             senderAmount={takerAmount}
             senderToken={takerTokenInfo}
             signerAmount={makerAmount}
-            signerAmountPlusFee={makerAmountPlusFee}
+            signerAmountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
             signerToken={makerTokenInfo}
             wrappedNativeToken={wrappedNativeToken}
             onEditButtonClick={handleEditButtonClick}
@@ -443,8 +498,6 @@ const MakeWidget: FC = () => {
 
     return (
       <>
-        <MakeWidgetHeader />
-
         <StyledSwapInputs
           canSetQuoteAmount
           disabled={!isActive || isAllowancesOrBalancesFailed}
@@ -464,14 +517,17 @@ const MakeWidget: FC = () => {
           onSwitchTokensButtonClick={handleSwitchTokensButtonClick}
         />
         <OrderTypeSelectorAndExpirySelectorWrapper>
-          <StyledOrderTypeSelector
-            isDisabled={!isActive}
-            options={orderTypeSelectOptions}
-            selectedOrderTypeOption={orderScopeTypeOption}
-            onChange={setOrderScopeTypeOption}
-          />
+          {!isLimitOrder && (
+            <StyledOrderTypeSelector
+              isDisabled={!isActive}
+              options={orderTypeSelectOptions}
+              selectedOrderTypeOption={orderScopeTypeOption}
+              onChange={setOrderScopeTypeOption}
+            />
+          )}
 
           <StyledExpirySelector
+            fullWidth={isLimitOrder}
             isDisabled={!isActive}
             onChange={setExpiry}
             hideExpirySelector={!!showTokenSelectModal}
@@ -521,12 +577,23 @@ const MakeWidget: FC = () => {
           onBackButtonClick={handleBackButtonClick}
           onActionButtonClick={handleActionButtonClick}
         />
+
+        {showLimitNotice && isLimitOrder && (
+          <StyledNotice
+            text="Limit orders are OTC orders are partially fillable, meaning they can be filled by multiple users. There is no guarantee your order will be taken at a certain price"
+            onCloseButtonClick={() => setShowLimitNotice(false)}
+          />
+        )}
       </>
     );
   };
 
   return (
-    <Container>
+    <Container
+      hidePageNavigation={
+        showWrapReview || showApproveReview || showOrderReview
+      }
+    >
       {renderScreens()}
 
       <TransactionOverlay
@@ -553,6 +620,17 @@ const MakeWidget: FC = () => {
           <DepositSubmittedScreen
             chainId={chainId}
             transaction={depositTransaction}
+          />
+        )}
+      </TransactionOverlay>
+
+      <TransactionOverlay isHidden={!setRuleTransaction}>
+        {setRuleTransaction && (
+          <SetRuleSubmittedScreen
+            chainId={chainId}
+            transaction={setRuleTransaction}
+            onMakeNewLimitOrderButtonClick={restart}
+            onShowLimitOrderButtonClick={handleShowLimitOrderButtonClick}
           />
         )}
       </TransactionOverlay>

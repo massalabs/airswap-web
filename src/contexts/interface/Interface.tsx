@@ -59,13 +59,14 @@ const InterfaceProvider: FC = ({ children }) => {
   const [pageHeight, setPageHeight] = useState(windowHeight);
   const [overlayHeight, setOverlayHeight] = useState(0);
 
-  useDebounce(
-    () => {
-      setPageHeight(windowHeight);
-    },
-    100,
-    [windowHeight]
-  );
+  const calculateAndSetPageHeight = () => {
+    const widgetFrameWrapper = document.getElementById("widget-frame-wrapper");
+    const widgetFrameWrapperHeight = widgetFrameWrapper?.clientHeight;
+
+    setPageHeight(Math.max(windowHeight || 0, widgetFrameWrapperHeight || 0));
+  };
+
+  useDebounce(calculateAndSetPageHeight, 100, [windowHeight]);
 
   useEffect(() => {
     if (!showModalOverlay) {
@@ -85,7 +86,8 @@ const InterfaceProvider: FC = ({ children }) => {
     setShowTransactionOverlay(false);
     setTransactionsTabIsOpen(false);
     setShowModalOverlay(false);
-  }, [appRouteParams.route]);
+    calculateAndSetPageHeight();
+  }, [appRouteParams.route, appRouteParams.isLimitOrder]);
 
   return (
     <InterfaceContext.Provider

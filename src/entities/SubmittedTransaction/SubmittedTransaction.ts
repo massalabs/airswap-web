@@ -1,9 +1,11 @@
 import { FullSwapERC20, OrderERC20, TokenInfo } from "@airswap/utils";
+import { UnsignedOrderERC20 } from "@airswap/utils";
 
 import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
+import { DelegateRule } from "../DelegateRule/DelegateRule";
 
 export interface DepositOrWithdrawOrder {
   signerToken: string;
@@ -51,6 +53,7 @@ export interface SubmittedApprovalTransaction
 }
 
 export interface SubmittedCancellation extends SubmittedTransactionWithHash {
+  type: TransactionTypes.cancel;
   hash: string;
   nonce: string;
 }
@@ -69,6 +72,35 @@ export interface SubmittedWithdrawTransaction
   type: TransactionTypes.withdraw;
   hash: string;
   order: DepositOrWithdrawOrder;
+  senderToken: TokenInfo;
+  signerToken: TokenInfo;
+}
+
+export interface SubmittedSetRuleTransaction
+  extends SubmittedTransactionWithHash {
+  type: TransactionTypes.setDelegateRule;
+  rule: DelegateRule;
+  signerToken: TokenInfo;
+  senderToken: TokenInfo;
+}
+
+export interface SubmittedUnsetRuleTransaction
+  extends SubmittedTransactionWithHash {
+  type: TransactionTypes.unsetRule;
+  id: string;
+  // True when a delegate rule is set after the timestamp of the transaction
+  isOverridden: boolean;
+  chainId: number;
+  senderWallet: string;
+  senderToken: TokenInfo;
+  signerToken: TokenInfo;
+}
+
+export interface SubmittedDelegatedSwapTransaction
+  extends SubmittedTransactionWithHash {
+  type: TransactionTypes.delegatedSwap;
+  delegateRule: DelegateRule;
+  order: UnsignedOrderERC20;
   senderToken: TokenInfo;
   signerToken: TokenInfo;
 }

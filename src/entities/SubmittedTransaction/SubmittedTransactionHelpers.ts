@@ -1,4 +1,9 @@
-import { ADDRESS_ZERO, OrderERC20, TokenInfo } from "@airswap/utils";
+import {
+  ADDRESS_ZERO,
+  OrderERC20,
+  TokenInfo,
+  UnsignedOrderERC20,
+} from "@airswap/utils";
 import { FullSwapERC20 } from "@airswap/utils/build/src/swap-erc20";
 import { formatUnits } from "@ethersproject/units";
 
@@ -16,6 +21,9 @@ import {
   SubmittedOrder,
   SubmittedWithdrawTransaction,
   SubmittedOrderUnderConsideration,
+  SubmittedSetRuleTransaction,
+  SubmittedDelegatedSwapTransaction,
+  SubmittedUnsetRuleTransaction,
 } from "./SubmittedTransaction";
 
 export const isApprovalTransaction = (
@@ -59,6 +67,21 @@ export const isLastLookOrderTransaction = (
     !!transaction.isLastLook
   );
 };
+
+export const isSetRuleTransaction = (
+  transaction: SubmittedTransaction
+): transaction is SubmittedSetRuleTransaction =>
+  transaction.type === TransactionTypes.setDelegateRule;
+
+export const isUnsetRuleTransaction = (
+  transaction: SubmittedTransaction
+): transaction is SubmittedUnsetRuleTransaction =>
+  transaction.type === TransactionTypes.unsetRule;
+
+export const isDelegatedSwapTransaction = (
+  transaction: SubmittedTransaction
+): transaction is SubmittedDelegatedSwapTransaction =>
+  transaction.type === TransactionTypes.delegatedSwap;
 
 export const sortSubmittedTransactionsByExpiry = (
   a: SubmittedTransaction,
@@ -138,7 +161,7 @@ const isSenderWalletAccount = (
 };
 
 export const getAdjustedAmount = (
-  order: OrderERC20,
+  order: OrderERC20 | UnsignedOrderERC20,
   protocolFee: number,
   account: string
 ) => {
@@ -153,13 +176,14 @@ export const getAdjustedAmount = (
 };
 
 export const getOrderTransactionLabel = (
-  transaction: SubmittedOrder,
+  transaction: SubmittedOrder | SubmittedDelegatedSwapTransaction,
   signerToken: TokenInfo,
   senderToken: TokenInfo,
   account: string,
   protocolFee: number
 ) => {
-  const { order, swap } = transaction;
+  const { order } = transaction;
+  const swap = isSubmittedOrder(transaction) ? transaction.swap : undefined;
 
   // TODO: Fix signerToken and senderToken sometimes reversed?
   const adjustedSignerToken = signerToken;
@@ -196,4 +220,40 @@ export const getOrderTransactionLabel = (
     senderAmount: signerAmount,
     senderToken: adjustedSignerToken.symbol,
   });
+};
+
+export const getSetRuleTransactionLabel = (
+  transaction: SubmittedSetRuleTransaction
+) => {
+  const { signerToken, senderToken } = transaction;
+  const signerAmount = parseFloat(
+    Number(
+      formatUnits(transaction.rule.signerAmount, signerToken.decimals)
+    ).toFixed(5)
+  );
+
+  const senderAmount = parseFloat(
+    Number(
+      formatUnits(transaction.rule.senderAmount, senderToken.decimals)
+    ).toFixed(5)
+  );
+
+  const transactionLabel = i18n.t("wallet.transaction", {
+    signerAmount,
+    signerToken: signerToken.symbol,
+    senderAmount,
+    senderToken: senderToken.symbol,
+  });
+
+  return `${i18n.t("wallet.setRule")}: ${transactionLabel}`;
+};
+
+export const getUnsetRuleTransactionLabel = (
+  transaction: SubmittedUnsetRuleTransaction
+) => {
+  const { senderToken, signerToken } = transaction;
+
+  return `${i18n.t("wallet.unsetRule")}: ${senderToken.symbol} → ${
+    signerToken.symbol
+  }`;
 };

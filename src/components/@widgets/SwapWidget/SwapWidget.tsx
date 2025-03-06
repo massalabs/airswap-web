@@ -81,7 +81,6 @@ import { SwapType } from "../../../types/swapType";
 import { TokenSelectModalTypes } from "../../../types/tokenSelectModalTypes";
 import { TransactionStatusType } from "../../../types/transactionTypes";
 import ApprovalSubmittedScreen from "../../ApprovalSubmittedScreen/ApprovalSubmittedScreen";
-import AvailableOrdersWidget from "../../AvailableOrdersWidget/AvailableOrdersWidget";
 import { ErrorList } from "../../ErrorList/ErrorList";
 import GasFreeSwapsModal from "../../InformationModals/subcomponents/GasFreeSwapsModal/GasFreeSwapsModal";
 import ProtocolFeeModal from "../../InformationModals/subcomponents/ProtocolFeeModal/ProtocolFeeModal";
@@ -93,7 +92,6 @@ import WalletSignScreen from "../../WalletSignScreen/WalletSignScreen";
 import StyledSwapWidget, {
   InfoContainer,
   StyledDebugMenu,
-  StyledHeader,
   StyledActionButtons,
   StyledSwapInputs,
 } from "./SwapWidget.styles";
@@ -180,7 +178,9 @@ const SwapWidget: FC = () => {
   const swapType = useSwapType(baseTokenInfo, quoteTokenInfo);
   const nativeTokenInfo = useNativeToken(chainId);
   const wrappedNativeTokenInfo = useNativeWrappedToken(chainId);
-  const { hasSufficientAllowance } = useAllowance(baseTokenInfo, baseAmount);
+  const { hasSufficientAllowance } = useAllowance(baseTokenInfo, baseAmount, {
+    wrapNativeToken: false,
+  });
   const isBalanceLoading = useBalanceLoading();
 
   const activeOrderTransaction = useOrderTransaction(
@@ -520,8 +520,6 @@ const SwapWidget: FC = () => {
   return (
     <>
       <StyledSwapWidget>
-        <StyledHeader />
-
         {isDebugMode && <StyledDebugMenu />}
 
         <StyledSwapInputs
@@ -674,9 +672,6 @@ const SwapWidget: FC = () => {
             transaction={activeOrderTransaction}
             onMakeNewOrderButtonClick={() =>
               handleActionButtonClick(ButtonActions.restart)
-            }
-            onTrackTransactionButtonClick={() =>
-              handleActionButtonClick(ButtonActions.trackTransaction)
             }
           />
         </TransactionOverlay>
