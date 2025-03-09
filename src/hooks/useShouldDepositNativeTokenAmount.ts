@@ -16,7 +16,8 @@ import useNativeWrappedToken from "./useNativeWrappedToken";
 
 const useShouldDepositNativeTokenAmount = (
   token?: string,
-  tokenAmount?: string
+  tokenAmount?: string,
+  includeFee = true
 ): string | undefined => {
   const activeTokens = useAppSelector(selectActiveTokens);
   const balances = useAppSelector(selectBalances);
@@ -86,6 +87,11 @@ const useShouldDepositNativeTokenAmount = (
 
     // Else it means WETH is not enough, but with wrapping extra ETH it will.
     const amountToDeposit = tokenAmountBigNumber.minus(wrappedTokenBigNumber);
+
+    if (!includeFee) {
+      return amountToDeposit.toFormat();
+    }
+
     const amountToDepositWithFee = amountToDeposit.plus(
       tokenAmountBigNumber.multipliedBy(protocolFee / 10000)
     );
