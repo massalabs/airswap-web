@@ -86,6 +86,10 @@ const TokenList = ({
   const [editMode, setEditMode] = useState(false);
   const [tokenQuery, setTokenQuery] = useState<string>("");
 
+  const [hasTokenListOverflow, setHasTokenListOverflow] = useState(false);
+  const [hasTokenListScrolledToBottom, setHasTokenListScrolledToBottom] =
+    useState(false);
+
   const scrapedToken = useScrapeToken(tokenQuery, allTokens);
 
   // sort tokens based on symbol
@@ -129,8 +133,9 @@ const TokenList = ({
       scrollContainerRef.current &&
       buttonRef.current
     ) {
-      const { offsetTop, scrollHeight } = scrollContainerRef.current;
-      const { clientHeight: buttonHeight } = buttonRef.current;
+      const { clientHeight, scrollHeight } = scrollContainerRef.current;
+
+      setHasTokenListOverflow(scrollHeight > clientHeight);
     }
   }, [
     sizingContainerRef,
@@ -142,6 +147,13 @@ const TokenList = ({
     width,
     height,
   ]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    // check if the scroll container is at the bottom
+    const { scrollHeight, clientHeight, scrollTop } = e.currentTarget;
+
+    setHasTokenListScrolledToBottom(scrollTop + clientHeight >= scrollHeight);
+  };
 
   const handleAddToken = async (address: string) => {
     if (library && account) {
@@ -180,7 +192,12 @@ const TokenList = ({
             <LegendItem>{t("balances.balance")}</LegendItem>
           </Legend>
 
-          <StyledScrollContainer ref={scrollContainerRef}>
+          <StyledScrollContainer
+            ref={scrollContainerRef}
+            $overflow={hasTokenListOverflow}
+            $scrolledToBottom={hasTokenListScrolledToBottom}
+            onScroll={handleScroll}
+          >
             <TokenContainer>
               {[nativeCurrency[chainId || 1], ...sortedFilteredTokens].map(
                 (token) => (
