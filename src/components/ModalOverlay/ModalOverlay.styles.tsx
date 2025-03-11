@@ -34,10 +34,17 @@ export const ScrollContainer = styled.div<ScrollContainerProps>`
   overflow-x: hidden;
   overflow-y: ${(props) => (props.$overflow ? "scroll" : "hidden")};
 
-  -webkit-mask-image: ${(props) =>
-    props.$overflow
-      ? "-webkit-gradient(linear, 0 75%, 0 100%, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)))"
-      : "none"};
+  ${(props) =>
+    props.$overflow &&
+    css`
+      -webkit-mask-image: -webkit-gradient(
+        linear,
+        0 75%,
+        0 100%,
+        from(rgba(0, 0, 0, 1)),
+        to(rgba(0, 0, 0, 0))
+      );
+    `}
 
   ${ScrollBarStyle};
 `;

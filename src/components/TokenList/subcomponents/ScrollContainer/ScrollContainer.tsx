@@ -22,6 +22,12 @@ export const ScrollContainer: FC<PropsWithChildren<ScrollContainerProps>> = ({
   const [hasTokenListScrolledToBottom, setHasTokenListScrolledToBottom] =
     useState(false);
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollHeight, clientHeight, scrollTop } = e.currentTarget;
+
+    setHasTokenListScrolledToBottom(scrollTop + clientHeight >= scrollHeight);
+  };
+
   useEffect(() => {
     if (ref.current) {
       const { clientHeight, scrollHeight } = ref.current;
@@ -35,7 +41,8 @@ export const ScrollContainer: FC<PropsWithChildren<ScrollContainerProps>> = ({
       className={className}
       ref={ref}
       $overflow={hasTokenListOverflow}
-      $scrolledToBottom={hasTokenListScrolledToBottom}
+      hasScrolledToBottom={hasTokenListScrolledToBottom}
+      onScroll={handleScroll}
     >
       {children}
     </Container>

@@ -5,7 +5,7 @@ import { ScrollContainer } from "../../../ModalOverlay/ModalOverlay.styles";
 
 type ContainerProps = {
   $overflow: boolean;
-  $scrolledToBottom: boolean;
+  hasScrolledToBottom: boolean;
 };
 
 export const Container = styled(ScrollContainer)<ContainerProps>`
@@ -18,7 +18,7 @@ export const Container = styled(ScrollContainer)<ContainerProps>`
   padding-block-start: 0.125rem;
 
   ${(props) =>
-    props.$scrolledToBottom &&
+    props.hasScrolledToBottom &&
     css`
       -webkit-mask-image: none;
     `}
