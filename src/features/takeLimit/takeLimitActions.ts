@@ -55,6 +55,19 @@ export const getDelegateOrder =
     }
   };
 
+// TODO: Replace with @airswap/utils calculateDelegateFillSignerAmount helper when it's released
+const calculateDelegateFillSignerAmount = (
+  fillSenderAmount: string,
+  ruleSenderAmount: string,
+  ruleSignerAmount: string
+): string => {
+  return new BigNumber(ruleSignerAmount)
+    .multipliedBy(fillSenderAmount)
+    .dividedBy(ruleSenderAmount)
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toString();
+};
+
 type TakeLimitOrderParams = {
   delegateRule: DelegateRule;
   protocolFee: number;
@@ -76,18 +89,16 @@ export const takeLimitOrder =
         params.senderTokenInfo.decimals
       );
 
-      const fillSignerAmount = new BigNumber(delegateRule.signerAmount)
-        .multipliedBy(params.senderAmount)
-        .dividedBy(delegateRule.senderAmount);
+      if (isAppError(senderAmount)) {
+        dispatch(setStatus("failed"));
+        dispatch(setError(senderAmount));
+        return;
+      }
 
-      const roundedSignerAmount = fillSignerAmount
-        // Delegate rule amount is always rounded down
-        .decimalPlaces(params.signerTokenInfo.decimals, BigNumber.ROUND_DOWN)
-        .toString();
-
-      const signerAmount = toAtomicString(
-        roundedSignerAmount,
-        params.signerTokenInfo.decimals
+      const signerAmount = calculateDelegateFillSignerAmount(
+        senderAmount,
+        delegateRule.senderAmount,
+        delegateRule.signerAmount
       );
 
       const swapErc20ContractAddress = await getSwapErc20ContractAddress(
