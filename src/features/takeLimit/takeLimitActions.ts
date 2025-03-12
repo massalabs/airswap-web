@@ -19,6 +19,7 @@ import transformUnknownErrorToAppError from "../../errors/transformUnknownErrorT
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import toAtomicString from "../../helpers/toAtomicString";
 import { submitTransaction } from "../transactions/transactionsActions";
+import { calculateDelegateFillSignerAmount } from "./takeLimitHelpers";
 import { setDelegateRule, setError, setStatus } from "./takeLimitSlice";
 
 type GetDelegateOrderParams = {
@@ -54,19 +55,6 @@ export const getDelegateOrder =
       dispatch(setStatus("failed"));
     }
   };
-
-// TODO: Replace with @airswap/utils calculateDelegateFillSignerAmount helper when it's released
-const calculateDelegateFillSignerAmount = (
-  fillSenderAmount: string,
-  ruleSenderAmount: string,
-  ruleSignerAmount: string
-): string => {
-  return new BigNumber(ruleSignerAmount)
-    .multipliedBy(fillSenderAmount)
-    .dividedBy(ruleSenderAmount)
-    .integerValue(BigNumber.ROUND_DOWN)
-    .toString();
-};
 
 type TakeLimitOrderParams = {
   delegateRule: DelegateRule;
