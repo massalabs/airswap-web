@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import { TokenInfo } from "@airswap/utils";
-
+import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   InactiveTitle,
   InactiveTitleContainer,
@@ -11,7 +10,7 @@ import {
 import TokenImportButton from "../TokenImportButton/TokenImportButton";
 
 type InactiveTokensListProps = {
-  inactiveTokens: TokenInfo[];
+  inactiveTokens: AppTokenInfo[];
   supportedTokenAddresses: string[];
   onTokenClick: (tokenAddress: string) => void;
 };

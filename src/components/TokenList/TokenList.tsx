@@ -106,7 +106,7 @@ const TokenList = ({
     );
   }, [allTokens, activeTokens, tokenQuery]);
 
-  const inactiveTokens: TokenInfo[] = useMemo(() => {
+  const inactiveTokens = useMemo(() => {
     // if a scraped token is found, only show that one
     if (scrapedToken) {
       return [scrapedToken];

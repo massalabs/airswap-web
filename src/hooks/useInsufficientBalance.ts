@@ -1,15 +1,14 @@
 import { useMemo } from "react";
 
-import { TokenInfo } from "@airswap/utils";
-
 import { BigNumber } from "bignumber.js";
 
 import { useAppSelector } from "../app/hooks";
+import { AppTokenInfo } from "../entities/AppTokenInfo/AppTokenInfo";
 import { selectBalances } from "../features/balances/balancesSlice";
 import useMaxAmount from "./useMaxAmount";
 
 const useInsufficientBalance = (
-  tokenInfo: TokenInfo | null,
+  tokenInfo: AppTokenInfo | null,
   requestedAmount: string,
   deductProtocolFee = false
 ): boolean => {

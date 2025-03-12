@@ -5,6 +5,7 @@ import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
+import { AppTokenInfo } from "../AppTokenInfo/AppTokenInfo";
 import { DelegateRule } from "../DelegateRule/DelegateRule";
 
 export interface DepositOrWithdrawOrder {
@@ -30,8 +31,8 @@ export interface SubmittedOrder extends SubmittedTransactionWithHash {
   type: TransactionTypes.order;
   order: OrderERC20;
   swap?: FullSwapERC20;
-  senderToken: TokenInfo;
-  signerToken: TokenInfo;
+  senderToken: AppTokenInfo;
+  signerToken: AppTokenInfo;
 }
 
 export interface SubmittedOrderUnderConsideration

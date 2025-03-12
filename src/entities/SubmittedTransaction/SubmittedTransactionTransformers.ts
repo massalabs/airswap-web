@@ -9,6 +9,7 @@ import {
   TransactionStatusType,
   TransactionTypes,
 } from "../../types/transactionTypes";
+import { AppTokenInfo } from "../AppTokenInfo/AppTokenInfo";
 import { DelegateRule } from "../DelegateRule/DelegateRule";
 import {
   SubmittedApprovalTransaction,
@@ -86,8 +87,8 @@ export const transformToSubmittedWithdrawTransaction = (
 export const transformToSubmittedTransactionWithOrder = (
   hash: string,
   order: OrderERC20,
-  signerToken: TokenInfo,
-  senderToken: TokenInfo,
+  signerToken: AppTokenInfo,
+  senderToken: AppTokenInfo,
   swap?: FullSwapERC20,
   status: TransactionStatusType = TransactionStatusType.processing,
   timestamp = Date.now()

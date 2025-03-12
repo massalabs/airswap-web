@@ -4,7 +4,6 @@ import {
   TokenInfo,
   UnsignedOrderERC20,
 } from "@airswap/utils";
-import { FullSwapERC20 } from "@airswap/utils/build/src/swap-erc20";
 import { formatUnits } from "@ethersproject/units";
 
 import { BigNumber } from "bignumber.js";
@@ -12,6 +11,11 @@ import { BigNumber } from "bignumber.js";
 import { compareAddresses } from "../../helpers/string";
 import i18n from "../../i18n/i18n";
 import { TransactionTypes } from "../../types/transactionTypes";
+import { AppTokenInfo } from "../AppTokenInfo/AppTokenInfo";
+import {
+  getTokenDecimals,
+  getTokenSymbol,
+} from "../AppTokenInfo/AppTokenInfoHelpers";
 import {
   SubmittedApprovalTransaction,
   SubmittedCancellation,
@@ -177,8 +181,8 @@ export const getAdjustedAmount = (
 
 export const getOrderTransactionLabel = (
   transaction: SubmittedOrder | SubmittedDelegatedSwapTransaction,
-  signerToken: TokenInfo,
-  senderToken: TokenInfo,
+  signerToken: AppTokenInfo,
+  senderToken: AppTokenInfo,
   account: string,
   protocolFee: number
 ) => {
@@ -191,16 +195,14 @@ export const getOrderTransactionLabel = (
 
   const adjustedSignerAmount = getAdjustedAmount(order, protocolFee, account);
 
+  const signerDecimals = getTokenDecimals(adjustedSignerToken);
   const signerAmount = parseFloat(
-    Number(
-      formatUnits(adjustedSignerAmount, adjustedSignerToken.decimals)
-    ).toFixed(5)
+    Number(formatUnits(adjustedSignerAmount, signerDecimals)).toFixed(5)
   );
 
+  const senderDecimals = getTokenDecimals(adjustedSenderToken);
   const senderAmount = parseFloat(
-    Number(
-      formatUnits((swap || order).senderAmount, adjustedSenderToken.decimals)
-    ).toFixed(5)
+    Number(formatUnits((swap || order).senderAmount, senderDecimals)).toFixed(5)
   );
 
   const accountIsSender = isSenderWalletAccount(transaction, account);
@@ -208,17 +210,17 @@ export const getOrderTransactionLabel = (
   if (accountIsSender) {
     return i18n.t("wallet.transaction", {
       signerAmount,
-      signerToken: adjustedSignerToken.symbol,
+      signerToken: getTokenSymbol(adjustedSignerToken),
       senderAmount,
-      senderToken: adjustedSenderToken.symbol,
+      senderToken: getTokenSymbol(adjustedSenderToken),
     });
   }
 
   return i18n.t("wallet.transaction", {
     signerAmount: senderAmount,
-    signerToken: adjustedSenderToken.symbol,
+    signerToken: getTokenSymbol(adjustedSenderToken),
     senderAmount: signerAmount,
-    senderToken: adjustedSignerToken.symbol,
+    senderToken: getTokenSymbol(adjustedSignerToken),
   });
 };
 

@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 
-import { compressFullOrderERC20, ADDRESS_ZERO } from "@airswap/utils";
+import {
+  compressFullOrderERC20,
+  ADDRESS_ZERO,
+  TokenInfo,
+} from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useToggle } from "@react-hookz/web";
 import { useWeb3React } from "@web3-react/core";
@@ -15,6 +19,7 @@ import nativeCurrency, {
   nativeCurrencySafeTransactionFee,
 } from "../../../constants/nativeCurrency";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
+import { getTokenDecimals } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
 import { fetchIndexerUrls } from "../../../features/indexer/indexerActions";
@@ -142,10 +147,13 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const takerTokenInfo = useTokenInfo(
     userTokens.tokenTo || defaultTokenToAddress || null
   );
-  const makerAmountPlusFee = useAmountPlusFee(
-    makerAmount,
-    makerTokenInfo?.decimals
-  );
+  const makerTokenDecimals = makerTokenInfo
+    ? getTokenDecimals(makerTokenInfo)
+    : undefined;
+  const takerTokenDecimals = takerTokenInfo
+    ? getTokenDecimals(takerTokenInfo)
+    : undefined;
+  const makerAmountPlusFee = useAmountPlusFee(makerAmount, makerTokenDecimals);
 
   const { hasSufficientAllowance, readableAllowance } = useAllowance(
     makerTokenInfo,
@@ -273,13 +281,13 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
   const handleMakerAmountChange = (amount: string) => {
     setMakerAmount(
-      toMaxAllowedDecimalsNumberString(amount, makerTokenInfo?.decimals)
+      toMaxAllowedDecimalsNumberString(amount, makerTokenDecimals)
     );
   };
 
   const handleTakerAmountChange = (amount: string) => {
     setTakerAmount(
-      toMaxAllowedDecimalsNumberString(amount, takerTokenInfo?.decimals)
+      toMaxAllowedDecimalsNumberString(amount, takerTokenDecimals)
     );
   };
 
@@ -298,11 +306,11 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
     const formattedMakerAmount = toRoundedNumberString(
       makerAmount,
-      makerTokenInfo?.decimals
+      makerTokenDecimals
     );
     const formattedTakerAmount = toRoundedNumberString(
       takerAmount,
-      takerTokenInfo?.decimals
+      takerTokenDecimals
     );
 
     setMakerAmount(formattedMakerAmount);
@@ -325,6 +333,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         ? getWethAddress(chainId!)
         : takerTokenAddress;
 
+    // TODO: Make createOrderAction compatible with CollectionTokenInfo
     const transaction = await dispatch(
       createOrderAction({
         isLimitOrder,
@@ -332,13 +341,13 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         expiry: Math.floor(expiryDate / 1000).toString(),
         signerWallet: account!,
         signerToken,
-        signerTokenInfo: makerTokenInfo!,
+        signerTokenInfo: makerTokenInfo! as TokenInfo,
         signerAmount: makerAmount,
         protocolFee: protocolFee.toString(),
         senderWallet:
           orderType === OrderType.private ? takerAddress! : ADDRESS_ZERO,
         senderToken,
-        senderTokenInfo: takerTokenInfo!,
+        senderTokenInfo: takerTokenInfo! as TokenInfo,
         senderAmount: takerAmount,
         chainId: chainId!,
         library: library!,
@@ -358,10 +367,11 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         ? wrappedNativeToken
         : makerTokenInfo;
 
+    // TODO: Make approve compatible with CollectionTokenInfo
     dispatch(
       approve(
         makerAmountPlusFee,
-        justifiedToken!,
+        justifiedToken! as TokenInfo,
         library!,
         isLimitOrder ? "Delegate" : "Swap"
       )
@@ -372,7 +382,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     dispatch(
       deposit(
         shouldDepositNativeTokenAmount!,
-        makerTokenInfo!,
+        makerTokenInfo! as TokenInfo,
         wrappedNativeToken!,
         chainId!,
         library!

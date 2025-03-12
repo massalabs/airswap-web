@@ -12,8 +12,20 @@ export const isCollectionTokenInfo = (
   tokenInfo: AppTokenInfo
 ): tokenInfo is CollectionTokenInfo => {
   return (
-    "tokenKind" in tokenInfo &&
-    (tokenInfo.tokenKind === TokenKinds.ERC1155 ||
-      tokenInfo.tokenKind === TokenKinds.ERC721)
+    "kind" in tokenInfo &&
+    (tokenInfo.kind === TokenKinds.ERC1155 ||
+      tokenInfo.kind === TokenKinds.ERC721)
   );
+};
+
+export const getTokenDecimals = (tokenInfo: AppTokenInfo): number => {
+  return isTokenInfo(tokenInfo) ? tokenInfo.decimals : 0;
+};
+
+export const getTokenSymbol = (tokenInfo: AppTokenInfo): string => {
+  return isTokenInfo(tokenInfo) ? tokenInfo.symbol : `#${tokenInfo.id}`;
+};
+
+export const getTokenImage = (tokenInfo: AppTokenInfo): string | undefined => {
+  return isTokenInfo(tokenInfo) ? tokenInfo.logoURI : tokenInfo.image;
 };

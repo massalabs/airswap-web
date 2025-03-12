@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
 
-import { TokenInfo } from "@airswap/utils";
-
-import TokenLogo from "../../../TokenLogo/TokenLogo";
+import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
+import {
+  getTokenImage,
+  getTokenSymbol,
+} from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   Container,
   TextContainer,
@@ -17,7 +19,7 @@ export type TokenImportRowProps = {
   /**
    * TokenInfo object
    */
-  token: TokenInfo;
+  token: AppTokenInfo;
   /**
    * True if the token isn't currently supported by makers.
    */
@@ -37,10 +39,10 @@ const TokenImportButton = ({
 
   return (
     <Container>
-      <StyledTokenLogo logoURI={token.logoURI} />
+      <StyledTokenLogo logoURI={getTokenImage(token)} />
 
       <TextContainer>
-        <Symbol>{token.symbol}</Symbol>
+        <Symbol>{getTokenSymbol(token)}</Symbol>
         <TokenName>{token.name}</TokenName>
       </TextContainer>
       {isUnsupported ? (
