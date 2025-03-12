@@ -1,24 +1,53 @@
-import { TokenInfo, getTokenInfo as airSwapScrapeToken } from "@airswap/utils";
+import {
+  CollectionTokenInfo,
+  TokenInfo,
+  getTokenInfo,
+  getCollectionTokenInfo,
+} from "@airswap/utils";
 
 import * as ethers from "ethers";
 
-const scrapeToken = (
+const callGetTokenInfo = (
   address: string,
-  provider: ethers.providers.BaseProvider,
-  chainId?: number
-): Promise<TokenInfo | undefined> => {
-  return new Promise<TokenInfo | undefined>((resolve) => {
-    if (!ethers.utils.isAddress(address)) {
-      return resolve(undefined);
-    }
+  provider: ethers.providers.BaseProvider
+) => {
+  return getTokenInfo(provider, address)
+    .then((tokenInfo) => {
+      return tokenInfo;
+    })
+    .catch((e) => {
+      return undefined;
+    });
+};
 
-    airSwapScrapeToken(provider, address)
-      .then(resolve)
-      .catch((e) => {
-        console.error(e);
-        resolve(undefined);
-      });
-  });
+const callGetCollectionTokenInfo = (
+  address: string,
+  provider: ethers.providers.BaseProvider
+) => {
+  return getCollectionTokenInfo(provider, address, "0")
+    .then((tokenInfo) => {
+      return tokenInfo;
+    })
+    .catch((e) => {
+      return undefined;
+    });
+};
+
+const scrapeToken = async (
+  address: string,
+  provider: ethers.providers.BaseProvider
+): Promise<TokenInfo | CollectionTokenInfo | undefined> => {
+  if (!ethers.utils.isAddress(address)) {
+    return undefined;
+  }
+
+  const tokenInfo = await callGetTokenInfo(address, provider);
+
+  if (tokenInfo) {
+    return tokenInfo;
+  }
+
+  return callGetCollectionTokenInfo(address, provider);
 };
 
 export default scrapeToken;

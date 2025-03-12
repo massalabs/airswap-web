@@ -5,17 +5,18 @@ import { TokenInfo } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 
+import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import { addUnknownTokenInfo } from "../../../features/metadata/metadataActions";
 import scrapeToken from "../../../helpers/scrapeToken";
 
 const useScrapeToken = (
   address: string,
-  tokens: TokenInfo[]
-): TokenInfo | undefined => {
+  tokens: AppTokenInfo[]
+): AppTokenInfo | undefined => {
   const dispatch = useDispatch();
   const { provider: library } = useWeb3React<Web3Provider>();
 
-  const [scrapedToken, setScrapedToken] = useState<TokenInfo | undefined>();
+  const [scrapedToken, setScrapedToken] = useState<AppTokenInfo | undefined>();
 
   useEffect(() => {
     if (scrapedToken) {
@@ -39,6 +40,7 @@ const useScrapeToken = (
 
     const callScrapeToken = async () => {
       const result = await scrapeToken(address, library);
+      console.log(result);
       setScrapedToken(result);
     };
 

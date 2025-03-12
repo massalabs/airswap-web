@@ -1,7 +1,7 @@
-import { TokenInfo } from "@airswap/utils";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
 import {
   chainIdChanged,
   walletChanged,
@@ -15,7 +15,7 @@ import {
 } from "./metadataActions";
 
 export type MetadataTokenInfoMap = {
-  [address: string]: TokenInfo;
+  [address: string]: AppTokenInfo;
 };
 
 export interface MetadataState {

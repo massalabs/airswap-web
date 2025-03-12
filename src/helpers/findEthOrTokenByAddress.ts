@@ -1,15 +1,16 @@
-import { TokenInfo, findTokenByAddress, ADDRESS_ZERO } from "@airswap/utils";
+import { findTokenByAddress, ADDRESS_ZERO } from "@airswap/utils";
 
 import nativeCurrency from "../constants/nativeCurrency";
+import { AppTokenInfo } from "../entities/AppTokenInfo/AppTokenInfo";
 
 export default function findEthOrTokenByAddress(
   tokenAddress: string,
-  activeTokens: TokenInfo[],
+  activeTokens: AppTokenInfo[],
   chainId: number
-): TokenInfo | null {
+): AppTokenInfo | null {
   return (
     tokenAddress === ADDRESS_ZERO
       ? nativeCurrency[chainId]
       : findTokenByAddress(tokenAddress, activeTokens)
-  ) as TokenInfo;
+  ) as AppTokenInfo;
 }

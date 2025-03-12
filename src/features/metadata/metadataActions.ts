@@ -5,6 +5,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import * as ethers from "ethers";
 
 import { AppDispatch, RootState } from "../../app/store";
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
 import { getUniqueSingleDimensionArray } from "../../helpers/array";
 import { Web3State } from "../web3/web3Slice";
 import {
@@ -142,7 +143,7 @@ export const removeActiveToken = createAsyncThunk<
 
 export const addUnknownTokenInfo = createAsyncThunk<
   void,
-  TokenInfo,
+  AppTokenInfo,
   {
     dispatch: AppDispatch;
     state: RootState;

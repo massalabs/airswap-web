@@ -1,12 +1,11 @@
 import { useMemo } from "react";
 
-import { TokenInfo } from "@airswap/utils";
-
 import { useAppSelector } from "../app/hooks";
+import { AppTokenInfo } from "../entities/AppTokenInfo/AppTokenInfo";
 import { selectAllTokenInfo } from "../features/metadata/metadataSlice";
 import findEthOrTokenByAddress from "../helpers/findEthOrTokenByAddress";
 
-const useTokenInfo = (token: string | null): TokenInfo | null => {
+const useTokenInfo = (token: string | null): AppTokenInfo | null => {
   const activeTokens = useAppSelector(selectAllTokenInfo);
   const { chainId } = useAppSelector((state) => state.web3);
 

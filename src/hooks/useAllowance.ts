@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 
-import { TokenInfo, ADDRESS_ZERO } from "@airswap/utils";
+import { ADDRESS_ZERO } from "@airswap/utils";
 
 import { BigNumber } from "bignumber.js";
 
 import { useAppSelector } from "../app/hooks";
+import { AppTokenInfo } from "../entities/AppTokenInfo/AppTokenInfo";
+import { isCollectionTokenInfo } from "../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { selectAllowances } from "../features/balances/balancesSlice";
 import { selectAllTokenInfo } from "../features/metadata/metadataSlice";
 import findEthOrTokenByAddress from "../helpers/findEthOrTokenByAddress";
@@ -21,7 +23,7 @@ import getWethAddress from "../helpers/getWethAddress";
  */
 
 const useAllowance = (
-  token: TokenInfo | null,
+  token: AppTokenInfo | null,
   amount?: string,
   options?: {
     spenderAddressType?: "Swap" | "Delegate";
@@ -98,12 +100,15 @@ const useAllowance = (
       return;
     }
 
+    const decimals = isCollectionTokenInfo(justifiedToken)
+      ? 0
+      : justifiedToken.decimals;
     const newReadableTokenAllowance = new BigNumber(tokenAllowance)
-      .div(10 ** justifiedToken.decimals)
+      .div(10 ** decimals)
       .toString();
 
     const newHasSufficientAllowance = new BigNumber(tokenAllowance)
-      .div(10 ** justifiedToken.decimals)
+      .div(10 ** decimals)
       .gte(amount);
 
     setHasSufficientAllowance(newHasSufficientAllowance);
