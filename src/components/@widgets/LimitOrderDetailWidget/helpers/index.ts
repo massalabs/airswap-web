@@ -83,9 +83,6 @@ export const getCustomSignerAmount = (
     senderTokenDecimals
   );
 
-  console.log("roundedSenderAmount", roundedSenderAmount);
-  console.log("senderTokenDecimals", senderTokenDecimals);
-
   const signerAmount = new BigNumber(roundedSenderAmount)
     .multipliedBy(exchangeRate)
     .toString();
