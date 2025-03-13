@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { TokenInfo } from "@airswap/utils";
@@ -13,7 +13,6 @@ import {
   addActiveToken,
   removeActiveToken,
 } from "../../features/metadata/metadataActions";
-import useWindowSize from "../../hooks/useWindowSize";
 import { OverlayActionButton } from "../ModalOverlay/ModalOverlay.styles";
 import { InfoHeading } from "../Typography/Typography";
 import {
@@ -22,7 +21,6 @@ import {
   TokenContainer,
   Legend,
   LegendItem,
-  StyledScrollContainer,
   ContentContainer,
   NoResultsContainer,
   SizingContainer,
@@ -31,6 +29,7 @@ import { filterTokens } from "./filter";
 import useScrapeToken from "./hooks/useScrapeToken";
 import { sortTokenByExactMatch, sortTokensBySymbolAndBalance } from "./sort";
 import InactiveTokensList from "./subcomponents/InactiveTokensList/InactiveTokensList";
+import { ScrollContainer } from "./subcomponents/ScrollContainer/ScrollContainer";
 import TokenButton from "./subcomponents/TokenButton/TokenButton";
 
 export type TokenListProps = {
@@ -76,16 +75,13 @@ const TokenList = ({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  const { width, height } = useWindowSize();
   const { provider: library } = useWeb3React<Web3Provider>();
   const { account, chainId } = useAppSelector((state) => state.web3);
 
   const sizingContainerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [editMode, setEditMode] = useState(false);
   const [tokenQuery, setTokenQuery] = useState<string>("");
-
   const scrapedToken = useScrapeToken(tokenQuery, allTokens);
 
   // sort tokens based on symbol
@@ -122,26 +118,6 @@ const TokenList = ({
       100
     );
   }, [sortedInactiveTokens, tokenQuery, scrapedToken]);
-
-  useEffect(() => {
-    if (
-      sizingContainerRef.current &&
-      scrollContainerRef.current &&
-      buttonRef.current
-    ) {
-      const { offsetTop, scrollHeight } = scrollContainerRef.current;
-      const { clientHeight: buttonHeight } = buttonRef.current;
-    }
-  }, [
-    sizingContainerRef,
-    scrollContainerRef,
-    activeTokens,
-    sortedTokens,
-    allTokens,
-    tokenQuery,
-    width,
-    height,
-  ]);
 
   const handleAddToken = async (address: string) => {
     if (library && account) {
@@ -180,7 +156,14 @@ const TokenList = ({
             <LegendItem>{t("balances.balance")}</LegendItem>
           </Legend>
 
-          <StyledScrollContainer ref={scrollContainerRef}>
+          <ScrollContainer
+            resizeDependencies={[
+              activeTokens,
+              sortedTokens,
+              allTokens,
+              tokenQuery,
+            ]}
+          >
             <TokenContainer>
               {[nativeCurrency[chainId || 1], ...sortedFilteredTokens].map(
                 (token) => (
@@ -217,7 +200,7 @@ const TokenList = ({
                 <InfoHeading>{t("common.noResultsFound")}</InfoHeading>
               </NoResultsContainer>
             )}
-          </StyledScrollContainer>
+          </ScrollContainer>
           <OverlayActionButton
             intent="primary"
             ref={buttonRef}

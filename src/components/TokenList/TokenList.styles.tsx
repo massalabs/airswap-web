@@ -4,20 +4,8 @@ import isActiveLanguageLogographic from "../../helpers/isActiveLanguageLogograph
 import { InputTextStyle } from "../../style/mixins";
 import { fontWide } from "../../style/themes";
 import Icon from "../Icon/Icon";
-import { ScrollContainer } from "../ModalOverlay/ModalOverlay.styles";
 import TextInput from "../TextInput/TextInput";
 import { StyledInput } from "../TextInput/TextInput.styles";
-
-export const StyledScrollContainer = styled(ScrollContainer)`
-  position: relative;
-  margin-block-start: 0.625rem;
-  margin-inline-start: -0.875rem;
-  width: calc(100% + 3.25rem);
-  max-height: 20rem;
-  padding-inline: 0.875rem 2.25rem;
-  padding-block-start: 0.125rem;
-  overflow-y: auto;
-`;
 
 export const ContentContainer = styled.div`
   position: relative;
