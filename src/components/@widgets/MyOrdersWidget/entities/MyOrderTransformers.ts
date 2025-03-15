@@ -1,9 +1,6 @@
-import {
-  compressFullOrderERC20,
-  FullOrderERC20,
-  TokenInfo,
-} from "@airswap/utils";
+import { compressFullOrderERC20, FullOrderERC20 } from "@airswap/utils";
 
+import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import { routes } from "../../../../routes";
 import { OrderStatus } from "../../../../types/orderStatus";
 import { MyOrder } from "./MyOrder";
@@ -11,8 +8,8 @@ import { MyOrder } from "./MyOrder";
 export const transformErc20OrderToMyOrder = (
   order: FullOrderERC20,
   status: OrderStatus,
-  signerToken?: TokenInfo,
-  senderToken?: TokenInfo
+  signerToken?: AppTokenInfo,
+  senderToken?: AppTokenInfo
 ): MyOrder => {
   const compressedOrder = compressFullOrderERC20(order);
 

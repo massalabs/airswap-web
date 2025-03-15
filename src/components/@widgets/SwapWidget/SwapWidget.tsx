@@ -7,6 +7,7 @@ import {
   ADDRESS_ZERO,
   OrderERC20,
   ProtocolIds,
+  TokenInfo,
   UnsignedOrderERC20,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
@@ -173,8 +174,8 @@ const SwapWidget: FC = () => {
   const baseToken = useTokenOrFallback(tokenFrom, tokenTo, true);
   const quoteToken = useTokenOrFallback(tokenFrom, tokenTo);
 
-  const baseTokenInfo = useTokenInfo(baseToken);
-  const quoteTokenInfo = useTokenInfo(quoteToken);
+  const baseTokenInfo = useTokenInfo(baseToken) as TokenInfo | null;
+  const quoteTokenInfo = useTokenInfo(quoteToken) as TokenInfo | null;
   const swapType = useSwapType(baseTokenInfo, quoteTokenInfo);
   const nativeTokenInfo = useNativeToken(chainId);
   const wrappedNativeTokenInfo = useNativeWrappedToken(chainId);

@@ -1,12 +1,13 @@
-import { TokenInfo } from "@airswap/utils";
-
 import { ethers } from "ethers";
+
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenSymbol } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 
 /**
  * Create a filter function to apply to a token for whether it matches a particular search query
  * @param search the search query to apply to the token
  */
-export function createTokenFilterFunction<T extends TokenInfo>(
+export function createTokenFilterFunction<T extends AppTokenInfo>(
   search: string
 ): (tokens: T) => boolean {
   const searchingAddress = ethers.utils.isAddress(search);
@@ -35,11 +36,17 @@ export function createTokenFilterFunction<T extends TokenInfo>(
     );
   };
 
-  return ({ name, symbol }: T): boolean =>
-    Boolean((symbol && matchesSearch(symbol)) || (name && matchesSearch(name)));
+  return (token: T): boolean => {
+    const symbol = getTokenSymbol(token);
+    const { name } = token;
+
+    return Boolean(
+      (symbol && matchesSearch(symbol)) || (name && matchesSearch(name))
+    );
+  };
 }
 
-export function filterTokens<T extends TokenInfo>(
+export function filterTokens<T extends AppTokenInfo>(
   tokens: T[],
   search: string
 ): T[] {

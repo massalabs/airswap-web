@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { TokenInfo } from "@airswap/utils";
 
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
 import { AppError } from "../../errors/appError";
 import TokenSelect from "../TokenSelect/TokenSelect";
 import {
@@ -34,11 +35,11 @@ const SwapInputs: FC<{
 
   baseAmount: string;
   baseAmountSubText?: string;
-  baseTokenInfo: TokenInfo | null;
+  baseTokenInfo: AppTokenInfo | null;
   baseAmountError?: AppError;
   maxAmount: string | null;
   side: "buy" | "sell";
-  quoteTokenInfo: TokenInfo | null;
+  quoteTokenInfo: AppTokenInfo | null;
   quoteAmount: string;
   quoteAmountError?: AppError;
 

@@ -1,7 +1,8 @@
-import { FullOrderERC20, TokenInfo, getTokenInfo } from "@airswap/utils";
+import { FullOrderERC20, getTokenInfo } from "@airswap/utils";
 
 import * as ethers from "ethers";
 
+import { AppTokenInfo } from "../../../../../../entities/AppTokenInfo/AppTokenInfo";
 import { getNonceUsed } from "../../../../../../features/orders/ordersHelpers";
 import { compareAddresses } from "../../../../../../helpers/string";
 import { OrderStatus } from "../../../../../../types/orderStatus";
@@ -10,9 +11,9 @@ import { transformErc20OrderToMyOrder } from "../../../../MyOrdersWidget/entitie
 
 export const findTokenInfo = async (
   token: string,
-  activeTokens: TokenInfo[],
+  activeTokens: AppTokenInfo[],
   provider: ethers.providers.BaseProvider
-): Promise<TokenInfo | undefined> => {
+): Promise<AppTokenInfo | undefined> => {
   const activeToken = activeTokens.find((activeToken) =>
     compareAddresses(token, activeToken.address)
   );
@@ -70,7 +71,7 @@ const transformToOrderStatus = (
 
 export const getFullOrderERC20DataAndTransformToOrder = async (
   order: FullOrderERC20,
-  activeTokens: TokenInfo[],
+  activeTokens: AppTokenInfo[],
   provider: ethers.providers.BaseProvider
 ): Promise<MyOrder> => {
   const signerToken = await findTokenInfo(

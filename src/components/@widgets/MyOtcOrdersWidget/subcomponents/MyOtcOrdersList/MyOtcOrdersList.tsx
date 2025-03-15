@@ -1,10 +1,11 @@
 import { FC, useCallback, useEffect, useState } from "react";
 
-import { FullOrderERC20, TokenInfo } from "@airswap/utils";
+import { FullOrderERC20 } from "@airswap/utils";
 
 import * as ethers from "ethers";
 
 import { useAppSelector } from "../../../../../app/hooks";
+import { AppTokenInfo } from "../../../../../entities/AppTokenInfo/AppTokenInfo";
 import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSlice";
 import { OrdersSortType } from "../../../../../types/ordersSortType";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
@@ -14,7 +15,7 @@ import { getFullOrderERC20DataAndTransformToOrder } from "./helpers";
 interface MyOtcOrdersListProps {
   activeCancellationId?: string;
   activeSortType: OrdersSortType;
-  activeTokens: TokenInfo[];
+  activeTokens: AppTokenInfo[];
   erc20Orders: FullOrderERC20[];
   sortTypeDirection: Record<OrdersSortType, boolean>;
   library: ethers.providers.BaseProvider;

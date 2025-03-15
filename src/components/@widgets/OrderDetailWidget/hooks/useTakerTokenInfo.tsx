@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { TokenInfo } from "@airswap/utils";
 
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks";
+import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   addActiveToken,
   fetchUnkownTokens,
@@ -21,7 +22,7 @@ import useJsonRpcProvider from "../../../../hooks/useJsonRpcProvider";
 const useTakerTokenInfo = (
   address: string | null,
   chainId: number
-): [TokenInfo | null, boolean] => {
+): [AppTokenInfo | null, boolean] => {
   const dispatch = useAppDispatch();
   // Using JsonRpcProvider for unconnected wallets or for wallets connected to a different chain
   const library = useJsonRpcProvider(chainId);
@@ -30,7 +31,7 @@ const useTakerTokenInfo = (
   const activeTokenAddresses = useAppSelector(selectActiveTokenAddresses);
   const { activeOrder } = useAppSelector(selectTakeOtcReducer);
 
-  const [token, setToken] = useState<TokenInfo>();
+  const [token, setToken] = useState<AppTokenInfo>();
 
   useEffect(() => {
     if (

@@ -8,6 +8,8 @@ import { useWeb3React } from "@web3-react/core";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import nativeCurrency from "../../constants/nativeCurrency";
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenDecimals } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { BalancesState } from "../../features/balances/balancesSlice";
 import {
   addActiveToken,
@@ -44,11 +46,11 @@ export type TokenListProps = {
   /**
    * all Token addresses in metadata.
    */
-  allTokens: TokenInfo[];
+  allTokens: AppTokenInfo[];
   /**
    * All active tokens.
    */
-  activeTokens: TokenInfo[];
+  activeTokens: AppTokenInfo[];
   /**
    * Supported tokens according to registry
    */
@@ -85,21 +87,21 @@ const TokenList = ({
   const scrapedToken = useScrapeToken(tokenQuery, allTokens);
 
   // sort tokens based on symbol
-  const sortedTokens: TokenInfo[] = useMemo(() => {
+  const sortedTokens: AppTokenInfo[] = useMemo(() => {
     return sortTokensBySymbolAndBalance(activeTokens, balances);
   }, [activeTokens, balances]);
 
   // filter token
-  const filteredTokens: TokenInfo[] = useMemo(() => {
+  const filteredTokens: AppTokenInfo[] = useMemo(() => {
     return filterTokens(Object.values(sortedTokens), tokenQuery);
   }, [sortedTokens, tokenQuery]);
 
-  const sortedFilteredTokens: TokenInfo[] = useMemo(() => {
+  const sortedFilteredTokens: AppTokenInfo[] = useMemo(() => {
     return sortTokenByExactMatch(filteredTokens, tokenQuery);
   }, [filteredTokens, tokenQuery]);
 
   // sort inactive tokens based on symbol
-  const sortedInactiveTokens: TokenInfo[] = useMemo(() => {
+  const sortedInactiveTokens: AppTokenInfo[] = useMemo(() => {
     return sortTokenByExactMatch(
       allTokens.filter((token) => !activeTokens.includes(token)),
       tokenQuery
@@ -166,22 +168,24 @@ const TokenList = ({
           >
             <TokenContainer>
               {[nativeCurrency[chainId || 1], ...sortedFilteredTokens].map(
-                (token) => (
-                  <TokenButton
-                    showDeleteButton={
-                      editMode &&
-                      token.address !== nativeCurrency[chainId || 1].address
-                    }
-                    token={token}
-                    balance={formatUnits(
-                      balances.values[token.address] || 0,
-                      token.decimals
-                    )}
-                    setToken={onSelectToken}
-                    removeActiveToken={handleRemoveActiveToken}
-                    key={token.address}
-                  />
-                )
+                (token) => {
+                  const tokenDecimals = getTokenDecimals(token);
+                  const tokenBalance = balances.values[token.address] || 0;
+
+                  return (
+                    <TokenButton
+                      showDeleteButton={
+                        editMode &&
+                        token.address !== nativeCurrency[chainId || 1].address
+                      }
+                      token={token}
+                      balance={formatUnits(tokenBalance, tokenDecimals)}
+                      setToken={onSelectToken}
+                      removeActiveToken={handleRemoveActiveToken}
+                      key={token.address}
+                    />
+                  );
+                }
               )}
             </TokenContainer>
 

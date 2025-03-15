@@ -2,6 +2,11 @@ import { useTranslation } from "react-i18next";
 
 import { TokenInfo } from "@airswap/utils";
 
+import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
+import {
+  getTokenImage,
+  getTokenSymbol,
+} from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import stringToSignificantDecimals from "../../../../helpers/stringToSignificantDecimals";
 import {
   Container,
@@ -20,7 +25,7 @@ export type TokenRowProps = {
   /**
    * TokenInfo object
    */
-  token: TokenInfo;
+  token: AppTokenInfo;
   /**
    * Balance of current token
    */
@@ -52,6 +57,10 @@ const TokenButton = ({
   showDeleteButton = false,
 }: TokenRowProps) => {
   const { t } = useTranslation();
+
+  const logoImage = getTokenImage(token);
+  const symbol = getTokenSymbol(token);
+
   const onClickHandler = () => {
     if (disabled) {
       return;
@@ -70,10 +79,10 @@ const TokenButton = ({
       disabled={disabled}
       showDeleteButton={showDeleteButton}
     >
-      <StyledTokenLogo logoURI={token.logoURI} />
+      <StyledTokenLogo logoURI={logoImage} />
 
       <TokenSymbolAndName>
-        <Symbol>{token.symbol}</Symbol>
+        <Symbol>{symbol}</Symbol>
         <TokenNameContainer>
           <TokenName>{token.name}</TokenName>
           <StyledIcon chainId={token.chainId} address={token.address} />

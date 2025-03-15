@@ -19,7 +19,10 @@ import nativeCurrency, {
   nativeCurrencySafeTransactionFee,
 } from "../../../constants/nativeCurrency";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
-import { getTokenDecimals } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import {
+  getTokenDecimals,
+  getTokenSymbol,
+} from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
 import { fetchIndexerUrls } from "../../../features/indexer/indexerActions";
@@ -152,6 +155,9 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     : undefined;
   const takerTokenDecimals = takerTokenInfo
     ? getTokenDecimals(takerTokenInfo)
+    : undefined;
+  const makerTokenSymbol = makerTokenInfo
+    ? getTokenSymbol(makerTokenInfo)
     : undefined;
   const makerAmountPlusFee = useAmountPlusFee(makerAmount, makerTokenDecimals);
 
@@ -583,7 +589,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
           shouldDepositNativeToken={shouldDepositNativeToken}
           shouldRefresh={isAllowancesOrBalancesFailed}
           walletIsNotConnected={!isActive}
-          makerTokenSymbol={makerTokenInfo?.symbol}
+          makerTokenSymbol={makerTokenSymbol}
           onBackButtonClick={handleBackButtonClick}
           onActionButtonClick={handleActionButtonClick}
         />

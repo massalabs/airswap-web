@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 
-import { FullOrderERC20, ADDRESS_ZERO } from "@airswap/utils";
+import { FullOrderERC20, ADDRESS_ZERO, TokenInfo } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useToggle } from "@react-hookz/web";
 import { useWeb3React } from "@web3-react/core";
@@ -12,6 +12,10 @@ import { BigNumber } from "bignumber.js";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
+import {
+  getTokenDecimals,
+  getTokenSymbol,
+} from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   fetchIndexerUrls,
   getFilteredOrders,
@@ -107,16 +111,27 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
     order.chainId
   );
   const isBalanceLoading = useBalanceLoading();
+  const senderTokenDecimals = senderToken
+    ? getTokenDecimals(senderToken)
+    : undefined;
+  const signerTokenDecimals = signerToken
+    ? getTokenDecimals(signerToken)
+    : undefined;
+  const senderTokenSymbol = senderToken
+    ? getTokenSymbol(senderToken)
+    : undefined;
+  const signerTokenSymbol = signerToken
+    ? getTokenSymbol(signerToken)
+    : undefined;
+
   const senderAmount = useFormattedTokenAmount(
     order.senderAmount,
-    senderToken?.decimals
+    senderTokenDecimals
   );
   const signerAmount = useFormattedTokenAmount(
     order.signerAmount,
-    signerToken?.decimals
+    signerTokenDecimals
   );
-  const senderTokenSymbol = senderToken?.symbol;
-  const signerTokenSymbol = signerToken?.symbol;
   const tokenExchangeRate = new BigNumber(senderAmount!).dividedBy(
     signerAmount!
   );
@@ -200,7 +215,16 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
       return;
     }
 
-    await dispatch(take(order, signerToken!, senderToken!, library, "Swap"));
+    // TODO: Support AppTokenInfo
+    await dispatch(
+      take(
+        order,
+        signerToken! as TokenInfo,
+        senderToken! as TokenInfo,
+        library,
+        "Swap"
+      )
+    );
   };
 
   const openTransactionsTab = () => {
@@ -212,14 +236,16 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
       return;
     }
 
-    dispatch(approve(senderAmount, senderToken, library, "Swap"));
+    // TODO: Support AppTokenInfo
+    dispatch(approve(senderAmount, senderToken as TokenInfo, library, "Swap"));
   };
 
   const depositNativeToken = async () => {
+    // TODO: Support AppTokenInfo
     dispatch(
       deposit(
         shouldDepositNativeTokenAmount!,
-        senderToken!,
+        senderToken! as TokenInfo,
         wrappedNativeToken!,
         chainId!,
         library!

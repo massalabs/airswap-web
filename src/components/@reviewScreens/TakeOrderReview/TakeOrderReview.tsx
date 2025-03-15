@@ -6,6 +6,12 @@ import { useToggle } from "@react-hookz/web";
 
 import BigNumber from "bignumber.js";
 
+import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
+import {
+  getTokenDecimals,
+  getTokenImage,
+  getTokenSymbol,
+} from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { AppError } from "../../../errors/appError";
 import { getExpiryTranslation } from "../../../helpers/getExpiryTranslation";
 import toRoundedNumberString from "../../../helpers/toRoundedNumberString";
@@ -35,10 +41,10 @@ interface TakeOrderReviewProps {
   errors: AppError[];
   expiry: number;
   senderAmount: string;
-  senderToken: TokenInfo | null;
+  senderToken: AppTokenInfo | null;
   signerAmount: string;
   signerAmountPlusFee?: string;
-  signerToken: TokenInfo | null;
+  signerToken: AppTokenInfo | null;
   wrappedNativeToken: TokenInfo | null;
   onEditButtonClick: () => void;
   onRestartButtonClick: () => void;
@@ -72,12 +78,26 @@ const TakeOrderReview: FC<TakeOrderReviewProps> = ({
   const justifiedSenderToken = isSenderTokenNativeToken
     ? wrappedNativeToken
     : senderToken;
+  const signerTokenSymbol = signerToken
+    ? getTokenSymbol(signerToken)
+    : undefined;
+  const senderTokenSymbol = senderToken
+    ? getTokenSymbol(senderToken)
+    : undefined;
+  const signerTokenDecimals = signerToken
+    ? getTokenDecimals(signerToken)
+    : undefined;
+  const senderTokenDecimals = senderToken
+    ? getTokenDecimals(senderToken)
+    : undefined;
+  const signerTokenImage = signerToken ? getTokenImage(signerToken) : undefined;
+  const senderTokenImage = senderToken ? getTokenImage(senderToken) : undefined;
 
   const rate = useMemo(() => {
     return getTokenPairTranslation(
-      justifiedSignerToken?.symbol,
+      signerTokenSymbol,
       signerAmount,
-      justifiedSenderToken?.symbol,
+      senderTokenSymbol,
       senderAmount
     );
   }, [signerAmount, senderAmount]);
@@ -94,19 +114,16 @@ const TakeOrderReview: FC<TakeOrderReviewProps> = ({
     const amount = new BigNumber(signerAmountPlusFee)
       .minus(signerAmount)
       .toString();
-    return toRoundedNumberString(amount, justifiedSignerToken?.decimals);
-  }, [signerAmount, signerAmountPlusFee, justifiedSignerToken]);
+    return toRoundedNumberString(amount, signerTokenDecimals);
+  }, [signerAmount, signerAmountPlusFee, signerTokenDecimals]);
 
   const roundedSignerAmountPlusFee = useMemo(() => {
     if (!signerAmountPlusFee) {
       return undefined;
     }
 
-    return toRoundedNumberString(
-      signerAmountPlusFee,
-      justifiedSignerToken?.decimals
-    );
-  }, [signerAmountPlusFee, justifiedSignerToken]);
+    return toRoundedNumberString(signerAmountPlusFee, signerTokenDecimals);
+  }, [signerAmountPlusFee, signerTokenDecimals]);
 
   return (
     <Container isSigner={isSigner} className={className}>
@@ -119,16 +136,16 @@ const TakeOrderReview: FC<TakeOrderReviewProps> = ({
         <OrderReviewSenderToken
           amount={senderAmount}
           label={isSigner ? t("common.receive") : t("common.send")}
-          tokenSymbol={justifiedSenderToken?.symbol || "?"}
-          tokenUri={justifiedSenderToken?.logoURI}
+          tokenSymbol={senderTokenSymbol || "?"}
+          tokenUri={senderTokenImage}
         />
       )}
       {signerToken && (
         <OrderReviewSignerToken
           amount={signerAmount}
           label={isSigner ? t("common.send") : t("common.receive")}
-          tokenSymbol={justifiedSignerToken?.symbol || "?"}
-          tokenUri={justifiedSignerToken?.logoURI}
+          tokenSymbol={signerTokenSymbol || "?"}
+          tokenUri={signerTokenImage}
         />
       )}
       <ReviewList>
@@ -146,9 +163,7 @@ const TakeOrderReview: FC<TakeOrderReviewProps> = ({
           <ReviewListItemLabel>{t("orders.total")}</ReviewListItemLabel>
           <ReviewListItemValue>
             {isSigner ? signerAmount : senderAmount}{" "}
-            {isSigner
-              ? justifiedSignerToken?.symbol
-              : justifiedSenderToken?.symbol}
+            {isSigner ? signerTokenSymbol : senderTokenSymbol}
           </ReviewListItemValue>
         </ReviewListItem>
 
@@ -163,14 +178,14 @@ const TakeOrderReview: FC<TakeOrderReviewProps> = ({
                 />
               </ReviewListItemLabel>
               <ReviewListItemValue>
-                {roundedFeeAmount} {justifiedSignerToken?.symbol}
+                {roundedFeeAmount} {signerTokenSymbol}
               </ReviewListItemValue>
             </ReviewListItem>
 
             <ReviewListItem>
               <ReviewListItemLabel>{t("orders.total")}</ReviewListItemLabel>
               <ReviewListItemValue>
-                {roundedSignerAmountPlusFee} {justifiedSignerToken?.symbol}
+                {roundedSignerAmountPlusFee} {signerTokenSymbol}
               </ReviewListItemValue>
             </ReviewListItem>
           </>

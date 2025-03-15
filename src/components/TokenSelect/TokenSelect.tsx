@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 
 import { TokenInfo } from "@airswap/utils";
 
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenImage } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   AmountInput,
   AmountAndDetailsContainer,
@@ -52,7 +54,7 @@ export type TokenSelectProps = {
   /**
    * Metadata for currently selected token
    */
-  selectedToken: TokenInfo | null;
+  selectedToken: AppTokenInfo | null;
   /**
    * Called when the user has clicked on the token dropdown to change token
    */
@@ -137,6 +139,9 @@ const TokenSelect: FC<TokenSelectProps> = ({
   const tokenText = useMemo(() => {
     return getTokenText(selectedToken, readOnly);
   }, [selectedToken, readOnly]);
+  const tokenLogoImage = selectedToken
+    ? getTokenImage(selectedToken)
+    : undefined;
 
   const handleAmountFocus = () => setIsAmountFocused(true);
   const handleAmountBlur = () => setIsAmountFocused(false);
@@ -176,7 +181,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
             onMouseEnter={handleTokenFocus}
             onMouseLeave={handleTokenBlur}
           >
-            <TokenLogoLeft logoURI={selectedToken?.logoURI} />
+            <TokenLogoLeft logoURI={tokenLogoImage} />
             <StyledSelector>
               <StyledLabel>{label}</StyledLabel>
               <StyledSelectItem>
@@ -240,7 +245,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
                 i
               </InfoLabel>
             )}
-            <TokenLogoRight logoURI={selectedToken?.logoURI} />
+            <TokenLogoRight logoURI={tokenLogoImage} />
           </InputAndMaxButtonWrapper>
         ) : (
           <PlaceholderContainer>

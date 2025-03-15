@@ -23,7 +23,7 @@ export const getTokenDecimals = (tokenInfo: AppTokenInfo): number => {
 };
 
 export const getTokenSymbol = (tokenInfo: AppTokenInfo): string => {
-  return isTokenInfo(tokenInfo) ? tokenInfo.symbol : `#${tokenInfo.id}`;
+  return isTokenInfo(tokenInfo) ? tokenInfo.symbol : `${tokenInfo.name}`;
 };
 
 export const getTokenImage = (tokenInfo: AppTokenInfo): string | undefined => {
