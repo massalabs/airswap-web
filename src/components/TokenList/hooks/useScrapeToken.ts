@@ -33,17 +33,9 @@ const useScrapeToken = (
       return;
     }
 
-    const knownTokens = tokens.filter((token) =>
-      compareAddresses(token.address, address)
-    );
-
-    // If the ERC20 token is already in the list, don't scrape it. ERC721 and ERC1155 is unique per id,
-    // so needs to be scraped for each id.
-    if (knownTokens.some(isTokenInfo)) {
+    if (tokens.some((token) => compareAddresses(token.address, address))) {
       return;
     }
-
-    // TODO: knownTokens needs to be passed to scrapeToken
 
     const callScrapeToken = async () => {
       setIsLoading(true);

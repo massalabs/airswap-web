@@ -5,7 +5,7 @@ import { TokenInfo } from "@airswap/utils";
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks";
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import {
-  addActiveToken,
+  addActiveTokens,
   fetchUnkownTokens,
 } from "../../../../features/metadata/metadataActions";
 import {
@@ -40,7 +40,7 @@ const useTakerTokenInfo = (
       !activeTokenAddresses.includes(address)
     ) {
       // Add as active token so balance and token info will be fetched
-      dispatch(addActiveToken(address));
+      dispatch(addActiveTokens([address]));
     }
   }, [address, allTokens]);
 
@@ -54,7 +54,7 @@ const useTakerTokenInfo = (
     if (tokenFromStore) {
       setToken(tokenFromStore);
     } else {
-      dispatch(addActiveToken(address));
+      dispatch(addActiveTokens([address]));
       dispatch(fetchUnkownTokens({ provider: library, tokens: [address] }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

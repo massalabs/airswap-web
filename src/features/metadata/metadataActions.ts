@@ -11,6 +11,7 @@ import {
   isCollectionTokenInfo,
 } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { getUniqueSingleDimensionArray } from "../../helpers/array";
+import { compareAddresses } from "../../helpers/string";
 import { Web3State } from "../web3/web3Slice";
 import {
   getActiveTokensLocalStorageKey,
@@ -109,17 +110,18 @@ const writeUnknownTokensToLocalStorage = (
   localStorage.setItem(localStorageKey, JSON.stringify(unknownTokens));
 };
 
-export const addActiveToken = createAsyncThunk<
+export const addActiveTokens = createAsyncThunk<
   void,
-  string,
+  string[],
   {
     dispatch: AppDispatch;
     state: RootState;
   }
->("metadata/addActiveToken", async (token, { dispatch, getState }) => {
+>("metadata/addActiveTokens", async (tokens, { dispatch, getState }) => {
   const { metadata, web3 } = getState();
 
-  const activeTokens = [...metadata.activeTokens, token.toLowerCase()].filter(
+  const newTokens = tokens.map((token) => token.toLowerCase());
+  const activeTokens = [...metadata.activeTokens, ...newTokens].filter(
     getUniqueSingleDimensionArray
   );
 
@@ -127,18 +129,19 @@ export const addActiveToken = createAsyncThunk<
   dispatch(setActiveTokens(activeTokens));
 });
 
-export const removeActiveToken = createAsyncThunk<
+export const removeActiveTokens = createAsyncThunk<
   void,
-  string,
+  string[],
   {
     dispatch: AppDispatch;
     state: RootState;
   }
->("metadata/removeActiveToken", async (token, { dispatch, getState }) => {
+>("metadata/removeActiveTokens", async (tokens, { dispatch, getState }) => {
   const { metadata, web3 } = getState();
 
   const activeTokens = metadata.activeTokens.filter(
-    (t) => t !== token.toLowerCase()
+    (activeToken) =>
+      !tokens.some((token) => compareAddresses(activeToken, token))
   );
 
   writeActiveTokensToLocalStorage(activeTokens, web3);

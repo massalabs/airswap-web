@@ -4,8 +4,10 @@ import { TokenInfo } from "@airswap/utils";
 
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import {
+  getCollectionTokenName,
   getTokenImage,
   getTokenSymbol,
+  isTokenInfo,
 } from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import stringToSignificantDecimals from "../../../../helpers/stringToSignificantDecimals";
 import {
@@ -60,6 +62,9 @@ const TokenButton = ({
 
   const logoImage = getTokenImage(token);
   const symbol = getTokenSymbol(token);
+  const tokenName = isTokenInfo(token)
+    ? token.name
+    : getCollectionTokenName(token);
 
   const onClickHandler = () => {
     if (disabled) {
@@ -84,7 +89,7 @@ const TokenButton = ({
       <TokenSymbolAndName>
         <Symbol>{symbol}</Symbol>
         <TokenNameContainer>
-          <TokenName>{token.name}</TokenName>
+          <TokenName>{tokenName}</TokenName>
           <StyledIcon chainId={token.chainId} address={token.address} />
           <Tooltip>{t("common.verifyToken")}</Tooltip>
         </TokenNameContainer>

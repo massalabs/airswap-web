@@ -2,8 +2,11 @@ import { useTranslation } from "react-i18next";
 
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import {
+  getCollectionTokenName,
   getTokenImage,
   getTokenSymbol,
+  isCollectionTokenInfo,
+  isTokenInfo,
 } from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   Container,
@@ -37,14 +40,18 @@ const TokenImportButton = ({
 }: TokenImportRowProps) => {
   const { t } = useTranslation();
 
+  const isErc20 = isTokenInfo(token);
+  const name = isErc20 ? token.name : getCollectionTokenName(token);
+
   return (
     <Container>
       <StyledTokenLogo logoURI={getTokenImage(token)} />
 
       <TextContainer>
-        <Symbol>{getTokenSymbol(token)}</Symbol>
-        <TokenName>{token.name}</TokenName>
+        {isErc20 && <Symbol>{getTokenSymbol(token)}</Symbol>}
+        <TokenName>{name}</TokenName>
       </TextContainer>
+
       {isUnsupported ? (
         <UnsupportedTokenText>
           {t("balances.unsupportedToken")}

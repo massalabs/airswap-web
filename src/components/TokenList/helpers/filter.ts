@@ -1,7 +1,14 @@
+import { CollectionTokenInfo } from "@airswap/utils";
+
 import { ethers } from "ethers";
 
 import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
-import { getTokenSymbol } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import {
+  getTokenSymbol,
+  isCollectionTokenInfo,
+  isTokenInfo,
+} from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import { compareAddresses } from "../../../helpers/string";
 
 /**
  * Create a filter function to apply to a token for whether it matches a particular search query
@@ -48,9 +55,33 @@ export function createTokenFilterFunction<T extends AppTokenInfo>(
   };
 }
 
-export function filterTokens<T extends AppTokenInfo>(
-  tokens: T[],
+export function filterTokens(
+  tokens: AppTokenInfo[],
   search: string
-): T[] {
-  return tokens.filter(createTokenFilterFunction(search));
+): AppTokenInfo[] {
+  const reducedTokens = reduceNftTokens(tokens);
+
+  return reducedTokens.filter(createTokenFilterFunction(search));
+}
+
+/**
+ * Reduce the NFT's of a collection to a single token so only one token is shown in the list
+ */
+export function reduceNftTokens(tokens: AppTokenInfo[]): AppTokenInfo[] {
+  const nftTokens = tokens.filter(isCollectionTokenInfo);
+  const erc20Tokens = tokens.filter(isTokenInfo);
+
+  const reducedNftTokens = nftTokens.reduce((acc, token) => {
+    const existingToken = acc.some((t) =>
+      compareAddresses(t.address, token.address)
+    );
+
+    if (existingToken) {
+      return acc;
+    }
+
+    return [...acc, token];
+  }, [] as CollectionTokenInfo[]);
+
+  return [...reducedNftTokens, ...erc20Tokens];
 }

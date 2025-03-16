@@ -1,7 +1,9 @@
 import { CollectionTokenInfo, TokenInfo, TokenKinds } from "@airswap/utils";
 
+import { BigNumber } from "bignumber.js";
 import { isAddress } from "ethers/lib/utils";
 
+import { BalancesState } from "../../features/balances/balancesSlice";
 import { AppTokenInfo } from "./AppTokenInfo";
 
 export const isTokenInfo = (
@@ -37,9 +39,33 @@ export const getTokenDecimals = (tokenInfo: AppTokenInfo): number => {
 };
 
 export const getTokenSymbol = (tokenInfo: AppTokenInfo): string => {
-  return isTokenInfo(tokenInfo) ? tokenInfo.symbol : `${tokenInfo.name}`;
+  return isTokenInfo(tokenInfo) ? tokenInfo.symbol : tokenInfo.name || "";
 };
 
 export const getTokenImage = (tokenInfo: AppTokenInfo): string | undefined => {
   return isTokenInfo(tokenInfo) ? tokenInfo.logoURI : tokenInfo.image;
+};
+
+export const getCollectionTokenName = (
+  tokenInfo: CollectionTokenInfo
+): string => {
+  return (tokenInfo.name?.split("#")[0] || "").trim();
+};
+export const getTokenBalance = (
+  tokenInfo: AppTokenInfo,
+  balances: BalancesState
+): string => {
+  if (isTokenInfo(tokenInfo)) {
+    return balances.values[getTokenId(tokenInfo)] || "0";
+  }
+
+  const balancesForTokenIds = Object.keys(balances.values).filter((tokenId) =>
+    tokenId.startsWith(tokenInfo.address)
+  );
+
+  const balance = balancesForTokenIds.reduce((acc, tokenId) => {
+    return acc.plus(balances.values[tokenId] || "0");
+  }, new BigNumber(0));
+
+  return balance.toString();
 };

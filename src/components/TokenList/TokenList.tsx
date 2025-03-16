@@ -10,13 +10,14 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import nativeCurrency from "../../constants/nativeCurrency";
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
 import {
+  getTokenBalance,
   getTokenDecimals,
   getTokenId,
 } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { BalancesState } from "../../features/balances/balancesSlice";
 import {
-  addActiveToken,
-  removeActiveToken,
+  addActiveTokens,
+  removeActiveTokens,
 } from "../../features/metadata/metadataActions";
 import { OverlayActionButton } from "../ModalOverlay/ModalOverlay.styles";
 import { InfoHeading } from "../Typography/Typography";
@@ -32,7 +33,8 @@ import {
   TokenListLoader,
   TokensScrollContainer,
 } from "./TokenList.styles";
-import { filterTokens } from "./helpers/filter";
+import { getTokenIdsFromTokenInfo } from "./helpers";
+import { filterTokens, reduceNftTokens } from "./helpers/filter";
 import {
   sortTokenByExactMatch,
   sortTokensBySymbolAndBalance,
@@ -122,7 +124,7 @@ const TokenList = ({
   const inactiveTokens = useMemo(() => {
     // if a scraped token is found, only show that one
     if (scrapedTokens.length) {
-      return scrapedTokens;
+      return reduceNftTokens(scrapedTokens);
     }
 
     // else only take the top 100 tokens
@@ -134,19 +136,19 @@ const TokenList = ({
 
   const handleAddToken = async (tokenInfo: AppTokenInfo) => {
     if (library && account) {
-      const tokenId = getTokenId(tokenInfo);
-      await dispatch(addActiveToken(tokenId));
+      const tokenIds = getTokenIdsFromTokenInfo(tokenInfo, allTokens);
+      await dispatch(addActiveTokens(tokenIds));
 
-      onAfterAddActiveToken && onAfterAddActiveToken(tokenId);
+      onAfterAddActiveToken && onAfterAddActiveToken(tokenIds[0]);
     }
   };
 
   const handleRemoveActiveToken = (tokenInfo: AppTokenInfo) => {
     if (library) {
-      const tokenId = getTokenId(tokenInfo);
-      dispatch(removeActiveToken(tokenId));
+      const tokenIds = getTokenIdsFromTokenInfo(tokenInfo, allTokens);
+      dispatch(removeActiveTokens(tokenIds));
 
-      onAfterRemoveActiveToken && onAfterRemoveActiveToken(tokenId);
+      onAfterRemoveActiveToken && onAfterRemoveActiveToken(tokenIds[0]);
     }
   };
 
@@ -185,7 +187,7 @@ const TokenList = ({
                   (token) => {
                     const tokenId = getTokenId(token);
                     const tokenDecimals = getTokenDecimals(token);
-                    const tokenBalance = balances.values[tokenId] || 0;
+                    const tokenBalance = getTokenBalance(token, balances);
 
                     return (
                       <TokenButton
