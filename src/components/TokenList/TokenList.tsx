@@ -23,12 +23,14 @@ import { InfoHeading } from "../Typography/Typography";
 import {
   Container,
   SearchInput,
-  TokenContainer,
+  TokensContainer,
   Legend,
   LegendItem,
   ContentContainer,
   NoResultsContainer,
   SizingContainer,
+  TokenListLoader,
+  TokensScrollContainer,
 } from "./TokenList.styles";
 import { filterTokens } from "./filter";
 import useScrapeToken from "./hooks/useScrapeToken";
@@ -87,7 +89,10 @@ const TokenList = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [editMode, setEditMode] = useState(false);
   const [tokenQuery, setTokenQuery] = useState<string>("");
-  const scrapedToken = useScrapeToken(tokenQuery, allTokens);
+  const [scrapedTokens, isScrapeTokensLoading] = useScrapeToken(
+    tokenQuery,
+    allTokens
+  );
 
   // sort tokens based on symbol
   const sortedTokens: AppTokenInfo[] = useMemo(() => {
@@ -113,8 +118,8 @@ const TokenList = ({
 
   const inactiveTokens = useMemo(() => {
     // if a scraped token is found, only show that one
-    if (scrapedToken.length) {
-      return scrapedToken;
+    if (scrapedTokens.length) {
+      return scrapedTokens;
     }
 
     // else only take the top 100 tokens
@@ -122,7 +127,7 @@ const TokenList = ({
       0,
       100
     );
-  }, [sortedInactiveTokens, tokenQuery, scrapedToken]);
+  }, [sortedInactiveTokens, tokenQuery, scrapedTokens.length]);
 
   const handleAddToken = async (tokenInfo: AppTokenInfo) => {
     if (library && account) {
@@ -163,54 +168,61 @@ const TokenList = ({
             <LegendItem>{t("balances.balance")}</LegendItem>
           </Legend>
 
-          <ScrollContainer
-            resizeDependencies={[
-              activeTokens,
-              sortedTokens,
-              allTokens,
-              tokenQuery,
-            ]}
-          >
-            <TokenContainer>
-              {[nativeCurrency[chainId || 1], ...sortedFilteredTokens].map(
-                (token) => {
-                  const tokenId = getTokenId(token);
-                  const tokenDecimals = getTokenDecimals(token);
-                  const tokenBalance = balances.values[tokenId] || 0;
+          <TokensScrollContainer>
+            <ScrollContainer
+              resizeDependencies={[
+                activeTokens,
+                sortedTokens,
+                allTokens,
+                tokenQuery,
+              ]}
+            >
+              <TokensContainer>
+                {[nativeCurrency[chainId || 1], ...sortedFilteredTokens].map(
+                  (token) => {
+                    const tokenId = getTokenId(token);
+                    const tokenDecimals = getTokenDecimals(token);
+                    const tokenBalance = balances.values[tokenId] || 0;
 
-                  return (
-                    <TokenButton
-                      key={tokenId}
-                      showDeleteButton={
-                        editMode &&
-                        token.address !== nativeCurrency[chainId || 1].address
-                      }
-                      token={token}
-                      balance={formatUnits(tokenBalance, tokenDecimals)}
-                      setToken={onSelectToken}
-                      removeActiveToken={handleRemoveActiveToken}
-                    />
-                  );
-                }
+                    return (
+                      <TokenButton
+                        key={tokenId}
+                        showDeleteButton={
+                          editMode &&
+                          token.address !== nativeCurrency[chainId || 1].address
+                        }
+                        token={token}
+                        balance={formatUnits(tokenBalance, tokenDecimals)}
+                        setToken={onSelectToken}
+                        removeActiveToken={handleRemoveActiveToken}
+                      />
+                    );
+                  }
+                )}
+              </TokensContainer>
+
+              {inactiveTokens.length !== 0 && (
+                <InactiveTokensList
+                  inactiveTokens={inactiveTokens}
+                  supportedTokenAddresses={supportedTokenAddresses}
+                  onTokenClick={(tokenInfo) => {
+                    handleAddToken(tokenInfo);
+                    setTokenQuery("");
+                  }}
+                />
               )}
-            </TokenContainer>
 
-            {inactiveTokens.length !== 0 && (
-              <InactiveTokensList
-                inactiveTokens={inactiveTokens}
-                supportedTokenAddresses={supportedTokenAddresses}
-                onTokenClick={(tokenInfo) => {
-                  handleAddToken(tokenInfo);
-                  setTokenQuery("");
-                }}
-              />
-            )}
-            {sortedFilteredTokens.length === 0 && inactiveTokens.length === 0 && (
-              <NoResultsContainer>
-                <InfoHeading>{t("common.noResultsFound")}</InfoHeading>
-              </NoResultsContainer>
-            )}
-          </ScrollContainer>
+              {sortedFilteredTokens.length === 0 &&
+                inactiveTokens.length === 0 &&
+                !isScrapeTokensLoading && (
+                  <NoResultsContainer>
+                    <InfoHeading>{t("common.noResultsFound")}</InfoHeading>
+                  </NoResultsContainer>
+                )}
+            </ScrollContainer>
+
+            {isScrapeTokensLoading && <TokenListLoader />}
+          </TokensScrollContainer>
           <OverlayActionButton
             intent="primary"
             ref={buttonRef}

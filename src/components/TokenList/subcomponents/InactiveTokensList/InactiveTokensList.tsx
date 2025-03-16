@@ -6,7 +6,7 @@ import {
   InactiveTitle,
   InactiveTitleContainer,
   InformationIcon,
-  TokenContainer,
+  TokensContainer,
 } from "../../TokenList.styles";
 import TokenImportButton from "../TokenImportButton/TokenImportButton";
 
@@ -31,7 +31,7 @@ const InactiveTokensList = ({
           <InformationIcon name="information-circle-outline" />
         </InactiveTitle>
       </InactiveTitleContainer>
-      <TokenContainer>
+      <TokensContainer>
         {inactiveTokens.map((token) => (
           <TokenImportButton
             key={getTokenId(token)}
@@ -43,7 +43,7 @@ const InactiveTokensList = ({
             onClick={() => onTokenClick(token)}
           />
         ))}
-      </TokenContainer>
+      </TokensContainer>
     </>
   );
 };

@@ -4,6 +4,8 @@ import isActiveLanguageLogographic from "../../helpers/isActiveLanguageLogograph
 import { InputTextStyle } from "../../style/mixins";
 import { fontWide } from "../../style/themes";
 import Icon from "../Icon/Icon";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import { SpinningIcon } from "../LoadingSpinner/LoadingSpinner.styles";
 import TextInput from "../TextInput/TextInput";
 import { StyledInput } from "../TextInput/TextInput.styles";
 
@@ -42,7 +44,32 @@ export const SearchInput = styled(TextInput)`
   }
 `;
 
-export const TokenContainer = styled.div``;
+export const TokensScrollContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: fit-content;
+  min-height: 10rem;
+`;
+
+export const TokensContainer = styled.div``;
+
+export const TokenListLoader = styled(LoadingSpinner)`
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: ${(props) => props.theme.colors.darkBlue};
+    opacity: 0.35;
+  }
+
+  position: absolute;
+  inset: 0;
+
+  ${SpinningIcon} {
+    width: 2rem;
+    height: 2rem;
+  }
+`;
 
 export const Legend = styled.div`
   display: flex;
