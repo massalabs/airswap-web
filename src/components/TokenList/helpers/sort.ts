@@ -1,13 +1,13 @@
 import { TokenInfo } from "@airswap/utils";
 import { formatUnits } from "@ethersproject/units";
 
-import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getTokenDecimals,
   getTokenId,
   getTokenSymbol,
-} from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
-import { BalancesState } from "../../features/balances/balancesSlice";
+} from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import { BalancesState } from "../../../features/balances/balancesSlice";
 
 export function sortTokensByBalance(
   tokens: TokenInfo[],

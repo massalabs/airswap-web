@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
-import { getTokenSymbol } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenSymbol } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 
 /**
  * Create a filter function to apply to a token for whether it matches a particular search query

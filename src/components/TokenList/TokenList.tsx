@@ -32,9 +32,12 @@ import {
   TokenListLoader,
   TokensScrollContainer,
 } from "./TokenList.styles";
-import { filterTokens } from "./filter";
+import { filterTokens } from "./helpers/filter";
+import {
+  sortTokenByExactMatch,
+  sortTokensBySymbolAndBalance,
+} from "./helpers/sort";
 import useScrapeToken from "./hooks/useScrapeToken";
-import { sortTokenByExactMatch, sortTokensBySymbolAndBalance } from "./sort";
 import InactiveTokensList from "./subcomponents/InactiveTokensList/InactiveTokensList";
 import { ScrollContainer } from "./subcomponents/ScrollContainer/ScrollContainer";
 import TokenButton from "./subcomponents/TokenButton/TokenButton";

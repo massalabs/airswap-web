@@ -1,6 +1,6 @@
 import { TokenInfo } from "@airswap/utils";
 
-import { BalancesState } from "../../features/balances/balancesSlice";
+import { BalancesState } from "../../../features/balances/balancesSlice";
 import {
   sortTokenByExactMatch,
   sortTokensBySymbol,
