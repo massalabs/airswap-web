@@ -6,6 +6,10 @@ import * as ethers from "ethers";
 
 import { AppDispatch, RootState } from "../../app/store";
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import {
+  getTokenId,
+  isCollectionTokenInfo,
+} from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { getUniqueSingleDimensionArray } from "../../helpers/array";
 import { Web3State } from "../web3/web3Slice";
 import {
@@ -143,25 +147,31 @@ export const removeActiveToken = createAsyncThunk<
 
 export const addUnknownTokenInfo = createAsyncThunk<
   void,
-  AppTokenInfo,
+  AppTokenInfo[],
   {
     dispatch: AppDispatch;
     state: RootState;
   }
->("metadata/addUnknownTokenInfo", async (tokenInfo, { dispatch, getState }) => {
-  const { metadata, web3 } = getState();
+>(
+  "metadata/addUnknownTokenInfo",
+  async (tokenInfos, { dispatch, getState }) => {
+    const { metadata, web3 } = getState();
 
-  const unknownToken = {
-    ...tokenInfo,
-    address: tokenInfo.address.toLowerCase(),
-  };
+    const unknownTokens = tokenInfos.reduce((acc, tokenInfo) => {
+      const id = getTokenId(tokenInfo);
+      const unknownToken = {
+        ...tokenInfo,
+        address: tokenInfo.address.toLowerCase(),
+      };
 
-  const unknownTokens = {
-    ...metadata.unknownTokens,
-    [unknownToken.address]: unknownToken,
-  };
+      return {
+        ...acc,
+        [id]: unknownToken,
+      };
+    }, metadata.unknownTokens as MetadataTokenInfoMap);
 
-  writeUnknownTokensToLocalStorage(unknownTokens, web3);
+    writeUnknownTokensToLocalStorage(unknownTokens, web3);
 
-  dispatch(setUnknownTokens(unknownTokens));
-});
+    dispatch(setUnknownTokens(unknownTokens));
+  }
+);

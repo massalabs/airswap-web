@@ -2,6 +2,7 @@ import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenId } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   chainIdChanged,
   walletChanged,
@@ -133,7 +134,7 @@ export const selectActiveTokens = createSelector(
   [selectActiveTokenAddresses, selectAllTokenInfo],
   (activeTokenAddresses, allTokenInfo) => {
     return Object.values(allTokenInfo).filter((tokenInfo) =>
-      activeTokenAddresses.includes(tokenInfo.address)
+      activeTokenAddresses.includes(getTokenId(tokenInfo))
     );
   }
 );

@@ -9,8 +9,10 @@ import {
 } from "@reduxjs/toolkit";
 
 import { BigNumber, ethers } from "ethers";
+import { isAddress } from "ethers/lib/utils";
 
 import { AppDispatch, RootState } from "../../app/store";
+import { isNftTokenId } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import getWethAddress from "../../helpers/getWethAddress";
 import { walletChanged, walletDisconnected } from "../web3/web3Actions";
 import {
@@ -29,9 +31,10 @@ export interface BalancesState {
    * largest request.
    */
   inFlightFetchTokens: string[] | null; // used to prevent duplicate fetches
-  /** Token balances */
+  /** Token balances, where the key is the tokenId (e.g. "0x1234567890123456789012345678901234567890"
+   * for ERC-20 and "0x1234567890123456789012345678901234567890-1" for ERC-721) */
   values: {
-    [tokenAddress: string]: string | null; // null while fetching
+    [tokenId: string]: string | null; // null while fetching
   };
 }
 
@@ -98,27 +101,40 @@ const getThunk: (
         const wrappedNativeToken = chainId
           ? getWethAddress(chainId)
           : undefined;
-        const activeTokensAddresses = [
+        const activeErc20Addresses = [
           ...state.metadata.activeTokens,
           ...(wrappedNativeToken ? [wrappedNativeToken] : []),
           ADDRESS_ZERO,
-        ];
-        if (state.takeOtc.activeOrder) {
-          activeTokensAddresses.push(state.takeOtc.activeOrder.senderToken);
-        }
-        dispatch(
-          getSetInFlightRequestTokensAction(type)(activeTokensAddresses)
+        ].filter(isAddress);
+        const activeNftAddresses = [...state.metadata.activeTokens].filter(
+          isNftTokenId
         );
-        const amounts = await methods[type]({
+
+        if (state.takeOtc.activeOrder) {
+          activeErc20Addresses.push(state.takeOtc.activeOrder.senderToken);
+        }
+
+        dispatch(getSetInFlightRequestTokensAction(type)(activeErc20Addresses));
+
+        const erc20Amounts = await methods[type]({
           ...params,
           chainId: chainId!,
           walletAddress: account!,
-          tokenAddresses: activeTokensAddresses,
+          tokenAddresses: activeErc20Addresses,
         });
-        return activeTokensAddresses.map((address, i) => ({
+
+        const tokenBalances = activeErc20Addresses.map((address, i) => ({
           address,
-          amount: amounts[i],
+          amount: erc20Amounts[i],
         }));
+        const nftBalances = activeNftAddresses.map((address, i) => ({
+          address,
+          // TODO: This is a placeholder for getting nft balance, hopefully we can get balances
+          // via the BatchCall contract
+          amount: "1",
+        }));
+
+        return [...tokenBalances, ...nftBalances];
       } catch (e: any) {
         console.error(`Error fetching ${type}: ` + e.message);
         throw e;

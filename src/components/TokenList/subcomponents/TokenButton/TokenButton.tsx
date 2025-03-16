@@ -41,7 +41,7 @@ export type TokenRowProps = {
   /**
    * Removes token from the active tokens list.
    */
-  removeActiveToken: (tokenAddress: string) => void;
+  removeActiveToken: (tokenInfo: AppTokenInfo) => void;
   /**
    * Show delete button
    */
@@ -69,7 +69,7 @@ const TokenButton = ({
     if (!showDeleteButton) {
       setToken(token.address);
     } else {
-      removeActiveToken(token.address);
+      removeActiveToken(token);
     }
   };
 

@@ -13,7 +13,9 @@ export function createTokenFilterFunction<T extends AppTokenInfo>(
   const searchingAddress = ethers.utils.isAddress(search);
 
   if (searchingAddress) {
-    return (t: T) => t.address.toLowerCase() === search.toLowerCase();
+    return (t: T) => {
+      return t.address.toLowerCase().indexOf(search.toLowerCase()) !== -1;
+    };
   }
 
   const lowerSearchParts = search

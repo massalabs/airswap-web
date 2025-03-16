@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenId } from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   InactiveTitle,
   InactiveTitleContainer,
@@ -12,7 +13,7 @@ import TokenImportButton from "../TokenImportButton/TokenImportButton";
 type InactiveTokensListProps = {
   inactiveTokens: AppTokenInfo[];
   supportedTokenAddresses: string[];
-  onTokenClick: (tokenAddress: string) => void;
+  onTokenClick: (tokenInfo: AppTokenInfo) => void;
 };
 
 const InactiveTokensList = ({
@@ -33,13 +34,13 @@ const InactiveTokensList = ({
       <TokenContainer>
         {inactiveTokens.map((token) => (
           <TokenImportButton
+            key={getTokenId(token)}
             token={token}
             isUnsupported={
               supportedTokenAddresses.length !== 0 &&
               !supportedTokenAddresses.includes(token.address)
             }
-            onClick={() => onTokenClick(token.address)}
-            key={`${token.address}`}
+            onClick={() => onTokenClick(token)}
           />
         ))}
       </TokenContainer>

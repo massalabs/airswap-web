@@ -4,6 +4,7 @@ import { formatUnits } from "@ethersproject/units";
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getTokenDecimals,
+  getTokenId,
   getTokenSymbol,
 } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { BalancesState } from "../../features/balances/balancesSlice";
@@ -32,15 +33,14 @@ export function sortTokensBySymbol(tokens: TokenInfo[]) {
 }
 
 function getTokenBalance(token: AppTokenInfo, balances: BalancesState): number {
-  const balance = balances.values[token.address];
+  const tokenId = getTokenId(token);
+  const balance = balances.values[tokenId];
 
   if (!balance) {
     return 0;
   }
 
-  return parseFloat(
-    formatUnits(balances.values[token.address]!, getTokenDecimals(token))
-  );
+  return parseFloat(formatUnits(balance, getTokenDecimals(token)));
 }
 
 export function sortTokensBySymbolAndBalance(

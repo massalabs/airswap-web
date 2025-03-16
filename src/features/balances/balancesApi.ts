@@ -49,6 +49,7 @@ const fetchBalancesOrAllowances: (
     spenderAddressType,
     params
   );
+
   const amounts: BigNumber[] = await contract[method].apply(null, args);
   return amounts.map((amount) => amount.toString());
 };

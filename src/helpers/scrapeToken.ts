@@ -3,9 +3,13 @@ import {
   TokenInfo,
   getTokenInfo,
   getCollectionTokenInfo,
+  getTokenKind,
+  TokenKinds,
 } from "@airswap/utils";
 
 import * as ethers from "ethers";
+
+import { getOwnedTokenIdsOfWallet } from "../features/balances/balancesHelpers";
 
 const callGetTokenInfo = (
   address: string,
@@ -16,38 +20,80 @@ const callGetTokenInfo = (
       return tokenInfo;
     })
     .catch((e) => {
+      console.error("[callGetTokenInfo]", e);
       return undefined;
     });
 };
 
 const callGetCollectionTokenInfo = (
+  provider: ethers.providers.BaseProvider,
   address: string,
-  provider: ethers.providers.BaseProvider
+  tokenId: string
 ) => {
-  return getCollectionTokenInfo(provider, address, "0")
+  return getCollectionTokenInfo(provider, address, tokenId)
     .then((tokenInfo) => {
       return tokenInfo;
     })
     .catch((e) => {
+      console.error("[callGetCollectionTokenInfo]", e);
       return undefined;
     });
 };
 
+const fetchTokenInfosSequentially = async (
+  provider: ethers.providers.BaseProvider,
+  tokenAddress: string,
+  ownedTokens: Record<string, any>
+): Promise<CollectionTokenInfo[]> => {
+  const tokenInfos = [];
+
+  for (const tokenId of Object.keys(ownedTokens)) {
+    const tokenInfo = await callGetCollectionTokenInfo(
+      provider,
+      tokenAddress,
+      tokenId
+    );
+    if (tokenInfo !== undefined) {
+      tokenInfos.push(tokenInfo);
+    }
+  }
+
+  return tokenInfos;
+};
+
 const scrapeToken = async (
-  address: string,
-  provider: ethers.providers.BaseProvider
-): Promise<TokenInfo | CollectionTokenInfo | undefined> => {
-  if (!ethers.utils.isAddress(address)) {
-    return undefined;
+  provider: ethers.providers.BaseProvider,
+  tokenAddress: string,
+  walletAddress: string
+): Promise<(TokenInfo | CollectionTokenInfo)[]> => {
+  if (!ethers.utils.isAddress(tokenAddress)) {
+    return [];
   }
 
-  const tokenInfo = await callGetTokenInfo(address, provider);
+  const tokenKind = await getTokenKind(provider, tokenAddress);
 
-  if (tokenInfo) {
-    return tokenInfo;
+  if (tokenKind === TokenKinds.ERC20) {
+    const tokenInfo = await callGetTokenInfo(tokenAddress, provider);
+
+    return tokenInfo ? [tokenInfo] : [];
   }
 
-  return callGetCollectionTokenInfo(address, provider);
+  if (tokenKind === TokenKinds.ERC721 || tokenKind === TokenKinds.ERC1155) {
+    const ownedTokens = await getOwnedTokenIdsOfWallet(
+      provider,
+      walletAddress,
+      tokenAddress
+    );
+    const tokenInfos = await fetchTokenInfosSequentially(
+      provider,
+      tokenAddress,
+      ownedTokens
+    );
+
+    return tokenInfos.filter((tokenInfo) => tokenInfo !== undefined);
+  }
+
+  return [];
 };
 
 export default scrapeToken;

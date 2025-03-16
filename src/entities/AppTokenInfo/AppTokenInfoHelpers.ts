@@ -1,5 +1,7 @@
 import { CollectionTokenInfo, TokenInfo, TokenKinds } from "@airswap/utils";
 
+import { isAddress } from "ethers/lib/utils";
+
 import { AppTokenInfo } from "./AppTokenInfo";
 
 export const isTokenInfo = (
@@ -16,6 +18,18 @@ export const isCollectionTokenInfo = (
     (tokenInfo.kind === TokenKinds.ERC1155 ||
       tokenInfo.kind === TokenKinds.ERC721)
   );
+};
+
+export const isNftTokenId = (tokenId: string): boolean => {
+  const [address, id] = tokenId.split("-");
+
+  return isAddress(address) && !!id;
+};
+
+export const getTokenId = (tokenInfo: AppTokenInfo): string => {
+  return isCollectionTokenInfo(tokenInfo)
+    ? `${tokenInfo.address}-${tokenInfo.id}`
+    : tokenInfo.address;
 };
 
 export const getTokenDecimals = (tokenInfo: AppTokenInfo): number => {

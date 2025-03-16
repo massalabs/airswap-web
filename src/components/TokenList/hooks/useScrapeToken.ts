@@ -1,53 +1,59 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { TokenInfo } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 
 import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
+import { isTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { addUnknownTokenInfo } from "../../../features/metadata/metadataActions";
 import scrapeToken from "../../../helpers/scrapeToken";
+import { compareAddresses } from "../../../helpers/string";
 
 const useScrapeToken = (
   address: string,
   tokens: AppTokenInfo[]
-): AppTokenInfo | undefined => {
+): AppTokenInfo[] => {
   const dispatch = useDispatch();
+  const { account } = useWeb3React();
   const { provider: library } = useWeb3React<Web3Provider>();
 
-  const [scrapedToken, setScrapedToken] = useState<AppTokenInfo | undefined>();
+  const [scrapedTokens, setScrapedTokens] = useState<AppTokenInfo[]>([]);
 
   useEffect(() => {
-    if (scrapedToken) {
-      dispatch(addUnknownTokenInfo(scrapedToken));
+    if (scrapedTokens?.length) {
+      dispatch(addUnknownTokenInfo(scrapedTokens));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrapedToken]);
+  }, [scrapedTokens.length]);
 
   useEffect(() => {
-    if (!library) {
+    if (!library || !account) {
       return;
     }
 
-    if (
-      tokens.some(
-        (token) => token.address.toLowerCase() === address.toLowerCase()
-      )
-    ) {
+    const knownTokens = tokens.filter((token) =>
+      compareAddresses(token.address, address)
+    );
+
+    // If the ERC20 token is already in the list, don't scrape it. ERC721 and ERC1155 is unique per id,
+    // so needs to be scraped for each id.
+    if (knownTokens.some(isTokenInfo)) {
       return;
     }
+
+    // TODO: knownTokens needs to be passed to scrapeToken
 
     const callScrapeToken = async () => {
-      const result = await scrapeToken(address, library);
+      const result = await scrapeToken(library, address, account);
       console.log(result);
-      setScrapedToken(result);
+      setScrapedTokens(result);
     };
 
     callScrapeToken();
-  }, [address, tokens, library]);
+  }, [address, account, tokens, library]);
 
-  return scrapedToken;
+  return scrapedTokens;
 };
 
 export default useScrapeToken;
