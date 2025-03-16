@@ -1,48 +1,29 @@
 import { useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-import { TokenInfo } from "@airswap/utils";
+import { CollectionTokenInfo } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
-import { formatUnits } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import nativeCurrency from "../../constants/nativeCurrency";
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
-import {
-  getTokenBalance,
-  getTokenDecimals,
-  getTokenId,
-} from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import { isTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { BalancesState } from "../../features/balances/balancesSlice";
 import {
   addActiveTokens,
   removeActiveTokens,
 } from "../../features/metadata/metadataActions";
+import { compareAddresses } from "../../helpers/string";
 import { OverlayActionButton } from "../ModalOverlay/ModalOverlay.styles";
-import { InfoHeading } from "../Typography/Typography";
 import {
   Container,
   SearchInput,
-  TokensContainer,
-  Legend,
-  LegendItem,
   ContentContainer,
-  NoResultsContainer,
   SizingContainer,
-  TokenListLoader,
-  TokensScrollContainer,
 } from "./TokenList.styles";
 import { getTokenIdsFromTokenInfo } from "./helpers";
-import { filterTokens, reduceNftTokens } from "./helpers/filter";
-import {
-  sortTokenByExactMatch,
-  sortTokensBySymbolAndBalance,
-} from "./helpers/sort";
 import useScrapeToken from "./hooks/useScrapeToken";
-import InactiveTokensList from "./subcomponents/InactiveTokensList/InactiveTokensList";
-import { ScrollContainer } from "./subcomponents/ScrollContainer/ScrollContainer";
-import TokenButton from "./subcomponents/TokenButton/TokenButton";
+import TokensAndCollectionsList from "./subcomponents/TokensAndCollectionsList/TokensAndCollectionsList";
 
 export type TokenListProps = {
   /**
@@ -93,52 +74,30 @@ const TokenList = ({
   const sizingContainerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [editMode, setEditMode] = useState(false);
+  const [selectedNftCollection, setSelectedNftCollection] =
+    useState<CollectionTokenInfo>();
   const [tokenQuery, setTokenQuery] = useState<string>("");
   const [scrapedTokens, isScrapeTokensLoading] = useScrapeToken(
     tokenQuery,
     allTokens
   );
 
-  // sort tokens based on symbol
-  const sortedTokens: AppTokenInfo[] = useMemo(() => {
-    return sortTokensBySymbolAndBalance(activeTokens, balances);
-  }, [activeTokens, balances]);
-
-  // filter token
-  const filteredTokens: AppTokenInfo[] = useMemo(() => {
-    return filterTokens(Object.values(sortedTokens), tokenQuery);
-  }, [sortedTokens, tokenQuery]);
-
-  const sortedFilteredTokens: AppTokenInfo[] = useMemo(() => {
-    return sortTokenByExactMatch(filteredTokens, tokenQuery);
-  }, [filteredTokens, tokenQuery]);
-
-  // sort inactive tokens based on symbol
-  const sortedInactiveTokens: AppTokenInfo[] = useMemo(() => {
-    return sortTokenByExactMatch(
-      allTokens.filter((token) => !activeTokens.includes(token)),
-      tokenQuery
-    );
-  }, [allTokens, activeTokens, tokenQuery]);
-
-  const inactiveTokens = useMemo(() => {
-    // if a scraped token is found, only show that one
-    if (scrapedTokens.length) {
-      return reduceNftTokens(scrapedTokens);
+  const activeCollectionTokens = useMemo(() => {
+    if (!selectedNftCollection) {
+      return [];
     }
 
-    // else only take the top 100 tokens
-    return filterTokens(Object.values(sortedInactiveTokens), tokenQuery!).slice(
-      0,
-      100
+    return activeTokens.filter((token) =>
+      compareAddresses(token.address, selectedNftCollection.address)
     );
-  }, [sortedInactiveTokens, tokenQuery, scrapedTokens.length]);
+  }, [selectedNftCollection]);
 
   const handleAddToken = async (tokenInfo: AppTokenInfo) => {
     if (library && account) {
       const tokenIds = getTokenIdsFromTokenInfo(tokenInfo, allTokens);
       await dispatch(addActiveTokens(tokenIds));
 
+      setTokenQuery("");
       onAfterAddActiveToken && onAfterAddActiveToken(tokenIds[0]);
     }
   };
@@ -152,6 +111,17 @@ const TokenList = ({
     }
   };
 
+  const handleSelectToken = (tokenInfo: AppTokenInfo) => {
+    if (isTokenInfo(tokenInfo)) {
+      onSelectToken(tokenInfo.address);
+
+      return;
+    }
+
+    setTokenQuery("");
+    setSelectedNftCollection(tokenInfo);
+  };
+
   return (
     <Container>
       <ContentContainer>
@@ -160,74 +130,37 @@ const TokenList = ({
             hideLabel
             id="tokenQuery"
             type="text"
-            label={t("orders.searchByNameOrAddress")}
+            label={
+              selectedNftCollection
+                ? "Search by ID"
+                : t("orders.searchByNameOrAddress")
+            }
             value={tokenQuery}
-            placeholder={t("orders.searchByNameOrAddress")}
+            placeholder={
+              selectedNftCollection
+                ? "Search by ID"
+                : t("orders.searchByNameOrAddress")
+            }
             onChange={(e) => {
               setTokenQuery(e.currentTarget.value);
             }}
           />
 
-          <Legend>
-            <LegendItem>{t("common.token")}</LegendItem>
-            <LegendItem>{t("balances.balance")}</LegendItem>
-          </Legend>
+          <TokensAndCollectionsList
+            editMode={editMode}
+            isScrapeTokensLoading={isScrapeTokensLoading}
+            activeTokens={activeTokens}
+            allTokens={allTokens}
+            balances={balances}
+            scrapedTokens={scrapedTokens}
+            supportedTokenAddresses={supportedTokenAddresses}
+            tokenQuery={tokenQuery}
+            chainId={chainId}
+            onSelectToken={handleSelectToken}
+            onRemoveActiveToken={handleRemoveActiveToken}
+            onAddToken={handleAddToken}
+          />
 
-          <TokensScrollContainer>
-            <ScrollContainer
-              resizeDependencies={[
-                activeTokens,
-                sortedTokens,
-                allTokens,
-                tokenQuery,
-              ]}
-            >
-              <TokensContainer>
-                {[nativeCurrency[chainId || 1], ...sortedFilteredTokens].map(
-                  (token) => {
-                    const tokenId = getTokenId(token);
-                    const tokenDecimals = getTokenDecimals(token);
-                    const tokenBalance = getTokenBalance(token, balances);
-
-                    return (
-                      <TokenButton
-                        key={tokenId}
-                        showDeleteButton={
-                          editMode &&
-                          token.address !== nativeCurrency[chainId || 1].address
-                        }
-                        token={token}
-                        balance={formatUnits(tokenBalance, tokenDecimals)}
-                        setToken={onSelectToken}
-                        removeActiveToken={handleRemoveActiveToken}
-                      />
-                    );
-                  }
-                )}
-              </TokensContainer>
-
-              {inactiveTokens.length !== 0 && (
-                <InactiveTokensList
-                  inactiveTokens={inactiveTokens}
-                  supportedTokenAddresses={supportedTokenAddresses}
-                  onTokenClick={(tokenInfo) => {
-                    handleAddToken(tokenInfo);
-                    setTokenQuery("");
-                  }}
-                />
-              )}
-
-              {sortedFilteredTokens.length === 0 &&
-                inactiveTokens.length === 0 &&
-                !isScrapeTokensLoading && (
-                  <NoResultsContainer>
-                    <InfoHeading>{t("common.noResultsFound")}</InfoHeading>
-                  </NoResultsContainer>
-                )}
-            </ScrollContainer>
-
-            {isScrapeTokensLoading && <TokenListLoader />}
-          </TokensScrollContainer>
           <OverlayActionButton
             intent="primary"
             ref={buttonRef}

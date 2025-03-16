@@ -35,7 +35,7 @@ export type TokenRowProps = {
   /**
    * onClick event, either setSignerToken or setSenderToken
    */
-  setToken: (val: string) => void;
+  setToken: (tokenInfo: AppTokenInfo) => void;
   /**
    * Whether to disable selection of this token (e.g. if already selected)
    */
@@ -72,7 +72,7 @@ const TokenButton = ({
     }
 
     if (!showDeleteButton) {
-      setToken(token.address);
+      setToken(token);
     } else {
       removeActiveToken(token);
     }
