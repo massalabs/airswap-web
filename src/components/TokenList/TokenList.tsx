@@ -7,7 +7,10 @@ import { useWeb3React } from "@web3-react/core";
 
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
-import { isTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import {
+  isCollectionTokenInfo,
+  isTokenInfo,
+} from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { BalancesState } from "../../features/balances/balancesSlice";
 import {
   addActiveTokens,
@@ -21,14 +24,16 @@ import {
   ContentContainer,
   SizingContainer,
 } from "./TokenList.styles";
-import { getTokenIdsFromTokenInfo } from "./helpers";
+import { getActionButtonText, getTokenIdsFromTokenInfo } from "./helpers";
 import useScrapeToken from "./hooks/useScrapeToken";
+import { CollectionNftsList } from "./subcomponents/CollectionNftsList/CollectionNftsList";
 import TokensAndCollectionsList from "./subcomponents/TokensAndCollectionsList/TokensAndCollectionsList";
 
 export type TokenListProps = {
   /**
    * Called when a token has been seleced.
    */
+  // TODO: should be AppTokenInfo hehe
   onSelectToken: (val: string) => void;
   /**
    * Balances for current tokens in wallet
@@ -87,9 +92,11 @@ const TokenList = ({
       return [];
     }
 
-    return activeTokens.filter((token) =>
-      compareAddresses(token.address, selectedNftCollection.address)
-    );
+    return activeTokens
+      .filter((token) =>
+        compareAddresses(token.address, selectedNftCollection.address)
+      )
+      .filter(isCollectionTokenInfo);
   }, [selectedNftCollection]);
 
   const handleAddToken = async (tokenInfo: AppTokenInfo) => {
@@ -122,6 +129,21 @@ const TokenList = ({
     setSelectedNftCollection(tokenInfo);
   };
 
+  const handleSelectCollectionToken = (tokenInfo: CollectionTokenInfo) => {
+    setTokenQuery("");
+    onSelectToken(tokenInfo.address);
+  };
+
+  const handleActionButtonClick = () => {
+    if (selectedNftCollection) {
+      setSelectedNftCollection(undefined);
+
+      return;
+    }
+
+    setEditMode(!editMode);
+  };
+
   return (
     <Container>
       <ContentContainer>
@@ -129,6 +151,7 @@ const TokenList = ({
           <SearchInput
             hideLabel
             id="tokenQuery"
+            autoComplete="off"
             type="text"
             label={
               selectedNftCollection
@@ -146,27 +169,35 @@ const TokenList = ({
             }}
           />
 
-          <TokensAndCollectionsList
-            editMode={editMode}
-            isScrapeTokensLoading={isScrapeTokensLoading}
-            activeTokens={activeTokens}
-            allTokens={allTokens}
-            balances={balances}
-            scrapedTokens={scrapedTokens}
-            supportedTokenAddresses={supportedTokenAddresses}
-            tokenQuery={tokenQuery}
-            chainId={chainId}
-            onSelectToken={handleSelectToken}
-            onRemoveActiveToken={handleRemoveActiveToken}
-            onAddToken={handleAddToken}
-          />
+          {selectedNftCollection ? (
+            <CollectionNftsList
+              tokens={activeCollectionTokens}
+              tokenQuery={tokenQuery}
+              onSelectToken={handleSelectCollectionToken}
+            />
+          ) : (
+            <TokensAndCollectionsList
+              editMode={editMode}
+              isScrapeTokensLoading={isScrapeTokensLoading}
+              activeTokens={activeTokens}
+              allTokens={allTokens}
+              balances={balances}
+              scrapedTokens={scrapedTokens}
+              supportedTokenAddresses={supportedTokenAddresses}
+              tokenQuery={tokenQuery}
+              chainId={chainId}
+              onSelectToken={handleSelectToken}
+              onRemoveActiveToken={handleRemoveActiveToken}
+              onAddToken={handleAddToken}
+            />
+          )}
 
           <OverlayActionButton
             intent="primary"
             ref={buttonRef}
-            onClick={() => setEditMode(!editMode)}
+            onClick={handleActionButtonClick}
           >
-            {editMode ? t("common.done") : t("orders.editCustomTokens")}
+            {getActionButtonText(editMode, selectedNftCollection)}
           </OverlayActionButton>
         </SizingContainer>
       </ContentContainer>

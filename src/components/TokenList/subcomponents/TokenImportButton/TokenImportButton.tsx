@@ -5,15 +5,14 @@ import {
   getCollectionTokenName,
   getTokenImage,
   getTokenSymbol,
-  isCollectionTokenInfo,
   isTokenInfo,
 } from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
+import { ImportButton } from "../../TokenList.styles";
 import {
   Container,
   TextContainer,
   Symbol,
   TokenName,
-  ImportButton,
   UnsupportedTokenText,
   StyledTokenLogo,
 } from "./TokenImportButton.styles";

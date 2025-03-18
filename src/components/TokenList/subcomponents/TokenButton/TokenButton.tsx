@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
 
-import { TokenInfo } from "@airswap/utils";
-
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getCollectionTokenName,
