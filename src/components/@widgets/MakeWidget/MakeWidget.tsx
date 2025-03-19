@@ -19,9 +19,12 @@ import nativeCurrency, {
   nativeCurrencySafeTransactionFee,
 } from "../../../constants/nativeCurrency";
 import { InterfaceContext } from "../../../contexts/interface/Interface";
+import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getTokenDecimals,
+  getTokenId,
   getTokenSymbol,
+  isCollectionTokenInfo,
 } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
@@ -44,6 +47,7 @@ import { selectOrdersStatus } from "../../../features/orders/ordersSlice";
 import {
   selectUserTokens,
   setUserTokens,
+  UserToken,
 } from "../../../features/userSettings/userSettingsSlice";
 import getWethAddress from "../../../helpers/getWethAddress";
 import switchToDefaultChain from "../../../helpers/switchToDefaultChain";
@@ -146,9 +150,13 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
   // States derived from user input
   const defaultTokenToAddress = nativeCurrency[chainId!]?.address;
-  const makerTokenInfo = useTokenInfo(userTokens.tokenFrom || null);
+  const makerTokenInfo = useTokenInfo(
+    userTokens.tokenFrom?.address,
+    userTokens.tokenFrom?.tokenId
+  );
   const takerTokenInfo = useTokenInfo(
-    userTokens.tokenTo || defaultTokenToAddress || null
+    userTokens.tokenTo?.address || defaultTokenToAddress,
+    userTokens.tokenTo?.tokenId
   );
   const makerTokenDecimals = makerTokenInfo
     ? getTokenDecimals(makerTokenInfo)
@@ -269,11 +277,11 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     }
   }, [isActive]);
 
-  const handleSetToken = (type: TokenSelectModalTypes, value: string) => {
+  const handleSetToken = (type: TokenSelectModalTypes, newToken: UserToken) => {
     const { tokenFrom, tokenTo } = getNewTokenPair(
       type,
-      value,
-      userTokens.tokenTo || defaultTokenToAddress || undefined,
+      newToken,
+      userTokens.tokenTo || { address: defaultTokenToAddress } || undefined,
       userTokens.tokenFrom || undefined
     );
 
@@ -298,7 +306,10 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   };
 
   const handleSwitchTokensButtonClick = () => {
-    handleSetToken("base", userTokens.tokenTo || defaultTokenToAddress);
+    handleSetToken(
+      "base",
+      userTokens.tokenTo || { address: defaultTokenToAddress }
+    );
     setMakerAmount(takerAmount);
     setTakerAmount(makerAmount);
   };
@@ -662,8 +673,14 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
           allTokens={allTokens}
           balances={balances}
           supportedTokenAddresses={[]}
-          onSelectToken={(newTokenAddress) => {
-            handleSetToken(showTokenSelectModal, newTokenAddress);
+          onSelectToken={(newToken) => {
+            const tokenId = isCollectionTokenInfo(newToken)
+              ? newToken.id
+              : undefined;
+            handleSetToken(showTokenSelectModal, {
+              address: newToken.address,
+              tokenId,
+            });
             setShowTokenSelectModal(null);
           }}
         />

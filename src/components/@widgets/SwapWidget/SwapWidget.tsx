@@ -174,8 +174,12 @@ const SwapWidget: FC = () => {
   const baseToken = useTokenOrFallback(tokenFrom, tokenTo, true);
   const quoteToken = useTokenOrFallback(tokenFrom, tokenTo);
 
-  const baseTokenInfo = useTokenInfo(baseToken) as TokenInfo | null;
-  const quoteTokenInfo = useTokenInfo(quoteToken) as TokenInfo | null;
+  const baseTokenInfo = useTokenInfo(
+    baseToken || undefined
+  ) as TokenInfo | null;
+  const quoteTokenInfo = useTokenInfo(
+    quoteToken || undefined
+  ) as TokenInfo | null;
   const swapType = useSwapType(baseTokenInfo, quoteTokenInfo);
   const nativeTokenInfo = useNativeToken(chainId);
   const wrappedNativeTokenInfo = useNativeWrappedToken(chainId);
@@ -293,7 +297,12 @@ const SwapWidget: FC = () => {
     }
 
     if (tokenFrom && tokenTo) {
-      dispatch(setUserTokens({ tokenFrom, tokenTo }));
+      dispatch(
+        setUserTokens({
+          tokenFrom: { address: tokenFrom },
+          tokenTo: { address: tokenTo },
+        })
+      );
     }
     history.push({
       pathname: `/${baseRoute}/${tokenFromAlias || tokenFrom}/${
@@ -605,9 +614,9 @@ const SwapWidget: FC = () => {
           onClose={() => setShowTokenSelectModalFor(null)}
         >
           <TokenList
-            onSelectToken={(newTokenAddress) => {
+            onSelectToken={(newToken) => {
               // e.g. handleSetToken("base", "0x123")
-              handleSetToken(showTokenSelectModalFor, newTokenAddress);
+              handleSetToken(showTokenSelectModalFor, newToken.address);
               // Close the modal
               setShowTokenSelectModalFor(null);
             }}

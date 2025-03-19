@@ -4,9 +4,14 @@ import { ThemeType } from "styled-components/macro";
 
 import { RootState } from "../../app/store";
 
+export interface UserToken {
+  address: string;
+  tokenId?: string;
+}
+
 export interface UserTokenPair {
-  tokenFrom?: string;
-  tokenTo?: string;
+  tokenFrom?: UserToken;
+  tokenTo?: UserToken;
 }
 
 export interface UserSettingsState {
@@ -36,7 +41,7 @@ const userSettingsSlice = createSlice({
     },
     setUserTokens: (
       state,
-      action: PayloadAction<{ tokenFrom?: string; tokenTo?: string }>
+      action: PayloadAction<{ tokenFrom?: UserToken; tokenTo?: UserToken }>
     ) => {
       const tokens = {
         ...state.tokens,

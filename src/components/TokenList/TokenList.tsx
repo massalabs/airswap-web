@@ -33,8 +33,7 @@ export type TokenListProps = {
   /**
    * Called when a token has been seleced.
    */
-  // TODO: should be AppTokenInfo hehe
-  onSelectToken: (val: string) => void;
+  onSelectToken: (val: AppTokenInfo) => void;
   /**
    * Balances for current tokens in wallet
    */
@@ -120,7 +119,7 @@ const TokenList = ({
 
   const handleSelectToken = (tokenInfo: AppTokenInfo) => {
     if (isTokenInfo(tokenInfo)) {
-      onSelectToken(tokenInfo.address);
+      onSelectToken(tokenInfo);
 
       return;
     }
@@ -131,7 +130,7 @@ const TokenList = ({
 
   const handleSelectCollectionToken = (tokenInfo: CollectionTokenInfo) => {
     setTokenQuery("");
-    onSelectToken(tokenInfo.address);
+    onSelectToken(tokenInfo);
   };
 
   const handleActionButtonClick = () => {
