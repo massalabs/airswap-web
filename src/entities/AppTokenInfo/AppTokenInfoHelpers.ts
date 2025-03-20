@@ -46,6 +46,16 @@ export const getTokenImage = (tokenInfo: AppTokenInfo): string | undefined => {
   return isTokenInfo(tokenInfo) ? tokenInfo.logoURI : tokenInfo.image;
 };
 
+export const getTokenKind = (tokenInfo: AppTokenInfo): TokenKinds => {
+  if (isTokenInfo(tokenInfo)) {
+    return TokenKinds.ERC20;
+  }
+
+  return tokenInfo.kind === TokenKinds.ERC1155
+    ? TokenKinds.ERC1155
+    : TokenKinds.ERC721;
+};
+
 export const getCollectionTokenName = (
   tokenInfo: CollectionTokenInfo
 ): string => {

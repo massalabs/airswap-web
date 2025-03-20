@@ -8,6 +8,7 @@ import {
   OrderERC20,
   ProtocolIds,
   TokenInfo,
+  TokenKinds,
   UnsignedOrderERC20,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
@@ -299,8 +300,8 @@ const SwapWidget: FC = () => {
     if (tokenFrom && tokenTo) {
       dispatch(
         setUserTokens({
-          tokenFrom: { address: tokenFrom },
-          tokenTo: { address: tokenTo },
+          tokenFrom: { address: tokenFrom, kind: TokenKinds.ERC20 },
+          tokenTo: { address: tokenTo, kind: TokenKinds.ERC20 },
         })
       );
     }

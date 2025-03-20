@@ -7,12 +7,11 @@ import {
   compressFullOrderERC20,
   ADDRESS_ZERO,
   TokenInfo,
+  TokenKinds,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useToggle } from "@react-hookz/web";
 import { useWeb3React } from "@web3-react/core";
-
-import { BigNumber } from "bignumber.js";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import nativeCurrency, {
@@ -22,7 +21,7 @@ import { InterfaceContext } from "../../../contexts/interface/Interface";
 import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getTokenDecimals,
-  getTokenId,
+  getTokenKind,
   getTokenSymbol,
   isCollectionTokenInfo,
 } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
@@ -278,12 +277,20 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   }, [isActive]);
 
   const handleSetToken = (type: TokenSelectModalTypes, newToken: UserToken) => {
+    const defaultToken = {
+      address: defaultTokenToAddress,
+      kind: TokenKinds.ERC20,
+    };
     const { tokenFrom, tokenTo } = getNewTokenPair(
       type,
       newToken,
-      userTokens.tokenTo || { address: defaultTokenToAddress } || undefined,
+      userTokens.tokenTo || defaultToken || undefined,
       userTokens.tokenFrom || undefined
     );
+
+    if (tokenFrom?.kind !== TokenKinds.ERC20) {
+      type === "base" ? setMakerAmount("1") : setTakerAmount("1");
+    }
 
     dispatch(
       setUserTokens({
@@ -308,10 +315,25 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const handleSwitchTokensButtonClick = () => {
     handleSetToken(
       "base",
-      userTokens.tokenTo || { address: defaultTokenToAddress }
+      userTokens.tokenTo || {
+        address: defaultTokenToAddress,
+        kind: TokenKinds.ERC20,
+      }
     );
     setMakerAmount(takerAmount);
     setTakerAmount(makerAmount);
+  };
+
+  const handleTokenSelect = (newToken: AppTokenInfo) => {
+    const tokenId = isCollectionTokenInfo(newToken) ? newToken.id : undefined;
+    const tokenKind = getTokenKind(newToken);
+
+    handleSetToken(showTokenSelectModal, {
+      address: newToken.address,
+      tokenId,
+      kind: tokenKind,
+    });
+    setShowTokenSelectModal(null);
   };
 
   const reviewOrder = () => {
@@ -677,9 +699,12 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
             const tokenId = isCollectionTokenInfo(newToken)
               ? newToken.id
               : undefined;
+            const tokenKind = getTokenKind(newToken);
+
             handleSetToken(showTokenSelectModal, {
               address: newToken.address,
               tokenId,
+              kind: tokenKind,
             });
             setShowTokenSelectModal(null);
           }}

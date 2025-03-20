@@ -1,3 +1,4 @@
+import { TokenKinds } from "@airswap/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { ThemeType } from "styled-components/macro";
@@ -7,6 +8,7 @@ import { RootState } from "../../app/store";
 export interface UserToken {
   address: string;
   tokenId?: string;
+  kind: TokenKinds;
 }
 
 export interface UserTokenPair {
