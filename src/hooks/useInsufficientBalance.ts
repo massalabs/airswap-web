@@ -14,10 +14,7 @@ const useInsufficientBalance = (
 ): boolean => {
   const balances = useAppSelector(selectBalances);
 
-  const availableAmount = useMaxAmount(
-    tokenInfo?.address || null,
-    deductProtocolFee
-  );
+  const availableAmount = useMaxAmount(tokenInfo || null, deductProtocolFee);
 
   return useMemo(() => {
     if (!availableAmount) return true;

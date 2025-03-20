@@ -208,7 +208,7 @@ const SwapWidget: FC = () => {
   const isNetworkSupported = useNetworkSupported();
   const isAllowancesOrBalancesFailed = useAllowancesOrBalancesFailed();
 
-  const maxAmount = useMaxAmount(baseToken);
+  const maxAmount = useMaxAmount(baseTokenInfo);
   const showMaxButton = !!maxAmount && baseAmount !== maxAmount;
   const showMaxInfoButton =
     !!maxAmount &&
