@@ -1,10 +1,12 @@
-import { Delegate } from "@airswap/libraries";
+import { Delegate, Swap } from "@airswap/libraries";
 import {
+  createOrder,
   createOrderERC20,
   toAtomicString,
   FullOrderERC20,
   UnsignedOrderERC20,
   TokenInfo,
+  FullOrder,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 
@@ -12,6 +14,10 @@ import { ethers } from "ethers";
 
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
+import {
+  isCollectionTokenInfo,
+  getTokenKind,
+} from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { transformToDelegateRule } from "../../entities/DelegateRule/DelegateRuleTransformers";
 import { SubmittedSetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransaction";
 import { AppErrorType, isAppError } from "../../errors/appError";
@@ -24,6 +30,7 @@ import {
 } from "../../types/transactionTypes";
 import { sendOrderToIndexers } from "../indexer/indexerHelpers";
 import { submitTransaction } from "../transactions/transactionsActions";
+import { createOrderSignature } from "./makeOrderHelpers";
 import { setError, setStatus, setOtcOrder } from "./makeOrderSlice";
 
 const getJustifiedAddress = async (library: Web3Provider, address: string) => {
@@ -126,25 +133,40 @@ const createOtcOrder = async (
     params.senderTokenInfo.decimals
   );
 
-  const unsignedOrder = createOrderERC20({
+  const signerTokenId = isCollectionTokenInfo(params.signerTokenInfo)
+    ? params.signerTokenInfo.id
+    : undefined;
+
+  const senderTokenId = isCollectionTokenInfo(params.senderTokenInfo)
+    ? params.senderTokenInfo.id
+    : undefined;
+
+  const unsignedOrder = createOrder({
     expiry: params.expiry,
-    nonce: Date.now().toString(),
-    senderWallet: params.senderWallet,
-    signerWallet: params.signerWallet,
-    signerToken: params.signerToken,
-    senderToken: params.senderToken,
-    protocolFee: params.protocolFee,
-    signerAmount,
-    senderAmount,
-    chainId: params.chainId,
+    nonce: Date.now(),
+    protocolFee: Number(params.protocolFee),
+    signer: {
+      wallet: params.signerWallet,
+      token: params.signerToken,
+      amount: signerAmount,
+      id: signerTokenId,
+      type: getTokenKind(params.signerTokenInfo),
+    },
+    sender: {
+      wallet: params.senderWallet,
+      token: params.senderToken,
+      amount: senderAmount,
+      id: senderTokenId,
+      type: getTokenKind(params.senderTokenInfo),
+    },
   });
 
   dispatch(setStatus("signing"));
 
-  const signature = await createOrderERC20Signature(
+  const signature = await createOrderSignature(
     unsignedOrder,
     params.library.getSigner(),
-    getSwapErc20Address(params.chainId) || "",
+    Swap.getAddress(params.chainId) || "",
     params.chainId
   );
 
@@ -159,12 +181,14 @@ const createOtcOrder = async (
     return;
   }
 
-  const fullOrder: FullOrderERC20 = {
+  const fullOrder: FullOrder = {
     ...unsignedOrder,
     ...signature,
     chainId: params.chainId,
-    swapContract: getSwapErc20Address(params.chainId) || "",
+    swapContract: Swap.getAddress(params.chainId) || "",
   };
+
+  console.log("fullOrder", fullOrder);
 
   if (params.shouldSendToIndexers && params.activeIndexers) {
     sendOrderToIndexers(fullOrder, params.activeIndexers);
@@ -176,7 +200,7 @@ const createOtcOrder = async (
   return;
 };
 
-export const createOrder =
+export const createOtcOrDelegateOrder =
   (params: CreateOrderParams) =>
   async (
     dispatch: AppDispatch

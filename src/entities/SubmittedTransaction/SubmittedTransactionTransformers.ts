@@ -23,7 +23,7 @@ import {
 
 export const transformToSubmittedApprovalTransaction = (
   hash: string,
-  token: TokenInfo,
+  token: AppTokenInfo,
   amount: string,
   status: TransactionStatusType = TransactionStatusType.processing
 ): SubmittedApprovalTransaction => {

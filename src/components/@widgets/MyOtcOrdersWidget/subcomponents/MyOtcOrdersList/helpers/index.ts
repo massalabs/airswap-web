@@ -1,4 +1,4 @@
-import { FullOrderERC20, getTokenInfo } from "@airswap/utils";
+import { FullOrder, FullOrderERC20, getTokenInfo } from "@airswap/utils";
 
 import * as ethers from "ethers";
 
@@ -7,7 +7,7 @@ import { getNonceUsed } from "../../../../../../features/orders/ordersHelpers";
 import { compareAddresses } from "../../../../../../helpers/string";
 import { OrderStatus } from "../../../../../../types/orderStatus";
 import { MyOrder } from "../../../../MyOrdersWidget/entities/MyOrder";
-import { transformErc20OrderToMyOrder } from "../../../../MyOrdersWidget/entities/MyOrderTransformers";
+import { transformFullOrderToMyOrder } from "../../../../MyOrdersWidget/entities/MyOrderTransformers";
 
 export const findTokenInfo = async (
   token: string,
@@ -37,7 +37,7 @@ export const findTokenInfo = async (
 };
 
 const callGetNonceUsed = async (
-  order: FullOrderERC20,
+  order: FullOrder,
   provider: ethers.providers.BaseProvider
 ): Promise<boolean> => {
   try {
@@ -69,18 +69,18 @@ const transformToOrderStatus = (
   return OrderStatus.open;
 };
 
-export const getFullOrderERC20DataAndTransformToOrder = async (
-  order: FullOrderERC20,
+export const getFullOrderDataAndTransformToOrder = async (
+  order: FullOrder,
   activeTokens: AppTokenInfo[],
   provider: ethers.providers.BaseProvider
 ): Promise<MyOrder> => {
   const signerToken = await findTokenInfo(
-    order.signerToken,
+    order.signer.token,
     activeTokens,
     provider
   );
   const senderToken = await findTokenInfo(
-    order.senderToken,
+    order.sender.token,
     activeTokens,
     provider
   );
@@ -88,5 +88,5 @@ export const getFullOrderERC20DataAndTransformToOrder = async (
   const isExpired = new Date().getTime() > parseInt(order.expiry) * 1000;
   const status = transformToOrderStatus(isTaken, isExpired, false);
 
-  return transformErc20OrderToMyOrder(order, status, signerToken, senderToken);
+  return transformFullOrderToMyOrder(order, status, signerToken, senderToken);
 };

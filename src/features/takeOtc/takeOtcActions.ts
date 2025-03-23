@@ -1,6 +1,8 @@
 import {
   decompressFullOrderERC20,
+  FullOrder,
   FullOrderERC20,
+  isValidFullOrder,
   isValidFullOrderERC20,
 } from "@airswap/utils";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -32,9 +34,12 @@ export const decompressAndSetActiveOrder = createAsyncThunk(
     dispatch(reset());
 
     try {
-      const order = decompressFullOrderERC20(params.compressedOrder);
+      // TODO: Replace with decompressFullOrder
+      const order = decompressFullOrderERC20(
+        params.compressedOrder
+      ) as unknown as FullOrder;
 
-      if (!isValidFullOrderERC20(order)) {
+      if (!isValidFullOrder(order)) {
         return dispatch(setStatus("invalid"));
       }
 
@@ -52,7 +57,7 @@ export const cancelOrder = createAsyncThunk(
   "take-otc/cancelOrder",
   async (
     params: {
-      order: FullOrderERC20;
+      order: FullOrder;
       chainId: number;
       library: providers.Web3Provider;
     },

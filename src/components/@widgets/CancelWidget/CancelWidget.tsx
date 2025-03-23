@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 
-import { FullOrderERC20 } from "@airswap/utils";
+import { FullOrder } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
@@ -31,7 +31,7 @@ import {
 
 interface CancelWidgetProps {
   library: Web3Provider;
-  order: FullOrderERC20;
+  order: FullOrder;
 }
 
 export const CancelWidget: FC<CancelWidgetProps> = ({ order, library }) => {

@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useState } from "react";
 
-import { FullOrderERC20 } from "@airswap/utils";
+import { FullOrder, FullOrderERC20 } from "@airswap/utils";
 
 import * as ethers from "ethers";
 
@@ -10,16 +10,16 @@ import { selectAllTokenInfo } from "../../../../../features/metadata/metadataSli
 import { OrdersSortType } from "../../../../../types/ordersSortType";
 import { MyOrder } from "../../../MyOrdersWidget/entities/MyOrder";
 import MyOrdersList from "../../../MyOrdersWidget/subcomponents/MyOrdersList/MyOrdersList";
-import { getFullOrderERC20DataAndTransformToOrder } from "./helpers";
+import { getFullOrderDataAndTransformToOrder } from "./helpers";
 
 interface MyOtcOrdersListProps {
   activeCancellationId?: string;
   activeSortType: OrdersSortType;
   activeTokens: AppTokenInfo[];
-  erc20Orders: FullOrderERC20[];
+  erc20Orders: FullOrder[];
   sortTypeDirection: Record<OrdersSortType, boolean>;
   library: ethers.providers.BaseProvider;
-  onDeleteOrderButtonClick: (order: FullOrderERC20) => void;
+  onDeleteOrderButtonClick: (order: FullOrder) => void;
   onSortButtonClick: (type: OrdersSortType) => void;
   className?: string;
 }
@@ -42,7 +42,7 @@ const MyOtcOrdersList: FC<MyOtcOrdersListProps> = ({
   const callGetOrders = useCallback(async () => {
     const newOrders = await Promise.all(
       erc20Orders.map((order) =>
-        getFullOrderERC20DataAndTransformToOrder(order, activeTokens, library)
+        getFullOrderDataAndTransformToOrder(order, activeTokens, library)
       )
     );
 

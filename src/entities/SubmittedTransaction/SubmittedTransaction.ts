@@ -49,7 +49,7 @@ export interface SubmittedApprovalTransaction
   type: TransactionTypes.approval;
   hash: string;
   amount: string;
-  token: TokenInfo;
+  token: AppTokenInfo;
   tokenAddress: string;
 }
 

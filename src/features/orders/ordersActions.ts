@@ -5,6 +5,7 @@ import {
   ProtocolIds,
   toAtomicString,
   TokenInfo,
+  TokenKinds,
   UnsignedOrderERC20,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
@@ -16,6 +17,12 @@ import {
   notifyRejectedByUserError,
 } from "../../components/Toasts/ToastController";
 import nativeCurrency from "../../constants/nativeCurrency";
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import {
+  getTokenKind,
+  isCollectionTokenInfo,
+  isTokenInfo,
+} from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { transformUnsignedOrderERC20ToOrderERC20 } from "../../entities/OrderERC20/OrderERC20Transformers";
 import {
   SubmittedDepositTransaction,
@@ -50,7 +57,8 @@ import {
   submitTransaction,
 } from "../transactions/transactionsActions";
 import {
-  approveToken,
+  approveErc20Token,
+  approveNftToken,
   depositETH,
   takeOrder,
   withdrawETH,
@@ -281,7 +289,7 @@ export const withdraw =
 export const approve =
   (
     amount: string,
-    token: TokenInfo,
+    token: AppTokenInfo,
     library: Web3Provider,
     contractType: "Wrapper" | "Swap" | "Delegate"
   ) =>
@@ -289,14 +297,23 @@ export const approve =
     dispatch(setStatus("signing"));
 
     try {
-      const approveAmount = toRoundedAtomicString(amount, token.decimals);
+      const approveAmount = isTokenInfo(token)
+        ? toRoundedAtomicString(amount, token.decimals)
+        : amount;
+      const tokenKind = getTokenKind(token);
+      const tokenId = isCollectionTokenInfo(token) ? token.id : undefined;
 
-      const tx = await approveToken(
-        token.address,
-        library,
-        contractType,
-        approveAmount
-      );
+      const tx = await (tokenKind === TokenKinds.ERC20
+        ? approveErc20Token(token.address, library, contractType, approveAmount)
+        : approveNftToken(
+            token.address,
+            library,
+            contractType,
+            tokenKind,
+            tokenId!
+          ));
+
+      console.log("tx", tx);
 
       if (isAppError(tx)) {
         const appError = tx;

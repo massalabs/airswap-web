@@ -29,7 +29,7 @@ import { AppErrorType } from "../../../errors/appError";
 import { selectBalances } from "../../../features/balances/balancesSlice";
 import { fetchIndexerUrls } from "../../../features/indexer/indexerActions";
 import { selectIndexerReducer } from "../../../features/indexer/indexerSlice";
-import { createOrder as createOrderAction } from "../../../features/makeOrder/makeOrderActions";
+import { createOtcOrDelegateOrder } from "../../../features/makeOrder/makeOrderActions";
 import {
   clearLastUserOrder,
   reset,
@@ -168,7 +168,9 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     : undefined;
   const makerAmountPlusFee = useAmountPlusFee(makerAmount, makerTokenDecimals);
 
-  const { hasSufficientAllowance, readableAllowance } = useAllowance(
+  // TODO: Remove this once we have a way to check allowance
+  const hasSufficientAllowance = true;
+  const { readableAllowance } = useAllowance(
     makerTokenInfo,
     isLimitOrder ? makerAmount : makerAmountPlusFee,
     { spenderAddressType: isLimitOrder ? "Delegate" : "Swap" }
@@ -199,6 +201,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
     makerAmount
   );
   const shouldDepositNativeToken = !!shouldDepositNativeTokenAmount;
+  const shouldPayProtocolFee =
+    !isLimitOrder && userTokens.tokenFrom?.kind === TokenKinds.ERC20;
   const isValidAddress = useValidAddress(takerAddress);
   const isAllowancesOrBalancesFailed = useAllowancesOrBalancesFailed();
   const isNetworkSupported = useNetworkSupported();
@@ -246,6 +250,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
   useEffect(() => {
     if (lastUserOrder) {
+      // TODO: Support FullOrder
+      // @ts-ignore
       const compressedOrder = compressFullOrderERC20(lastUserOrder);
       dispatch(clearLastUserOrder());
       history.push(routes.otcOrder(compressedOrder));
@@ -374,7 +380,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
     // TODO: Make createOrderAction compatible with CollectionTokenInfo
     const transaction = await dispatch(
-      createOrderAction({
+      createOtcOrDelegateOrder({
         isLimitOrder,
         nonce: expiryDate.toString(),
         expiry: Math.floor(expiryDate / 1000).toString(),
@@ -406,11 +412,10 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         ? wrappedNativeToken
         : makerTokenInfo;
 
-    // TODO: Make approve compatible with CollectionTokenInfo
     dispatch(
       approve(
-        makerAmountPlusFee,
-        justifiedToken! as TokenInfo,
+        shouldPayProtocolFee ? makerAmountPlusFee : makerAmount,
+        justifiedToken!,
         library!,
         isLimitOrder ? "Delegate" : "Swap"
       )
@@ -512,7 +517,9 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
             hasEditButton
             isLoading={!!approvalTransaction}
             amount={makerAmount}
-            amountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
+            amountPlusFee={
+              shouldPayProtocolFee ? makerAmountPlusFee : undefined
+            }
             readableAllowance={readableAllowance}
             token={makerTokenInfo}
             wrappedNativeToken={wrappedNativeToken}
@@ -535,7 +542,9 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
             senderAmount={takerAmount}
             senderToken={takerTokenInfo}
             signerAmount={makerAmount}
-            signerAmountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
+            signerAmountPlusFee={
+              shouldPayProtocolFee ? makerAmountPlusFee : undefined
+            }
             signerToken={makerTokenInfo}
             wrappedNativeToken={wrappedNativeToken}
             onEditButtonClick={handleEditButtonClick}
@@ -695,19 +704,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
           allTokens={allTokens}
           balances={balances}
           supportedTokenAddresses={[]}
-          onSelectToken={(newToken) => {
-            const tokenId = isCollectionTokenInfo(newToken)
-              ? newToken.id
-              : undefined;
-            const tokenKind = getTokenKind(newToken);
-
-            handleSetToken(showTokenSelectModal, {
-              address: newToken.address,
-              tokenId,
-              kind: tokenKind,
-            });
-            setShowTokenSelectModal(null);
-          }}
+          onSelectToken={handleTokenSelect}
         />
       </ModalOverlay>
       <ModalOverlay

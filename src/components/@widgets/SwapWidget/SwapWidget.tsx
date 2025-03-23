@@ -41,7 +41,7 @@ import {
   takeLastLookOrder,
   withdraw,
 } from "../../../features/orders/ordersActions";
-import { check } from "../../../features/orders/ordersHelpers";
+import { checkOrderErc20 } from "../../../features/orders/ordersHelpers";
 import {
   clear,
   selectOrdersErrors,
@@ -342,7 +342,7 @@ const SwapWidget: FC = () => {
 
       if (!senderWallet) return;
 
-      const errors = await check(
+      const errors = await checkOrderErc20(
         order,
         senderWallet,
         chainId,

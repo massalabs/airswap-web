@@ -1,25 +1,36 @@
 import { Swap, SwapERC20 } from "@airswap/libraries";
-import { OrderERC20, orderERC20ToParams } from "@airswap/utils";
+import {
+  FullOrder,
+  isValidFullOrder,
+  OrderERC20,
+  orderERC20ToParams,
+} from "@airswap/utils";
 
 import { ethers } from "ethers";
 
-export const getSwapErc20Contract = (
+export const getSwapContract = (
   providerOrSigner: ethers.providers.Provider | ethers.Signer,
   chainId: number
 ): ethers.Contract => {
-  return SwapERC20.getContract(providerOrSigner, chainId);
+  return Swap.getContract(providerOrSigner, chainId);
 };
 
-export const checkSwapErc20Order = async (
+export const checkSwapOrder = async (
   providerOrSigner: ethers.providers.Provider,
   chainId: number,
   senderWallet: string,
-  order: OrderERC20
+  order: FullOrder
 ): Promise<string[]> => {
-  const contract = getSwapErc20Contract(providerOrSigner, chainId);
+  const contract = getSwapContract(providerOrSigner, chainId);
+
+  if (!isValidFullOrder(order)) {
+    return [];
+  }
 
   const response = await contract.check(
     senderWallet,
+    // TODO: Replace with fullOrderToParams
+    // @ts-ignore
     ...orderERC20ToParams(order)
   );
 

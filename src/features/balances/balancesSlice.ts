@@ -111,7 +111,7 @@ const getThunk: (
         );
 
         if (state.takeOtc.activeOrder) {
-          activeErc20Addresses.push(state.takeOtc.activeOrder.senderToken);
+          activeErc20Addresses.push(state.takeOtc.activeOrder.sender.token);
         }
 
         dispatch(getSetInFlightRequestTokensAction(type)(activeErc20Addresses));

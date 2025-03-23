@@ -1,17 +1,24 @@
-import { compressFullOrderERC20, FullOrderERC20 } from "@airswap/utils";
+import {
+  compressFullOrderERC20,
+  FullOrder,
+  FullOrderERC20,
+} from "@airswap/utils";
 
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
 import { routes } from "../../../../routes";
 import { OrderStatus } from "../../../../types/orderStatus";
 import { MyOrder } from "./MyOrder";
 
-export const transformErc20OrderToMyOrder = (
-  order: FullOrderERC20,
+export const transformFullOrderToMyOrder = (
+  order: FullOrder,
   status: OrderStatus,
   signerToken?: AppTokenInfo,
   senderToken?: AppTokenInfo
 ): MyOrder => {
-  const compressedOrder = compressFullOrderERC20(order);
+  // TODO: Add compressFullOrder
+  const compressedOrder = compressFullOrderERC20(
+    order as unknown as FullOrderERC20
+  );
 
   return {
     id: order.nonce,
@@ -19,9 +26,9 @@ export const transformErc20OrderToMyOrder = (
     status: status,
     chainId: order.chainId,
     senderToken,
-    senderAmount: order.senderAmount,
+    senderAmount: order.sender.amount,
     signerToken,
-    signerAmount: order.signerAmount,
+    signerAmount: order.signer.amount,
     expiry: new Date(Number(order.expiry) * 1000),
   };
 };
