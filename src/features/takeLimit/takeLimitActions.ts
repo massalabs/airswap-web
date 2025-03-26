@@ -1,8 +1,11 @@
 import { Delegate } from "@airswap/libraries";
-import { ADDRESS_ZERO, createOrderERC20, TokenInfo } from "@airswap/utils";
+import {
+  ADDRESS_ZERO,
+  createOrderERC20,
+  getCostByRule,
+  TokenInfo,
+} from "@airswap/utils";
 import { BaseProvider, Web3Provider } from "@ethersproject/providers";
-
-import BigNumber from "bignumber.js";
 
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
@@ -19,7 +22,6 @@ import transformUnknownErrorToAppError from "../../errors/transformUnknownErrorT
 import { createOrderERC20Signature } from "../../helpers/createSwapSignature";
 import toAtomicString from "../../helpers/toAtomicString";
 import { submitTransaction } from "../transactions/transactionsActions";
-import { calculateDelegateFillSignerAmount } from "./takeLimitHelpers";
 import { setDelegateRule, setError, setStatus } from "./takeLimitSlice";
 
 type GetDelegateOrderParams = {
@@ -83,7 +85,7 @@ export const takeLimitOrder =
         return;
       }
 
-      const signerAmount = calculateDelegateFillSignerAmount(
+      const signerAmount = getCostByRule(
         senderAmount,
         delegateRule.senderAmount,
         delegateRule.signerAmount
