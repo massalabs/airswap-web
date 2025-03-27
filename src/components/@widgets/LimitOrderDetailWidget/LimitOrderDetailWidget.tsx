@@ -249,8 +249,8 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
       tokenExchangeRate,
       value,
       availableSenderAmount,
-      signerToken?.decimals,
-      senderToken?.decimals
+      senderToken?.decimals,
+      signerToken?.decimals
     );
 
     setCustomSignerAmount(newCustomSignerAmount);

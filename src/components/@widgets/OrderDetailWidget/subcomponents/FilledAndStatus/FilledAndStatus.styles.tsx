@@ -8,9 +8,10 @@ export const Container = styled(InfoSectionHeading)`
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  height: 3rem;
+  min-height: 3rem;
   border: 1px solid ${({ theme }) => theme.colors.borderGrey};
   border-radius: 0.5rem;
+  padding-block: 0.5rem;
   padding-inline: 1rem;
   font-weight: 500;
   background-color: ${({ theme }) => theme.colors.darkGrey};
