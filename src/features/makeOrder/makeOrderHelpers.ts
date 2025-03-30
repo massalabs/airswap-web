@@ -50,17 +50,18 @@ export const createOrderSignature = (
   chainId: number
   // eslint-disable-next-line no-async-promise-executor
 ): Promise<Signature | AppError> =>
-  new Promise<Signature | AppError>(async (resolve) => {
+  new Promise<Signature | AppError>((resolve) => {
     try {
-      const signature = await airswapCreateOrderSignature(
+      airswapCreateOrderSignature(
         unsignedOrder,
         // @ts-ignore
         // Airswap library asking for incorrect VoidSigner. This will be fixed later.
         signer,
         swapContract,
         chainId
-      );
-      resolve(signature);
+      ).then((signature) => {
+        resolve(signature);
+      });
     } catch (error: unknown) {
       console.error(error);
       resolve(transformUnknownErrorToAppError(error));

@@ -1,8 +1,10 @@
 import { TokenKinds } from "@airswap/utils";
 
+import { OwnedBaseNft } from "alchemy-sdk";
 import { BigNumber, ethers, Event } from "ethers";
 
 import erc721AbiContract from "../../abis/erc721.json";
+import { getAlchemyClient } from "../../helpers/alchemy";
 import { getUniqueSingleDimensionArray } from "../../helpers/array";
 
 type TokenIdsWithBalance = {
@@ -26,6 +28,15 @@ export const transformTokensToTokenIdsWithBalance = (
       return acc;
     }, {});
 
+export const transformOwnedNftsToTokenIdsWithBalance = (
+  ownedNfts: OwnedBaseNft[]
+): TokenIdsWithBalance =>
+  ownedNfts.reduce((acc: TokenIdsWithBalance, ownedNft: OwnedBaseNft) => {
+    acc[ownedNft.tokenId] = ownedNft.balance;
+
+    return acc;
+  }, {});
+
 const getOwnedErc721TokensByFilteringEvents = async (
   provider: ethers.providers.BaseProvider,
   walletAddress: string,
@@ -39,8 +50,6 @@ const getOwnedErc721TokensByFilteringEvents = async (
   const transferFilter = contract.filters.Transfer(null, walletAddress);
 
   const events: Event[] = await contract.queryFilter(transferFilter, 0);
-
-  console.log("events", events);
 
   /* get token ids from past events */
   const foundTokenIds: BigNumber[] = events.map((e) => e.args?.at(2));
@@ -57,6 +66,20 @@ const getOwnedErc721TokensByFilteringEvents = async (
   );
 
   return transformTokensToTokenIdsWithBalance(ownedTokenIds);
+};
+
+const getOwnedTokensByAlchemy = async (
+  walletAddress: string,
+  collectionToken: string,
+  chainId: number
+): Promise<TokenIdsWithBalance> => {
+  const alchemy = getAlchemyClient(chainId);
+  const response = await alchemy.nft.getNftsForOwner(walletAddress, {
+    contractAddresses: [collectionToken],
+    omitMetadata: true,
+  });
+
+  return transformOwnedNftsToTokenIdsWithBalance(response.ownedNfts);
 };
 
 export const getOwnedTokenIdsOfWallet = async (
@@ -78,16 +101,22 @@ export const getOwnedTokenIdsOfWallet = async (
 
   if (isErc721) {
     console.log("isErc721");
-    try {
-      return await getOwnedErc721TokensByFilteringEvents(
-        provider,
-        walletAddress,
-        collectionToken
-      );
-    } catch {
-      return {};
-      // return getOwnedTokensByAlchemy(walletAddress, collectionToken);
-    }
+
+    return getOwnedTokensByAlchemy(
+      walletAddress,
+      collectionToken,
+      provider.network.chainId
+    );
+
+    // try {
+    //   return await getOwnedErc721TokensByFilteringEvents(
+    //     provider,
+    //     walletAddress,
+    //     collectionToken
+    //   );
+    // } catch {
+    //   return getOwnedTokensByAlchemy(walletAddress, collectionToken);
+    // }
   }
 
   // if (isErc721Enumerable) {
