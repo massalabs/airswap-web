@@ -70,7 +70,10 @@ export const useBalances = () => {
 
     const { type } = latestSuccessfulTransaction;
 
-    if (type === TransactionTypes.order) {
+    if (
+      type === TransactionTypes.order ||
+      type === TransactionTypes.delegatedSwap
+    ) {
       dispatch(requestActiveTokenBalances({ provider: library }));
       dispatch(requestActiveTokenAllowancesSwap({ provider: library }));
       dispatch(requestActiveTokenAllowancesWrapper({ provider: library }));

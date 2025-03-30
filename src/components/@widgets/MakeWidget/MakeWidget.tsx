@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useMemo, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { useLocalStorage } from "react-use";
@@ -198,7 +198,8 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const wrappedNativeToken = useNativeWrappedToken(chainId);
   const shouldDepositNativeTokenAmount = useShouldDepositNativeToken(
     makerTokenInfo?.address,
-    makerAmount
+    makerAmount,
+    isLimitOrder ? false : true
   );
   const shouldDepositNativeToken = !!shouldDepositNativeTokenAmount;
   const shouldPayProtocolFee =
@@ -499,7 +500,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
             hasEditButton
             isLoading={!!depositTransaction}
             amount={makerAmount}
-            amountPlusFee={makerAmountPlusFee}
+            amountPlusFee={isLimitOrder ? undefined : makerAmountPlusFee}
             shouldDepositNativeTokenAmount={shouldDepositNativeTokenAmount}
             wrappedNativeToken={wrappedNativeToken}
             onEditButtonClick={handleEditButtonClick}

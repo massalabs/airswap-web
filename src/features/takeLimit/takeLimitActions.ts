@@ -1,8 +1,11 @@
 import { Delegate } from "@airswap/libraries";
-import { ADDRESS_ZERO, createOrderERC20, TokenInfo } from "@airswap/utils";
+import {
+  ADDRESS_ZERO,
+  createOrderERC20,
+  getCostByRule,
+  TokenInfo,
+} from "@airswap/utils";
 import { BaseProvider, Web3Provider } from "@ethersproject/providers";
-
-import BigNumber from "bignumber.js";
 
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
@@ -76,18 +79,16 @@ export const takeLimitOrder =
         params.senderTokenInfo.decimals
       );
 
-      const fillSignerAmount = new BigNumber(delegateRule.signerAmount)
-        .multipliedBy(params.senderAmount)
-        .dividedBy(delegateRule.senderAmount);
+      if (isAppError(senderAmount)) {
+        dispatch(setStatus("failed"));
+        dispatch(setError(senderAmount));
+        return;
+      }
 
-      const roundedSignerAmount = fillSignerAmount
-        // Delegate rule amount is always rounded down
-        .decimalPlaces(params.signerTokenInfo.decimals, BigNumber.ROUND_DOWN)
-        .toString();
-
-      const signerAmount = toAtomicString(
-        roundedSignerAmount,
-        params.signerTokenInfo.decimals
+      const signerAmount = getCostByRule(
+        senderAmount,
+        delegateRule.senderAmount,
+        delegateRule.signerAmount
       );
 
       const swapErc20ContractAddress = await getSwapErc20ContractAddress(

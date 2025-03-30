@@ -40,15 +40,18 @@ export const getCustomSenderAmount = (
   )
     ? availableSignerAmount
     : signerAmount;
-  const senderAmount = new BigNumber(justifiedSignerAmount)
+
+  const roundedSignerAmount = toMaxAllowedDecimalsNumberString(
+    justifiedSignerAmount,
+    signerTokenDecimals
+  );
+
+  const senderAmount = new BigNumber(roundedSignerAmount)
     .dividedBy(exchangeRate)
     .toString();
 
   return {
-    signerAmount: toMaxAllowedDecimalsNumberString(
-      justifiedSignerAmount,
-      signerTokenDecimals
-    ),
+    signerAmount: roundedSignerAmount,
     senderAmount: toMaxAllowedDecimalsNumberString(
       senderAmount,
       senderTokenDecimals
@@ -74,7 +77,13 @@ export const getCustomSignerAmount = (
   )
     ? availableSenderAmount
     : senderAmount;
-  const signerAmount = new BigNumber(justifiedSenderAmount)
+
+  const roundedSenderAmount = toMaxAllowedDecimalsNumberString(
+    justifiedSenderAmount,
+    senderTokenDecimals
+  );
+
+  const signerAmount = new BigNumber(roundedSenderAmount)
     .multipliedBy(exchangeRate)
     .toString();
 
@@ -83,9 +92,6 @@ export const getCustomSignerAmount = (
       signerAmount,
       signerTokenDecimals
     ),
-    senderAmount: toMaxAllowedDecimalsNumberString(
-      justifiedSenderAmount,
-      senderTokenDecimals
-    ),
+    senderAmount: roundedSenderAmount,
   };
 };
