@@ -10,6 +10,7 @@ import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getTokenDecimals,
   getTokenImage,
+  getTokenKind,
   getTokenSymbol,
 } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { getExpiryTranslation } from "../../../helpers/getExpiryTranslation";
@@ -137,6 +138,7 @@ const MakeOrderReview: FC<MakeOrderReviewProps> = ({
           amount={signerAmount}
           label={t("common.send")}
           tokenSymbol={signerTokenSymbol || "?"}
+          tokenKind={getTokenKind(signerToken)}
           tokenUri={signerTokenImage}
         />
       )}
@@ -145,6 +147,7 @@ const MakeOrderReview: FC<MakeOrderReviewProps> = ({
           amount={senderAmount}
           label={t("common.receive")}
           tokenSymbol={senderTokenSymbol || "?"}
+          tokenKind={getTokenKind(senderToken)}
           tokenUri={senderTokenImage}
         />
       )}

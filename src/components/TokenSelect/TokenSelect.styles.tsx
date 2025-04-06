@@ -51,11 +51,11 @@ const fontTransition = css`
   }
 `;
 
-export const ContainingButton = styled.button`
+export const ContainingButton = styled.button<{ isNft?: boolean }>`
   display: flex;
   flex-direction: row;
   position: relative;
-  width: 40%;
+  width: ${(props) => (props.isNft ? "76%" : "40%")};
   height: 3.125rem;
   cursor: ${(props) => (props.disabled ? "initial" : "pointer")};
   pointer-events: ${(props) => (props.disabled ? "none" : "inherit")};
@@ -187,7 +187,7 @@ export const StyledSelector = styled.div`
   height: 100%;
 `;
 
-export const StyledSelectItem = styled(SelectItem)`
+export const StyledSelectItem = styled(SelectItem)<{ isNft?: boolean }>`
   ${fontTransition};
   display: flex;
   flex-direction: row;
@@ -197,14 +197,14 @@ export const StyledSelectItem = styled(SelectItem)`
   font-family: ${fontWide};
   font-weight: 700;
   gap: 0.375rem;
-  max-width: 9rem;
+  max-width: ${(props) => (props.isNft ? "17rem" : "9rem")};
   color: ${(props) =>
     props.theme.name === "dark"
       ? props.theme.colors.white
       : props.theme.colors.primary};
 
   @media ${breakPoints.phoneOnly} {
-    max-width: 7rem;
+    max-width: ${(props) => (props.isNft ? "15rem" : "7rem")};
   }
 `;
 

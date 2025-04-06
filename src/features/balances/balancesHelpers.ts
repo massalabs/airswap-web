@@ -93,43 +93,34 @@ export const getOwnedTokenIdsOfWallet = async (
     provider
   );
 
-  const [isErc721Enumerable, isErc721, isErc1155] = (await Promise.all([
-    contract.supportsInterface("0x780e9d63"), // The interface ID for erc721 enumerable
+  const [isErc721, isErc1155] = (await Promise.all([
     contract.supportsInterface(TokenKinds.ERC721),
     contract.supportsInterface(TokenKinds.ERC1155),
   ])) as boolean[];
 
   if (isErc721) {
-    console.log("isErc721");
+    try {
+      return await getOwnedErc721TokensByFilteringEvents(
+        provider,
+        walletAddress,
+        collectionToken
+      );
+    } catch {
+      return getOwnedTokensByAlchemy(
+        walletAddress,
+        collectionToken,
+        provider.network.chainId
+      );
+    }
+  }
 
+  if (isErc1155) {
     return getOwnedTokensByAlchemy(
       walletAddress,
       collectionToken,
       provider.network.chainId
     );
-
-    // try {
-    //   return await getOwnedErc721TokensByFilteringEvents(
-    //     provider,
-    //     walletAddress,
-    //     collectionToken
-    //   );
-    // } catch {
-    //   return getOwnedTokensByAlchemy(walletAddress, collectionToken);
-    // }
   }
-
-  // if (isErc721Enumerable) {
-  //   try {
-  //     return await getOwnedErc721EnumerableTokensByFilteringEvents(provider, walletAddress, collectionToken);
-  //   } catch {
-  //     return getOwnedTokensByAlchemy(walletAddress, collectionToken);
-  //   }
-  // }
-
-  // if (isErc1155) {
-  //   return getOwnedTokensByAlchemy(walletAddress, collectionToken);
-  // }
 
   throw new Error("Unknown nft interface. Could not fetch token ids.");
 };

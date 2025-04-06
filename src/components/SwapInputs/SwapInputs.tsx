@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { TokenInfo } from "@airswap/utils";
 
 import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenKind } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { AppError } from "../../errors/appError";
 import TokenSelect from "../TokenSelect/TokenSelect";
 import {
@@ -85,6 +86,10 @@ const SwapInputs: FC<{
   const [showMaxAmountInfo, setShowMaxAmountInfo] = useState(false);
 
   const isSell = side === "sell";
+  const baseTokenKind = baseTokenInfo ? getTokenKind(baseTokenInfo) : undefined;
+  const quoteTokenKind = quoteTokenInfo
+    ? getTokenKind(quoteTokenInfo)
+    : undefined;
 
   const maxAmountInfoText = useMemo(
     () => getTokenMaxInfoText(baseTokenInfo, maxAmount, t),
@@ -143,6 +148,7 @@ const SwapInputs: FC<{
         label={t("orders.from")}
         selectedToken={isSell ? baseTokenInfo : quoteTokenInfo}
         subText={baseAmountSubText}
+        tokenKind={isSell ? baseTokenKind : quoteTokenKind}
         onAmountChange={(e) => handleTokenAmountChange(e, onBaseAmountChange)}
         onChangeTokenClicked={() => {
           onChangeTokenClick?.(isSell ? "base" : "quote");
@@ -176,6 +182,7 @@ const SwapInputs: FC<{
         }
         readOnly={readOnly}
         label={t("orders.to")}
+        tokenKind={isSell ? quoteTokenKind : baseTokenKind}
         selectedToken={!isSell ? baseTokenInfo : quoteTokenInfo}
         onAmountChange={(e) =>
           handleTokenAmountChange(e, onQuoteAmountChange || onBaseAmountChange)

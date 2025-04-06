@@ -10,6 +10,7 @@ import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import {
   getTokenDecimals,
   getTokenImage,
+  getTokenKind,
   getTokenSymbol,
 } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { AppError } from "../../../errors/appError";
@@ -112,6 +113,7 @@ const ApproveReview: FC<ApproveReviewProps> = ({
         amount={amount}
         label={t("common.send")}
         tokenSymbol={tokenSymbol}
+        tokenKind={token ? getTokenKind(token) : undefined}
         tokenUri={tokenImage}
       />
       <ReviewList>

@@ -186,7 +186,10 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
   const hasMissingTakerAmount =
     !takerAmount.length || parseFloat(takerAmount) === 0 || takerAmount === ".";
   const maxAmount = useMaxAmount(makerTokenInfo || null, true);
-  const showMaxButton = !!maxAmount && makerAmount !== maxAmount;
+  const showMaxButton =
+    !!maxAmount &&
+    makerAmount !== maxAmount &&
+    userTokens.tokenFrom?.kind !== TokenKinds.ERC721;
   const showMaxInfoButton =
     !!maxAmount &&
     makerTokenInfo?.address === ADDRESS_ZERO &&
