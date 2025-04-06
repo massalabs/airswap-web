@@ -24,7 +24,7 @@ export const CollectionNftsList: FC<CollectionNftsListProps> = ({
   onSelectToken,
 }) => {
   const filteredTokens = tokens.filter((token) =>
-    token.name?.toLowerCase().includes(tokenQuery.toLowerCase())
+    token.name?.toLowerCase().includes(tokenQuery.toLowerCase()) || token.id?.toString().includes(tokenQuery)
   );
 
   return (

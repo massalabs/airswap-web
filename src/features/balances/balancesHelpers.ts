@@ -1,6 +1,6 @@
-import { TokenKinds } from "@airswap/utils";
+import { CollectionTokenInfo, TokenKinds } from "@airswap/utils";
 
-import { OwnedBaseNft } from "alchemy-sdk";
+import { Nft, OwnedBaseNft } from "alchemy-sdk";
 import { BigNumber, ethers, Event } from "ethers";
 
 import erc721AbiContract from "../../abis/erc721.json";
@@ -36,6 +36,16 @@ export const transformOwnedNftsToTokenIdsWithBalance = (
 
     return acc;
   }, {});
+
+export const transformNftToCollectionTokenInfo = (nft: Nft, chainId: number): CollectionTokenInfo => ({
+  chainId: chainId,
+  kind: nft.contract.tokenType === "ERC721" ? TokenKinds.ERC721 : TokenKinds.ERC1155,
+  address: nft.contract.address,
+  id: nft.tokenId,
+  image: nft.image.originalUrl,
+  name: nft.name,
+  uri: nft.tokenUri ?? "",
+});
 
 const getOwnedErc721TokensByFilteringEvents = async (
   provider: ethers.providers.BaseProvider,
@@ -82,7 +92,22 @@ const getOwnedTokensByAlchemy = async (
   return transformOwnedNftsToTokenIdsWithBalance(response.ownedNfts);
 };
 
-export const getOwnedTokenIdsOfWallet = async (
+export const getCollectionTokenInfoByAlchemy = async (
+  collectionToken: string,
+  tokenId: string,
+  chainId: number
+): Promise<CollectionTokenInfo | undefined> => {
+  const alchemy = getAlchemyClient(chainId);
+  const response = await alchemy.nft.getNftMetadata(collectionToken, tokenId);
+
+  if (!response || response.tokenType === "NO_SUPPORTED_NFT_STANDARD" || response.tokenType === "NOT_A_CONTRACT" || response.tokenType === "UNKNOWN") {
+    return undefined;
+  }
+
+  return transformNftToCollectionTokenInfo(response, chainId);
+};
+
+export const getOwnedTokensOfWallet = async (
   provider: ethers.providers.BaseProvider,
   walletAddress: string,
   collectionToken: string

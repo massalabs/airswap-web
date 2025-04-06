@@ -9,7 +9,7 @@ import {
 
 import * as ethers from "ethers";
 
-import { getOwnedTokenIdsOfWallet } from "../features/balances/balancesHelpers";
+import { getOwnedTokensOfWallet } from "../features/balances/balancesHelpers";
 
 const callGetTokenInfo = (
   address: string,
@@ -79,7 +79,7 @@ const scrapeToken = async (
   }
 
   if (tokenKind === TokenKinds.ERC721 || tokenKind === TokenKinds.ERC1155) {
-    const ownedTokens = await getOwnedTokenIdsOfWallet(
+    const ownedTokens = await getOwnedTokensOfWallet(
       provider,
       walletAddress,
       tokenAddress

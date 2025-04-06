@@ -28,12 +28,13 @@ import { getActionButtonText, getTokenIdsFromTokenInfo } from "./helpers";
 import useScrapeToken from "./hooks/useScrapeToken";
 import { CollectionNftsList } from "./subcomponents/CollectionNftsList/CollectionNftsList";
 import TokensAndCollectionsList from "./subcomponents/TokensAndCollectionsList/TokensAndCollectionsList";
+import { useCollectionTokenById } from "./hooks/useCollectionTokenById";
 
 export type TokenListProps = {
   /**
-   * Called when a token has been seleced.
+   * Whether the token list is for a quote token. This will determine if the nft selector lists the user's token or all tokens.
    */
-  onSelectToken: (val: AppTokenInfo) => void;
+  isQuoteToken?: boolean;
   /**
    * Balances for current tokens in wallet
    */
@@ -58,16 +59,21 @@ export type TokenListProps = {
    * function to handle removing active tokens (dispatches removeActiveToken).
    */
   onAfterRemoveActiveToken?: (val: string) => void;
+    /**
+   * Called when a token has been seleced.
+   */
+  onSelectToken: (val: AppTokenInfo) => void;
 };
 
 const TokenList = ({
-  onSelectToken,
+  isQuoteToken,
   balances,
   allTokens,
   activeTokens = [],
   supportedTokenAddresses,
   onAfterAddActiveToken,
   onAfterRemoveActiveToken,
+  onSelectToken,
 }: TokenListProps) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
@@ -86,17 +92,24 @@ const TokenList = ({
     allTokens
   );
 
+  const [searchedNft, isSearchingNft] = useCollectionTokenById(
+    selectedNftCollection,
+    tokenQuery,
+    chainId,
+    allTokens
+  );
+
   const activeCollectionTokens = useMemo(() => {
     if (!selectedNftCollection) {
       return [];
     }
 
-    return activeTokens
+    return (isQuoteToken ? activeTokens : allTokens)
       .filter((token) =>
         compareAddresses(token.address, selectedNftCollection.address)
       )
       .filter(isCollectionTokenInfo);
-  }, [selectedNftCollection]);
+  }, [selectedNftCollection, allTokens]);
 
   const handleAddToken = async (tokenInfo: AppTokenInfo) => {
     if (library && account) {

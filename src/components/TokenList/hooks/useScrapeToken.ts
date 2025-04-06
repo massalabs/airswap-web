@@ -5,7 +5,6 @@ import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 
 import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
-import { isTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { addUnknownTokenInfo } from "../../../features/metadata/metadataActions";
 import scrapeToken from "../../../helpers/scrapeToken";
 import { compareAddresses } from "../../../helpers/string";

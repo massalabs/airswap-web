@@ -704,6 +704,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         isHidden={!showTokenSelectModal}
       >
         <TokenList
+          isQuoteToken={showTokenSelectModal === "quote"}
           activeTokens={activeTokens}
           allTokens={allTokens}
           balances={balances}
