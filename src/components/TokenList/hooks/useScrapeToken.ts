@@ -11,7 +11,8 @@ import { compareAddresses } from "../../../helpers/string";
 
 const useScrapeToken = (
   address: string,
-  tokens: AppTokenInfo[]
+  tokens: AppTokenInfo[],
+  isQuoteToken = false
 ): [AppTokenInfo[], boolean] => {
   const dispatch = useDispatch();
   const { account } = useWeb3React();
@@ -38,7 +39,11 @@ const useScrapeToken = (
 
     const callScrapeToken = async () => {
       setIsLoading(true);
-      const result = await scrapeToken(library, address, account);
+      const result = await scrapeToken(
+        library,
+        address,
+        isQuoteToken ? undefined : account
+      );
       console.log(result);
       setScrapedTokens(result);
       setIsLoading(false);

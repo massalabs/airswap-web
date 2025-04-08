@@ -25,10 +25,10 @@ import {
   SizingContainer,
 } from "./TokenList.styles";
 import { getActionButtonText, getTokenIdsFromTokenInfo } from "./helpers";
+import { useCollectionTokenById } from "./hooks/useCollectionTokenById";
 import useScrapeToken from "./hooks/useScrapeToken";
 import { CollectionNftsList } from "./subcomponents/CollectionNftsList/CollectionNftsList";
 import TokensAndCollectionsList from "./subcomponents/TokensAndCollectionsList/TokensAndCollectionsList";
-import { useCollectionTokenById } from "./hooks/useCollectionTokenById";
 
 export type TokenListProps = {
   /**
@@ -59,7 +59,7 @@ export type TokenListProps = {
    * function to handle removing active tokens (dispatches removeActiveToken).
    */
   onAfterRemoveActiveToken?: (val: string) => void;
-    /**
+  /**
    * Called when a token has been seleced.
    */
   onSelectToken: (val: AppTokenInfo) => void;
@@ -89,7 +89,8 @@ const TokenList = ({
   const [tokenQuery, setTokenQuery] = useState<string>("");
   const [scrapedTokens, isScrapeTokensLoading] = useScrapeToken(
     tokenQuery,
-    allTokens
+    allTokens,
+    isQuoteToken
   );
 
   const [searchedNft, isSearchingNft] = useCollectionTokenById(
@@ -104,7 +105,7 @@ const TokenList = ({
       return [];
     }
 
-    return (isQuoteToken ? activeTokens : allTokens)
+    return (isQuoteToken ? allTokens : activeTokens)
       .filter((token) =>
         compareAddresses(token.address, selectedNftCollection.address)
       )

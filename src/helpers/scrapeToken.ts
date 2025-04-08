@@ -9,7 +9,10 @@ import {
 
 import * as ethers from "ethers";
 
-import { getOwnedTokensOfWallet } from "../features/balances/balancesHelpers";
+import {
+  getFirstNftIdCollection,
+  getOwnedNftsOfWallet,
+} from "../features/balances/balancesHelpers";
 
 const callGetTokenInfo = (
   address: string,
@@ -43,11 +46,11 @@ const callGetCollectionTokenInfo = (
 const fetchTokenInfosSequentially = async (
   provider: ethers.providers.BaseProvider,
   tokenAddress: string,
-  ownedTokens: Record<string, any>
+  ownedTokens: string[]
 ): Promise<CollectionTokenInfo[]> => {
   const tokenInfos = [];
 
-  for (const tokenId of Object.keys(ownedTokens)) {
+  for (const tokenId of ownedTokens) {
     const tokenInfo = await callGetCollectionTokenInfo(
       provider,
       tokenAddress,
@@ -64,7 +67,7 @@ const fetchTokenInfosSequentially = async (
 const scrapeToken = async (
   provider: ethers.providers.BaseProvider,
   tokenAddress: string,
-  walletAddress: string
+  walletAddress?: string
 ): Promise<(TokenInfo | CollectionTokenInfo)[]> => {
   if (!ethers.utils.isAddress(tokenAddress)) {
     return [];
@@ -79,11 +82,9 @@ const scrapeToken = async (
   }
 
   if (tokenKind === TokenKinds.ERC721 || tokenKind === TokenKinds.ERC1155) {
-    const ownedTokens = await getOwnedTokensOfWallet(
-      provider,
-      walletAddress,
-      tokenAddress
-    );
+    const ownedTokens = await (walletAddress
+      ? getOwnedNftsOfWallet(provider, walletAddress, tokenAddress)
+      : getFirstNftIdCollection(tokenAddress, provider.network.chainId));
     const tokenInfos = await fetchTokenInfosSequentially(
       provider,
       tokenAddress,

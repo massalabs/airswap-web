@@ -1,14 +1,14 @@
 import { useCallback, useEffect } from "react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 import { CollectionTokenInfo, TokenInfo } from "@airswap/utils";
 
 import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import { isCollectionTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { getCollectionTokenInfoByAlchemy } from "../../../features/balances/balancesHelpers";
-import { compareAddresses } from "../../../helpers/string";
 import { addUnknownTokenInfo } from "../../../features/metadata/metadataActions";
-import { useDispatch } from "react-redux";
+import { compareAddresses } from "../../../helpers/string";
 
 export const useCollectionTokenById = (
   collectionToken: CollectionTokenInfo | undefined,
@@ -28,8 +28,13 @@ export const useCollectionTokenById = (
   }, [nft]);
 
   useEffect(() => {
-    console.log(collectionToken, tokenId, chainId, isLoading, isNaN(+tokenId));
-    if (!collectionToken || !tokenId || !chainId || isLoading || isNaN(+tokenId)) {
+    if (
+      !collectionToken ||
+      !tokenId ||
+      !chainId ||
+      isLoading ||
+      isNaN(+tokenId)
+    ) {
       return;
     }
 
@@ -49,7 +54,7 @@ export const useCollectionTokenById = (
       const nft = await getCollectionTokenInfoByAlchemy(
         collectionToken.address,
         tokenId,
-        chainId,
+        chainId
       );
       setNft(nft);
       setIsLoading(false);

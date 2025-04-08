@@ -37,9 +37,15 @@ export const transformOwnedNftsToTokenIdsWithBalance = (
     return acc;
   }, {});
 
-export const transformNftToCollectionTokenInfo = (nft: Nft, chainId: number): CollectionTokenInfo => ({
+export const transformNftToCollectionTokenInfo = (
+  nft: Nft,
+  chainId: number
+): CollectionTokenInfo => ({
   chainId: chainId,
-  kind: nft.contract.tokenType === "ERC721" ? TokenKinds.ERC721 : TokenKinds.ERC1155,
+  kind:
+    nft.contract.tokenType === "ERC721"
+      ? TokenKinds.ERC721
+      : TokenKinds.ERC1155,
   address: nft.contract.address,
   id: nft.tokenId,
   image: nft.image.originalUrl,
@@ -47,6 +53,7 @@ export const transformNftToCollectionTokenInfo = (nft: Nft, chainId: number): Co
   uri: nft.tokenUri ?? "",
 });
 
+// Probably not needed anymore because we use alchemy to get the owned tokens
 const getOwnedErc721TokensByFilteringEvents = async (
   provider: ethers.providers.BaseProvider,
   walletAddress: string,
@@ -100,52 +107,64 @@ export const getCollectionTokenInfoByAlchemy = async (
   const alchemy = getAlchemyClient(chainId);
   const response = await alchemy.nft.getNftMetadata(collectionToken, tokenId);
 
-  if (!response || response.tokenType === "NO_SUPPORTED_NFT_STANDARD" || response.tokenType === "NOT_A_CONTRACT" || response.tokenType === "UNKNOWN") {
+  if (
+    !response ||
+    response.tokenType === "NO_SUPPORTED_NFT_STANDARD" ||
+    response.tokenType === "NOT_A_CONTRACT" ||
+    response.tokenType === "UNKNOWN"
+  ) {
     return undefined;
   }
 
   return transformNftToCollectionTokenInfo(response, chainId);
 };
 
-export const getOwnedTokensOfWallet = async (
+const getNftTokenKind = async (
   provider: ethers.providers.BaseProvider,
-  walletAddress: string,
   collectionToken: string
-): Promise<TokenIdsWithBalance> => {
+): Promise<[boolean, boolean]> => {
   const contract = new ethers.Contract(
     collectionToken,
     erc721AbiContract.abi,
     provider
   );
+  return (
+    contract.supportsInterface(TokenKinds.ERC721) ||
+    contract.supportsInterface(TokenKinds.ERC1155)
+  );
+};
 
-  const [isErc721, isErc1155] = (await Promise.all([
-    contract.supportsInterface(TokenKinds.ERC721),
-    contract.supportsInterface(TokenKinds.ERC1155),
-  ])) as boolean[];
+export const getOwnedNftsOfWallet = async (
+  provider: ethers.providers.BaseProvider,
+  walletAddress: string,
+  collectionToken: string
+): Promise<string[]> => {
+  const [isErc721, isErc1155] = await getNftTokenKind(
+    provider,
+    collectionToken
+  );
 
-  if (isErc721) {
-    try {
-      return await getOwnedErc721TokensByFilteringEvents(
-        provider,
-        walletAddress,
-        collectionToken
-      );
-    } catch {
-      return getOwnedTokensByAlchemy(
-        walletAddress,
-        collectionToken,
-        provider.network.chainId
-      );
-    }
-  }
-
-  if (isErc1155) {
-    return getOwnedTokensByAlchemy(
+  if (isErc721 || isErc1155) {
+    const tokenIds = await getOwnedTokensByAlchemy(
       walletAddress,
       collectionToken,
       provider.network.chainId
     );
+
+    return Object.keys(tokenIds);
   }
 
   throw new Error("Unknown nft interface. Could not fetch token ids.");
+};
+
+export const getFirstNftIdCollection = async (
+  collectionToken: string,
+  chainId: number
+): Promise<string[]> => {
+  const alchemy = getAlchemyClient(chainId);
+  const response = await alchemy.nft.getNftsForContract(collectionToken, {
+    pageSize: 1,
+  });
+
+  return response.nfts.map((nft: Nft) => nft.tokenId);
 };
