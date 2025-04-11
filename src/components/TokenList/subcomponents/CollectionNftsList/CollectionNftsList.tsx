@@ -8,10 +8,12 @@ import { ScrollContainer } from "../ScrollContainer/ScrollContainer";
 import {
   TokensScrollContainer,
   TokensContainer,
+  TokenListLoader,
 } from "./CollectionNftsList.styles";
 
 type CollectionNftsListProps = {
   className?: string;
+  isLoading: boolean;
   tokens: CollectionTokenInfo[];
   tokenQuery: string;
   onSelectToken: (token: CollectionTokenInfo) => void;
@@ -19,6 +21,7 @@ type CollectionNftsListProps = {
 
 export const CollectionNftsList: FC<CollectionNftsListProps> = ({
   className,
+  isLoading,
   tokens,
   tokenQuery,
   onSelectToken,
@@ -42,6 +45,8 @@ export const CollectionNftsList: FC<CollectionNftsListProps> = ({
           ))}
         </TokensContainer>
       </ScrollContainer>
+
+      {isLoading && <TokenListLoader />}
     </TokensScrollContainer>
   );
 };

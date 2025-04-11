@@ -1,12 +1,13 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { CollectionTokenInfo, TokenInfo } from "@airswap/utils";
+import { CollectionTokenInfo, getCollectionTokenInfo } from "@airswap/utils";
+import { Web3Provider } from "@ethersproject/providers";
+import { useWeb3React } from "@web3-react/core";
 
 import { AppTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfo";
 import { isCollectionTokenInfo } from "../../../entities/AppTokenInfo/AppTokenInfoHelpers";
-import { getCollectionTokenInfoByAlchemy } from "../../../features/balances/balancesHelpers";
 import { addUnknownTokenInfo } from "../../../features/metadata/metadataActions";
 import { compareAddresses } from "../../../helpers/string";
 
@@ -17,12 +18,12 @@ export const useCollectionTokenById = (
   allTokens: AppTokenInfo[]
 ): [CollectionTokenInfo | undefined, boolean] => {
   const dispatch = useDispatch();
+  const { provider: library } = useWeb3React<Web3Provider>();
   const [nft, setNft] = useState<CollectionTokenInfo>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (nft) {
-      console.log("nft", nft);
       dispatch(addUnknownTokenInfo([nft]));
     }
   }, [nft]);
@@ -32,6 +33,7 @@ export const useCollectionTokenById = (
       !collectionToken ||
       !tokenId ||
       !chainId ||
+      !library ||
       isLoading ||
       isNaN(+tokenId)
     ) {
@@ -51,10 +53,10 @@ export const useCollectionTokenById = (
 
     const fetchNft = async () => {
       setIsLoading(true);
-      const nft = await getCollectionTokenInfoByAlchemy(
+      const nft = await getCollectionTokenInfo(
+        library,
         collectionToken.address,
-        tokenId,
-        chainId
+        tokenId
       );
       setNft(nft);
       setIsLoading(false);

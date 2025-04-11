@@ -93,7 +93,7 @@ const TokenList = ({
     isQuoteToken
   );
 
-  const [searchedNft, isSearchingNft] = useCollectionTokenById(
+  const [, isLoadingCollectionToken] = useCollectionTokenById(
     selectedNftCollection,
     tokenQuery,
     chainId,
@@ -115,7 +115,10 @@ const TokenList = ({
   const handleAddToken = async (tokenInfo: AppTokenInfo) => {
     if (library && account) {
       const tokenIds = getTokenIdsFromTokenInfo(tokenInfo, allTokens);
-      await dispatch(addActiveTokens(tokenIds));
+
+      if (!isQuoteToken) {
+        await dispatch(addActiveTokens(tokenIds));
+      }
 
       setTokenQuery("");
       onAfterAddActiveToken && onAfterAddActiveToken(tokenIds[0]);
@@ -184,6 +187,7 @@ const TokenList = ({
 
           {selectedNftCollection ? (
             <CollectionNftsList
+              isLoading={isLoadingCollectionToken}
               tokens={activeCollectionTokens}
               tokenQuery={tokenQuery}
               onSelectToken={handleSelectCollectionToken}
