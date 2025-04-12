@@ -40,6 +40,7 @@ import {
   selectActiveTokens,
   selectAllTokenInfo,
   selectProtocolFee,
+  selectQuoteTokens,
 } from "../../../features/metadata/metadataSlice";
 import { approve, deposit } from "../../../features/orders/ordersActions";
 import { selectOrdersStatus } from "../../../features/orders/ordersSlice";
@@ -116,6 +117,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
   const balances = useAppSelector(selectBalances);
   const activeTokens = useAppSelector(selectActiveTokens);
+  const quoteTokens = useAppSelector(selectQuoteTokens);
   const allTokens = useAppSelector(selectAllTokenInfo);
   const userTokens = useAppSelector(selectUserTokens);
   const protocolFee = useAppSelector(selectProtocolFee);
@@ -707,6 +709,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
           isQuoteToken={showTokenSelectModal === "quote"}
           activeTokens={activeTokens}
           allTokens={allTokens}
+          quoteTokens={quoteTokens}
           balances={balances}
           supportedTokenAddresses={[]}
           onSelectToken={handleTokenSelect}

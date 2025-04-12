@@ -4,7 +4,7 @@ import AccountLink from "../../../AccountLink/AccountLink";
 import TokenLogo from "../../../TokenLogo/TokenLogo";
 import { Tooltip } from "../TokenButton/TokenButton.styles";
 
-export const Container = styled.button`
+export const Container = styled.div`
   display: flex;
   gap: 1rem;
   border: 1px solid ${(props) => props.theme.colors.borderGrey};

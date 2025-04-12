@@ -13,16 +13,17 @@ import {
 import { getUniqueSingleDimensionArray } from "../../helpers/array";
 import { compareAddresses } from "../../helpers/string";
 import { Web3State } from "../web3/web3Slice";
+import { getProtocolFee, getUnknownTokens } from "./metadataApi";
 import {
-  getActiveTokensLocalStorageKey,
-  getProtocolFee,
-  getUnknownTokens,
+  getQuoteTokensLocalStorageKey,
   getUnknownTokensLocalStorageKey,
-} from "./metadataApi";
+} from "./metadataHelpers";
+import { getActiveTokensLocalStorageKey } from "./metadataHelpers";
 import {
   setActiveTokens,
   MetadataTokenInfoMap,
   setUnknownTokens,
+  setQuoteTokens,
 } from "./metadataSlice";
 
 const transformTokenInfoArrayToMap = (tokens: TokenInfo[]) => {
@@ -97,6 +98,22 @@ const writeActiveTokensToLocalStorage = (
   localStorage.setItem(localStorageKey, JSON.stringify(activeTokens));
 };
 
+const writeQuoteTokensToLocalStorage = (
+  quoteTokens: string[],
+  web3: Web3State
+) => {
+  if (!web3.account || !web3.chainId) {
+    return;
+  }
+
+  const localStorageKey = getQuoteTokensLocalStorageKey(
+    web3.account,
+    web3.chainId
+  );
+
+  localStorage.setItem(localStorageKey, JSON.stringify(quoteTokens));
+};
+
 const writeUnknownTokensToLocalStorage = (
   unknownTokens: MetadataTokenInfoMap,
   web3: Web3State
@@ -110,43 +127,61 @@ const writeUnknownTokensToLocalStorage = (
   localStorage.setItem(localStorageKey, JSON.stringify(unknownTokens));
 };
 
-export const addActiveTokens = createAsyncThunk<
-  void,
-  string[],
-  {
-    dispatch: AppDispatch;
-    state: RootState;
-  }
->("metadata/addActiveTokens", async (tokens, { dispatch, getState }) => {
-  const { metadata, web3 } = getState();
+export const addActiveTokens =
+  (tokens: string[]) =>
+  (dispatch: AppDispatch, getState: () => RootState): void => {
+    const { metadata, web3 } = getState();
 
-  const newTokens = tokens.map((token) => token.toLowerCase());
-  const activeTokens = [...metadata.activeTokens, ...newTokens].filter(
-    getUniqueSingleDimensionArray
-  );
+    const newTokens = tokens.map((token) => token.toLowerCase());
+    const activeTokens = [...metadata.activeTokens, ...newTokens].filter(
+      getUniqueSingleDimensionArray
+    );
 
-  writeActiveTokensToLocalStorage(activeTokens, web3);
-  dispatch(setActiveTokens(activeTokens));
-});
+    writeActiveTokensToLocalStorage(activeTokens, web3);
+    dispatch(setActiveTokens(activeTokens));
+  };
 
-export const removeActiveTokens = createAsyncThunk<
-  void,
-  string[],
-  {
-    dispatch: AppDispatch;
-    state: RootState;
-  }
->("metadata/removeActiveTokens", async (tokens, { dispatch, getState }) => {
-  const { metadata, web3 } = getState();
+export const removeActiveTokens =
+  (tokens: string[]) =>
+  (dispatch: AppDispatch, getState: () => RootState): void => {
+    const { metadata, web3 } = getState();
 
-  const activeTokens = metadata.activeTokens.filter(
-    (activeToken) =>
-      !tokens.some((token) => compareAddresses(activeToken, token))
-  );
+    const activeTokens = metadata.activeTokens.filter(
+      (activeToken) =>
+        !tokens.some((token) => compareAddresses(activeToken, token))
+    );
 
-  writeActiveTokensToLocalStorage(activeTokens, web3);
-  dispatch(setActiveTokens(activeTokens));
-});
+    writeActiveTokensToLocalStorage(activeTokens, web3);
+    dispatch(setActiveTokens(activeTokens));
+  };
+
+export const addQuoteTokens =
+  (tokens: string[]) =>
+  (dispatch: AppDispatch, getState: () => RootState): void => {
+    const { metadata, web3 } = getState();
+
+    const newTokens = tokens.map((token) => token.toLowerCase());
+    const quoteTokens = [...metadata.quoteTokens, ...newTokens].filter(
+      getUniqueSingleDimensionArray
+    );
+
+    writeQuoteTokensToLocalStorage(quoteTokens, web3);
+    dispatch(setQuoteTokens(quoteTokens));
+  };
+
+export const removeQuoteTokens =
+  (tokens: string[]) =>
+  (dispatch: AppDispatch, getState: () => RootState): void => {
+    const { metadata, web3 } = getState();
+
+    const quoteTokens = metadata.quoteTokens.filter(
+      (quoteToken) =>
+        !tokens.some((token) => compareAddresses(quoteToken, token))
+    );
+
+    writeQuoteTokensToLocalStorage(quoteTokens, web3);
+    dispatch(setQuoteTokens(quoteTokens));
+  };
 
 export const addUnknownTokenInfo = createAsyncThunk<
   void,

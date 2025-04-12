@@ -14,7 +14,9 @@ import {
 import { BalancesState } from "../../features/balances/balancesSlice";
 import {
   addActiveTokens,
+  addQuoteTokens,
   removeActiveTokens,
+  removeQuoteTokens,
 } from "../../features/metadata/metadataActions";
 import { compareAddresses } from "../../helpers/string";
 import { OverlayActionButton } from "../ModalOverlay/ModalOverlay.styles";
@@ -48,6 +50,10 @@ export type TokenListProps = {
    */
   activeTokens: AppTokenInfo[];
   /**
+   * All quote tokens.
+   */
+  quoteTokens?: AppTokenInfo[];
+  /**
    * Supported tokens according to registry
    */
   supportedTokenAddresses: string[];
@@ -70,6 +76,7 @@ const TokenList = ({
   balances,
   allTokens,
   activeTokens = [],
+  quoteTokens = [],
   supportedTokenAddresses,
   onAfterAddActiveToken,
   onAfterRemoveActiveToken,
@@ -116,8 +123,10 @@ const TokenList = ({
     if (library && account) {
       const tokenIds = getTokenIdsFromTokenInfo(tokenInfo, allTokens);
 
-      if (!isQuoteToken) {
-        await dispatch(addActiveTokens(tokenIds));
+      if (isQuoteToken) {
+        dispatch(addQuoteTokens(tokenIds));
+      } else {
+        dispatch(addActiveTokens(tokenIds));
       }
 
       setTokenQuery("");
@@ -128,6 +137,8 @@ const TokenList = ({
   const handleRemoveActiveToken = (tokenInfo: AppTokenInfo) => {
     if (library) {
       const tokenIds = getTokenIdsFromTokenInfo(tokenInfo, allTokens);
+
+      dispatch(removeQuoteTokens(tokenIds));
       dispatch(removeActiveTokens(tokenIds));
 
       onAfterRemoveActiveToken && onAfterRemoveActiveToken(tokenIds[0]);
@@ -151,6 +162,8 @@ const TokenList = ({
   };
 
   const handleActionButtonClick = () => {
+    setTokenQuery("");
+
     if (selectedNftCollection) {
       setSelectedNftCollection(undefined);
 
@@ -196,7 +209,10 @@ const TokenList = ({
             <TokensAndCollectionsList
               editMode={editMode}
               isScrapeTokensLoading={isScrapeTokensLoading}
-              activeTokens={activeTokens}
+              activeTokens={[
+                ...activeTokens,
+                ...(isQuoteToken ? quoteTokens : []),
+              ]}
               allTokens={allTokens}
               balances={balances}
               scrapedTokens={scrapedTokens}

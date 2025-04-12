@@ -25,7 +25,10 @@ export interface MetadataState {
   knownTokens: MetadataTokenInfoMap;
   unknownTokens: MetadataTokenInfoMap;
   protocolFee: number;
+  // Active tokens are used on the base side of the quote
   activeTokens: string[];
+  // Quote tokens are used on the quote side of the quote
+  quoteTokens: string[];
 }
 
 const initialState: MetadataState = {
@@ -35,6 +38,7 @@ const initialState: MetadataState = {
   unknownTokens: {},
   protocolFee: 0,
   activeTokens: [],
+  quoteTokens: [],
 };
 
 export const metadataSlice = createSlice({
@@ -52,6 +56,12 @@ export const metadataSlice = createSlice({
       return {
         ...state,
         unknownTokens: action.payload,
+      };
+    },
+    setQuoteTokens: (state, action: PayloadAction<string[]>) => {
+      return {
+        ...state,
+        quoteTokens: action.payload.map((token) => token.toLowerCase()),
       };
     },
   },
@@ -116,10 +126,13 @@ export const metadataSlice = createSlice({
   },
 });
 
-export const { setActiveTokens, setUnknownTokens } = metadataSlice.actions;
+export const { setActiveTokens, setUnknownTokens, setQuoteTokens } =
+  metadataSlice.actions;
 
 export const selectActiveTokenAddresses = (state: RootState) =>
   state.metadata.activeTokens;
+export const selectQuoteTokenAddresses = (state: RootState) =>
+  state.metadata.quoteTokens;
 export const selectAllTokens = (state: RootState) => [
   ...Object.values(state.metadata.knownTokens),
   ...Object.values(state.metadata.unknownTokens),
@@ -135,6 +148,14 @@ export const selectActiveTokens = createSelector(
   (activeTokenAddresses, allTokenInfo) => {
     return Object.values(allTokenInfo).filter((tokenInfo) =>
       activeTokenAddresses.includes(getTokenId(tokenInfo))
+    );
+  }
+);
+export const selectQuoteTokens = createSelector(
+  [selectQuoteTokenAddresses, selectAllTokenInfo],
+  (quoteTokenAddresses, allTokenInfo) => {
+    return Object.values(allTokenInfo).filter((tokenInfo) =>
+      quoteTokenAddresses.includes(getTokenId(tokenInfo))
     );
   }
 );

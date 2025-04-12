@@ -52,14 +52,19 @@ export const useCollectionTokenById = (
     }
 
     const fetchNft = async () => {
-      setIsLoading(true);
-      const nft = await getCollectionTokenInfo(
-        library,
-        collectionToken.address,
-        tokenId
-      );
-      setNft(nft);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const nft = await getCollectionTokenInfo(
+          library,
+          collectionToken.address,
+          tokenId
+        );
+        setNft(nft);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
     };
     fetchNft();
   }, [collectionToken, tokenId, chainId]);
