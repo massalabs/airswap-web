@@ -1,9 +1,7 @@
 import {
-  decompressFullOrderERC20,
+  decompressFullOrder,
   FullOrder,
-  FullOrderERC20,
   isValidFullOrder,
-  isValidFullOrderERC20,
 } from "@airswap/utils";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -35,7 +33,7 @@ export const decompressAndSetActiveOrder = createAsyncThunk(
 
     try {
       // TODO: Replace with decompressFullOrder
-      const order = decompressFullOrderERC20(
+      const order = decompressFullOrder(
         params.compressedOrder
       ) as unknown as FullOrder;
 

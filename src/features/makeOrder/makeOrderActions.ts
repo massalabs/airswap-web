@@ -7,6 +7,7 @@ import {
   UnsignedOrderERC20,
   TokenInfo,
   FullOrder,
+  TokenKinds,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 
@@ -14,9 +15,11 @@ import { ethers } from "ethers";
 
 import { AppDispatch } from "../../app/store";
 import { notifyRejectedByUserError } from "../../components/Toasts/ToastController";
+import { AppTokenInfo } from "../../entities/AppTokenInfo/AppTokenInfo";
 import {
   isCollectionTokenInfo,
   getTokenKind,
+  getTokenDecimals,
 } from "../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import { transformToDelegateRule } from "../../entities/DelegateRule/DelegateRuleTransformers";
 import { SubmittedSetRuleTransaction } from "../../entities/SubmittedTransaction/SubmittedTransaction";
@@ -44,8 +47,8 @@ type CreateOrderParams = {
   activeIndexers: string[] | null;
   chainId: number;
   library: Web3Provider;
-  signerTokenInfo: TokenInfo;
-  senderTokenInfo: TokenInfo;
+  signerTokenInfo: AppTokenInfo;
+  senderTokenInfo: AppTokenInfo;
   shouldSendToIndexers: boolean;
 } & UnsignedOrderERC20;
 
@@ -53,6 +56,13 @@ const createDelegateRule = async (
   params: CreateOrderParams,
   dispatch: AppDispatch
 ): Promise<SubmittedSetRuleTransaction | undefined> => {
+  if (
+    isCollectionTokenInfo(params.signerTokenInfo) ||
+    isCollectionTokenInfo(params.senderTokenInfo)
+  ) {
+    throw new Error("Delegate rules are not supported for nft's");
+  }
+
   const senderAmount = toAtomicString(
     params.senderAmount,
     params.senderTokenInfo.decimals
@@ -123,23 +133,23 @@ const createOtcOrder = async (
   params: CreateOrderParams,
   dispatch: AppDispatch
 ): Promise<undefined> => {
-  const signerAmount = toAtomicString(
-    params.signerAmount,
-    params.signerTokenInfo.decimals
-  );
+  const signerTokenDecimals = getTokenDecimals(params.signerTokenInfo);
+  const senderTokenDecimals = getTokenDecimals(params.senderTokenInfo);
 
-  const senderAmount = toAtomicString(
-    params.senderAmount,
-    params.senderTokenInfo.decimals
-  );
+  const signerTokenKind = getTokenKind(params.signerTokenInfo);
+  const senderTokenKind = getTokenKind(params.senderTokenInfo);
+
+  const signerAmount = toAtomicString(params.signerAmount, signerTokenDecimals);
+
+  const senderAmount = toAtomicString(params.senderAmount, senderTokenDecimals);
 
   const signerTokenId = isCollectionTokenInfo(params.signerTokenInfo)
     ? params.signerTokenInfo.id
-    : undefined;
+    : "0";
 
   const senderTokenId = isCollectionTokenInfo(params.senderTokenInfo)
     ? params.senderTokenInfo.id
-    : undefined;
+    : "0";
 
   const unsignedOrder = createOrder({
     expiry: params.expiry,
@@ -150,16 +160,18 @@ const createOtcOrder = async (
       token: params.signerToken,
       amount: signerAmount,
       id: signerTokenId,
-      type: getTokenKind(params.signerTokenInfo),
+      type: signerTokenKind,
     },
     sender: {
       wallet: params.senderWallet,
       token: params.senderToken,
       amount: senderAmount,
       id: senderTokenId,
-      type: getTokenKind(params.senderTokenInfo),
+      type: senderTokenKind,
     },
   });
+
+  console.log("unsignedOrder", unsignedOrder);
 
   dispatch(setStatus("signing"));
 
@@ -169,6 +181,8 @@ const createOtcOrder = async (
     Swap.getAddress(params.chainId) || "",
     params.chainId
   );
+
+  console.log("signature", signature);
 
   if (isAppError(signature)) {
     if (signature.type === AppErrorType.rejectedByUser) {

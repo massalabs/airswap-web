@@ -125,15 +125,14 @@ const LimitOrderDetailWidget: FC<LimitOrderDetailWidgetProps> = ({
   const [showCancelReview, toggleShowCancelReview] = useToggle(false);
 
   const orderStatus = useLimitOrderStatus(delegateRule);
-  const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
-    delegateRule.senderToken,
-    delegateRule.chainId
-  );
-
-  const [signerToken, isSignerTokenLoading] = useTakerTokenInfo(
-    delegateRule.signerToken,
-    delegateRule.chainId
-  );
+  const [senderToken, isSenderTokenLoading] = useTakerTokenInfo({
+    address: delegateRule.senderToken,
+    chainId: delegateRule.chainId,
+  });
+  const [signerToken, isSignerTokenLoading] = useTakerTokenInfo({
+    address: delegateRule.signerToken,
+    chainId: delegateRule.chainId,
+  });
   const senderTokenDecimals = senderToken
     ? getTokenDecimals(senderToken)
     : undefined;

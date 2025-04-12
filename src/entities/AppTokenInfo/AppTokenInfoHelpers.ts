@@ -28,10 +28,27 @@ export const isNftTokenId = (tokenId: string): boolean => {
   return isAddress(address) && !!id;
 };
 
+export const getTokenIdentifier = (address: string, id?: string): string => {
+  return id ? `${address}-${id}` : address;
+};
+
+export const getTokenIdentifierWithKind = (
+  address: string,
+  id?: string,
+  kind?: TokenKinds
+): string => {
+  return getTokenIdentifier(
+    address,
+    kind !== TokenKinds.ERC20 ? id : undefined
+  );
+};
+
+// token id is the identifier for the token in the store
 export const getTokenId = (tokenInfo: AppTokenInfo): string => {
-  return isCollectionTokenInfo(tokenInfo)
-    ? `${tokenInfo.address}-${tokenInfo.id}`
-    : tokenInfo.address;
+  return getTokenIdentifier(
+    tokenInfo.address,
+    isCollectionTokenInfo(tokenInfo) ? tokenInfo.id : undefined
+  );
 };
 
 export const getTokenDecimals = (tokenInfo: AppTokenInfo): number => {
@@ -61,6 +78,7 @@ export const getCollectionTokenName = (
 ): string => {
   return (tokenInfo.name?.split("#")[0] || "").trim();
 };
+
 export const getTokenBalance = (
   tokenInfo: AppTokenInfo,
   balances: BalancesState
@@ -78,4 +96,18 @@ export const getTokenBalance = (
   }, new BigNumber(0));
 
   return balance.toString();
+};
+
+export const findTokenByAddressAndId = (
+  tokens: AppTokenInfo[],
+  address: string,
+  id?: string
+) => {
+  return tokens.find((token) => {
+    if (!id || isTokenInfo(token)) {
+      return token.address === address;
+    }
+
+    return token.address === address && token.id === id;
+  });
 };

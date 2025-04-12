@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
-import { TokenInfo } from "@airswap/utils";
+import { TokenKinds } from "@airswap/utils";
 
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks";
 import { AppTokenInfo } from "../../../../entities/AppTokenInfo/AppTokenInfo";
+import { getTokenIdentifierWithKind } from "../../../../entities/AppTokenInfo/AppTokenInfoHelpers";
 import {
   addActiveTokens,
+  addQuoteTokens,
   fetchUnkownTokens,
 } from "../../../../features/metadata/metadataActions";
 import {
@@ -19,10 +21,21 @@ import useJsonRpcProvider from "../../../../hooks/useJsonRpcProvider";
 // OTC Taker version of useTokenInfo. Look at chainId of the active FullOrderERC20 instead
 // of active wallet chainId. This way we don't need to connect a wallet to show order tokens.
 
-const useTakerTokenInfo = (
-  address: string | null,
-  chainId: number
-): [AppTokenInfo | null, boolean] => {
+type UseTakerTokenInfoProps = {
+  address: string | null;
+  chainId: number;
+  tokenId?: string;
+  tokenKind?: TokenKinds;
+  isQuoteToken?: boolean;
+};
+
+const useTakerTokenInfo = ({
+  address,
+  chainId,
+  tokenId,
+  tokenKind = TokenKinds.ERC20,
+  isQuoteToken = false,
+}: UseTakerTokenInfoProps): [AppTokenInfo | null, boolean] => {
   const dispatch = useAppDispatch();
   // Using JsonRpcProvider for unconnected wallets or for wallets connected to a different chain
   const library = useJsonRpcProvider(chainId);
@@ -36,11 +49,11 @@ const useTakerTokenInfo = (
   useEffect(() => {
     if (
       address &&
-      allTokens.find((token) => token.address === address) &&
+      findEthOrTokenByAddress(address, allTokens, chainId, tokenId) &&
       !activeTokenAddresses.includes(address)
     ) {
-      // Add as active token so balance and token info will be fetched
-      dispatch(addActiveTokens([address]));
+      const id = getTokenIdentifierWithKind(address, tokenId, tokenKind);
+      dispatch(isQuoteToken ? addQuoteTokens([id]) : addActiveTokens([id]));
     }
   }, [address, allTokens]);
 
@@ -49,12 +62,19 @@ const useTakerTokenInfo = (
       return;
     }
 
-    const tokenFromStore = findEthOrTokenByAddress(address, allTokens, chainId);
+    const tokenFromStore = findEthOrTokenByAddress(
+      address,
+      allTokens,
+      chainId,
+      tokenId
+    );
 
     if (tokenFromStore) {
       setToken(tokenFromStore);
     } else {
-      dispatch(addActiveTokens([address]));
+      const id = getTokenIdentifierWithKind(address, tokenId, tokenKind);
+      dispatch(isQuoteToken ? addQuoteTokens([id]) : addActiveTokens([id]));
+      // Add nft to fetchUnkownTokens
       dispatch(fetchUnkownTokens({ provider: library, tokens: [address] }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

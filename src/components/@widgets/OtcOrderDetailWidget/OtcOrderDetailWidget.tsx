@@ -110,14 +110,17 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
     OtcOrderDetailWidgetState.overview
   );
   const [orderStatus, isOrderStatusLoading] = useOtcOrderStatus(order);
-  const [senderToken, isSenderTokenLoading] = useTakerTokenInfo(
-    order.sender.token,
-    order.chainId
-  );
-  const [signerToken, isSignerTokenLoading] = useTakerTokenInfo(
-    order.signer.token,
-    order.chainId
-  );
+  const [senderToken, isSenderTokenLoading] = useTakerTokenInfo({
+    address: order.sender.token,
+    chainId: order.chainId,
+    tokenId: order.sender.id,
+  });
+  const [signerToken, isSignerTokenLoading] = useTakerTokenInfo({
+    address: order.signer.token,
+    chainId: order.chainId,
+    tokenId: order.signer.id,
+    isQuoteToken: true,
+  });
   const isBalanceLoading = useBalanceLoading();
   const senderTokenDecimals = senderToken
     ? getTokenDecimals(senderToken)
@@ -268,6 +271,7 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
   };
 
   const handleActionButtonClick = async (action: ButtonActions) => {
+    console.log("handleActionButtonClick", action);
     if (action === ButtonActions.connectWallet) {
       setShowWalletList(true);
     }
@@ -296,7 +300,10 @@ const OtcOrderDetailWidget: FC<OtcOrderDetailWidgetProps> = ({ order }) => {
       takeOrder();
     }
 
-    if (action === ButtonActions.back) {
+    if (
+      action === ButtonActions.back ||
+      action === ButtonActions.makeNewOrder
+    ) {
       history.push(routes.makeOtcOrder());
     }
   };

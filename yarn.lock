@@ -28,10 +28,10 @@
   dependencies:
     get-parameter-names "^0.3.0"
 
-"@airswap/libraries@5.0.10":
-  version "5.0.10"
-  resolved "https://registry.yarnpkg.com/@airswap/libraries/-/libraries-5.0.10.tgz#a1abffbabd869482d8f0ec2611c209c8aec2b9fe"
-  integrity sha512-dZFEF2LgsaOVZzMDNDIK8bUKfUluaiIGCWgIWwimJBu9q8Oycfh0HTtytZpG+oZzPfqTPhKpc1mEWEgot6yttA==
+"@airswap/libraries@5.0.11":
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/@airswap/libraries/-/libraries-5.0.11.tgz#190173cc32aa2e5c3496af4e5e5e8f2d01449afc"
+  integrity sha512-L9xWLSpRE5oV5DpyA9kr5oktrbUd6RqgjghBMmufM+QtuoOtxWABlS69OEPj90GtY1IAV/Hd6i8BN4hMxgRwlQ==
   dependencies:
     "@airswap/batch-call" "5.0.1"
     "@airswap/delegate" "5.0.3-beta.0"
@@ -41,7 +41,7 @@
     "@airswap/staking" "5.0.1"
     "@airswap/swap" "5.0.1"
     "@airswap/swap-erc20" "5.0.1"
-    "@airswap/utils" "5.1.0"
+    "@airswap/utils" "5.2.0"
     "@airswap/wrapper" "5.0.1"
     browser-or-node "^2.1.1"
     ethers "^5.7.2"
@@ -85,10 +85,10 @@
   dependencies:
     ethers "^5.7.2"
 
-"@airswap/utils@5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@airswap/utils/-/utils-5.1.0.tgz#43a1196211eaa9975e42070738aca7b030b67389"
-  integrity sha512-VaVAUen4P5zdlTL2AQoTm1UWkSZ3tXZsYz4ubp1nGUN/0Dv8CQP0HsFbHHGHT8vLeIwHb+87c6SOpNm+MNwCAQ==
+"@airswap/utils@5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@airswap/utils/-/utils-5.2.0.tgz#91de024f45d0d4f6a5a984d9daadfa7ff3992856"
+  integrity sha512-APORFguraOaONT7sYXktUgDU6freB1bo7MJUyQa58IuRuBJRe30V4/AwM8fbX/LydraNniGo9ZZpvYKNUFAIOQ==
   dependencies:
     "@metamask/eth-sig-util" "^5.0.2"
     "@uniswap/token-lists" "^1.0.0-beta.24"

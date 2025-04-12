@@ -4,10 +4,10 @@ import { useHistory } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 
 import {
-  compressFullOrderERC20,
   ADDRESS_ZERO,
   TokenInfo,
   TokenKinds,
+  compressFullOrder,
 } from "@airswap/utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { useToggle } from "@react-hookz/web";
@@ -256,9 +256,7 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
 
   useEffect(() => {
     if (lastUserOrder) {
-      // TODO: Support FullOrder
-      // @ts-ignore
-      const compressedOrder = compressFullOrderERC20(lastUserOrder);
+      const compressedOrder = compressFullOrder(lastUserOrder);
       dispatch(clearLastUserOrder());
       history.push(routes.otcOrder(compressedOrder));
 
@@ -384,7 +382,6 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         ? getWethAddress(chainId!)
         : takerTokenAddress;
 
-    // TODO: Make createOrderAction compatible with CollectionTokenInfo
     const transaction = await dispatch(
       createOtcOrDelegateOrder({
         isLimitOrder,
@@ -392,13 +389,13 @@ const MakeWidget: FC<MakeWidgetProps> = ({ isLimitOrder = false }) => {
         expiry: Math.floor(expiryDate / 1000).toString(),
         signerWallet: account!,
         signerToken,
-        signerTokenInfo: makerTokenInfo! as TokenInfo,
+        signerTokenInfo: makerTokenInfo!,
         signerAmount: makerAmount,
         protocolFee: protocolFee.toString(),
         senderWallet:
           orderType === OrderType.private ? takerAddress! : ADDRESS_ZERO,
         senderToken,
-        senderTokenInfo: takerTokenInfo! as TokenInfo,
+        senderTokenInfo: takerTokenInfo!,
         senderAmount: takerAmount,
         chainId: chainId!,
         library: library!,
