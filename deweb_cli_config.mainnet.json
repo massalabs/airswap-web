@@ -1,0 +1,12 @@
+{
+  "node_url": "https://mainnet.massa.net/api/v2",
+  "metadatas": {
+    "TITLE": "Airswap hosted on Massa",
+    "DESCRIPTION": "Airswap Dex.",
+    "KEYWORD1": "Airswap",
+    "KEYWORD2": "dex",
+    "KEYWORD3": "Massa",
+    "KEYWORD4": "DeWeb",
+    "KEYWORD5": "censorproof"
+  }
+}
