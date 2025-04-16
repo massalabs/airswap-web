@@ -8,6 +8,8 @@
     "KEYWORD2": "dex",
     "KEYWORD3": "Massa",
     "KEYWORD4": "DeWeb",
-    "KEYWORD5": "censorproof"
+    "KEYWORD5": "censorproof",
+    "http-header:Access-Control-Allow-Origin": "*",
+    "http-header:Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
   }
 }
